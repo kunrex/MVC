@@ -1,0 +1,13 @@
+APP_PORT=3000
+
+JWT_SECRET=superhadstringwoahdamn
+
+SALT_ROUNDS=10
+
+DB_HOST=localhost
+DB_USER=user
+DB_PASSWORD=password
+DB_NAME=database
+
+DB_MAX_IDLE_CONNECTIONS=5
+DB_MAX_OPEN_CONNECTIONS=25
