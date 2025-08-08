@@ -208,7 +208,7 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 }
 
 func GetAllOrders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.completed FROM Orders
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) FROM Orders
                                                  INNER JOIN Users ON Users.id = Orders.createdBy;`)
 
 	if err != nil {
@@ -219,10 +219,10 @@ func GetAllOrders() (string, error) {
 	for rows.Next() {
 		var order Order
 		_ = rows.Scan(
-			&order.Id,
-			&order.CreatedOn,
 			&order.AuthorName,
-			&order.Completed)
+			&order.Id,
+			&order.Completed,
+			&order.CreatedOn)
 
 		orders = append(orders, order)
 	}
@@ -236,14 +236,10 @@ func GetAllOrders() (string, error) {
 }
 
 func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) AS createdOn, Orders.completed, Users.name As authorName FROM Orders
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.orderId = Orders.Id 
     										INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE OrderRelations.userId = ?;`, userId)
-
-	cols, _ := rows.Columns()
-	fmt.Println(cols)
-
 	if err != nil {
 		return "", err
 	}
@@ -252,10 +248,10 @@ func GetUserOrders(userId int64) (string, error) {
 	for rows.Next() {
 		var order Order
 		_ = rows.Scan(
-			&order.Id,
-			&order.CreatedOn,
 			&order.AuthorName,
-			&order.Completed)
+			&order.Id,
+			&order.Completed,
+			&order.CreatedOn)
 
 		orders = append(orders, order)
 	}
