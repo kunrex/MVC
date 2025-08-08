@@ -236,10 +236,13 @@ func GetAllOrders() (string, error) {
 }
 
 func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.completed FROM Orders
-                                            INNER JOIN OrderRelations ON OrderRelations.userId = Orders.Id 
-                                            INNER JOIN Users ON Users.id = Orders.createdBy
+	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) AS createdOn, Orders.completed, Users.name As authorName FROM Orders
+                                            INNER JOIN OrderRelations ON OrderRelations.orderId = Orders.Id 
+    										INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE OrderRelations.userId = ?;`, userId)
+
+	cols, _ := rows.Columns()
+	fmt.Println(cols)
 
 	if err != nil {
 		return "", err
