@@ -9,8 +9,8 @@ import (
 var TagCacheString string
 var MenuCacheString string
 
-var tagsCache map[string]int64
-var foodsCache map[string]int64
+var tagsCache = make(map[string]int64)
+var foodsCache = make(map[string]int64)
 
 type foodCache struct {
 	ID          int64     `json:"id"`
@@ -23,7 +23,7 @@ type foodCache struct {
 	Tags        string    `json:"tags"`
 }
 
-func reloadTagCache() {
+func ReloadTagCache() {
 	rows, err := database.DB.Query("SELECT name FROM FoodTags;")
 	if err != nil {
 		return
@@ -88,7 +88,7 @@ func ReloadMenuCache() {
 
 func AddTagCache(id int64, tag string) {
 	tagsCache[tag] = id
-	reloadTagCache()
+	ReloadTagCache()
 }
 
 func AddFoodCache(id int64, name string) {

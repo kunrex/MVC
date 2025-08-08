@@ -14,7 +14,7 @@ type Order struct {
 	Id         int64     `json:"id"`
 	CreatedOn  time.Time `json:"createdOn"`
 	AuthorName string    `json:"authorName"`
-	Status     string    `json:"status"`
+	Completed  bool      `json:"completed"`
 }
 
 type Suborder struct {
@@ -59,7 +59,7 @@ func TryFindNonPayedOrder(userId int64) (int64, error) {
 func GetOrderAuthor(orderId int64) (string, error) {
 	var authorName string
 	err := database.DB.QueryRow(`SELECT Users.name FROM Orders
-                                            INNER JOIN Users ON Users.orderId = Orders.createdBy
+                                            INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE Orders.id = ?;`, orderId).Scan(&authorName)
 	if err != nil {
 		return "", err
@@ -69,7 +69,8 @@ func GetOrderAuthor(orderId int64) (string, error) {
 }
 
 func AddOrderUserRelation(userId int64, orderId int64) error {
-	err := database.DB.QueryRow("SELECT 1 FROM OrderRelations WHERE userId = ? AND orderId = ?;", userId, orderId).Scan()
+	var temp int
+	err := database.DB.QueryRow("SELECT 1 FROM OrderRelations WHERE userId = ? AND orderId = ?;", userId, orderId).Scan(&temp)
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err = database.DB.Exec("INSERT INTO OrderRelations (userId, orderId) VALUES (?, ?);", userId, orderId)
 	}
@@ -135,7 +136,7 @@ func UpdateSuborder(suborder SuborderExtra, orderId int64) error {
 }
 
 func DeleteSuborder(suborderId int64, orderId int64) error {
-	_, err := database.DB.Exec(`DELETE FROM Suborders WHERE suborderId = ? AND orderId = ?;`, suborderId, orderId)
+	_, err := database.DB.Exec(`DELETE FROM Suborders WHERE id = ? AND orderId = ?;`, suborderId, orderId)
 	return err
 }
 
@@ -207,7 +208,7 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 }
 
 func GetAllOrders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.status FROM Orders
+	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.completed FROM Orders
                                                  INNER JOIN Users ON Users.id = Orders.createdBy;`)
 
 	if err != nil {
@@ -221,7 +222,7 @@ func GetAllOrders() (string, error) {
 			&order.Id,
 			&order.CreatedOn,
 			&order.AuthorName,
-			&order.Status)
+			&order.Completed)
 
 		orders = append(orders, order)
 	}
@@ -235,7 +236,7 @@ func GetAllOrders() (string, error) {
 }
 
 func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.status FROM Orders
+	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.completed FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.userId = Orders.Id 
                                             INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE OrderRelations.userId = ?;`, userId)
@@ -251,7 +252,7 @@ func GetUserOrders(userId int64) (string, error) {
 			&order.Id,
 			&order.CreatedOn,
 			&order.AuthorName,
-			&order.Status)
+			&order.Completed)
 
 		orders = append(orders, order)
 	}

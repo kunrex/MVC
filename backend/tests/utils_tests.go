@@ -41,13 +41,13 @@ func ByCryptTest(t *testing.T) {
 	LoadEnvTest(t)
 
 	password := "helloworld"
-	hash, err := utils.Hash(password)
+	hash, err := utils.HashPassword(password)
 	if err != nil {
 		t.Error("failed to hash password")
 		return
 	}
 
-	if err := utils.CompareHash(password, hash); err != nil {
+	if err := utils.ComparePasswordHash(password, hash); err != nil {
 		t.Errorf("hash compare failed, error: %v", err.Error())
 		return
 	}

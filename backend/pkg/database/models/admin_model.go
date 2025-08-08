@@ -10,7 +10,7 @@ import (
 func GetUserIdAuthorisationEmail(userEmail string) (int64, int, error) {
 	var id int64
 	var authorisation int
-	err := database.DB.QueryRow("SELECT id, auth FROM users WHERE email = ?;", userEmail).Scan(&id, &authorisation)
+	err := database.DB.QueryRow("SELECT id, auth FROM Users WHERE email = ?;", userEmail).Scan(&id, &authorisation)
 
 	return id, authorisation, err
 }

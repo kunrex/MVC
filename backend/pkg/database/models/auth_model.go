@@ -5,12 +5,13 @@ import (
 )
 
 func UserExistsEmail(email string) error {
-	err := database.DB.QueryRow("SELECT 1 FROM Users WHERE email = ?;", email).Scan()
+	var temp string
+	err := database.DB.QueryRow("SELECT 1 FROM Users WHERE email = ?;", email).Scan(&temp)
 	return err
 }
 
 func CreateUser(name string, email string, passwordHash string) (int64, error) {
-	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash, refreshHash) Values (?, ?, ?, ?);", name, email, 1, passwordHash, nil)
+	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash, refreshHash) Values (?, ?, ?, ?, ?);", name, email, 1, passwordHash, nil)
 	if err != nil {
 		return 0, err
 	}

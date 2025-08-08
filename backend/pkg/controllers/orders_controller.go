@@ -148,7 +148,7 @@ func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func IncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
+func GetIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
 	jsonData, err := models.GetIncompleteSuborders()
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)

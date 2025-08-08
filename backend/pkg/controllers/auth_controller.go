@@ -3,6 +3,8 @@ package controllers
 import (
 	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -44,12 +46,12 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.UserExistsEmail(email); err != nil {
+	if err := models.UserExistsEmail(email); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "user already exists", w)
 		return
 	}
 
-	hashedPasswordBytes, err := utils.Hash(password)
+	hashedPasswordBytes, err := utils.HashPassword(password)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to hash password", w)
 		return
@@ -75,13 +77,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedRefreshTokenBytes, err := utils.Hash(refreshToken)
-	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "Failed to hash refresh token", w)
-		return
-	}
-
-	if err = models.SetRefreshHash(insertId, string(hashedRefreshTokenBytes)); err != nil {
+	if err = models.SetRefreshHash(insertId, utils.HashToken(refreshToken)); err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
@@ -119,7 +115,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.CompareHash(password, []byte(passwordHash))
+	err = utils.ComparePasswordHash(password, []byte(passwordHash))
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "email or password was incorrect", w)
 		return
@@ -131,13 +127,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedRefreshTokenBytes, err := utils.Hash(refreshToken)
-	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to hash refresh token", w)
-		return
-	}
-
-	if err = models.SetRefreshHash(id, string(hashedRefreshTokenBytes)); err != nil {
+	if err = models.SetRefreshHash(id, utils.HashToken(refreshToken)); err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to update refresh token", w)
 		return
 	}

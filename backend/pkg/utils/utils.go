@@ -28,6 +28,7 @@ func LoadEnv() bool {
 func AddJSONHeaders(handler http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		handler.ServeHTTP(w, r)
 	})
 }
 

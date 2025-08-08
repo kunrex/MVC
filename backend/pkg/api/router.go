@@ -8,40 +8,40 @@ import (
 )
 
 func initAuthRoutes(r *mux.Router) {
-	r.HandleFunc("/auth", utils.AddJSONHeaders(middleware.AuthUserMiddleware))
-	r.HandleFunc("/auth/refresh", utils.AddJSONHeaders(controllers.AuthRefreshHandler))
+	r.HandleFunc("/auth", utils.AddJSONHeaders(middleware.AuthUserMiddleware)).Methods("POST")
+	r.HandleFunc("/auth/refresh", utils.AddJSONHeaders(controllers.AuthRefreshHandler)).Methods("POST")
 }
 
 func initUserRoutes(r *mux.Router) {
-	r.HandleFunc("/user/signOut", utils.AddJSONHeaders(utils.Authorise(controllers.SignOutUserHandler)))
-	r.HandleFunc("/user/authorisation/", utils.AddJSONHeaders(utils.Authorise(controllers.GetAuthorisationHandler)))
+	r.HandleFunc("/user/signOut", utils.AddJSONHeaders(utils.Authorise(controllers.SignOutUserHandler))).Methods("POST")
+	r.HandleFunc("/user/authorisation", utils.AddJSONHeaders(utils.Authorise(controllers.GetAuthorisationHandler))).Methods("GET")
 }
 
 func initOrderRoutes(r *mux.Router) {
-	r.HandleFunc("/menu", utils.AddJSONHeaders(controllers.GetTagMenuCacheHandler))
+	r.HandleFunc("/menu", utils.AddJSONHeaders(controllers.GetTagMenuCacheHandler)).Methods("GET")
 
-	r.HandleFunc("/order", utils.AddJSONHeaders(utils.Authorise(controllers.NewOrderHandler)))
-	r.HandleFunc("/order/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.GetOrderDetailsHandler))))
+	r.HandleFunc("/order", utils.AddJSONHeaders(utils.Authorise(controllers.NewOrderHandler))).Methods("GET")
+	r.HandleFunc("/order/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.GetOrderDetailsHandler)))).Methods("GET")
 
-	r.HandleFunc("/suborders/incomplete", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseChef(controllers.IncompleteSubordersHandler))))
-	r.HandleFunc("/suborders/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.GetSuborderDetailsHandler))))
-	r.HandleFunc("/suborders/update/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.UpdateSubordersHandler))))
+	r.HandleFunc("/suborders/incomplete", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseChef(controllers.GetIncompleteSubordersHandler)))).Methods("GET")
+	r.HandleFunc("/suborders/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.GetSuborderDetailsHandler)))).Methods("GET")
+	r.HandleFunc("/suborders/update/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.UpdateSubordersHandler)))).Methods("POST")
 
-	r.HandleFunc("/order/pay/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.PayOrderHandler))))
-	r.HandleFunc("/order/complete/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.CompleteOrderHandler))))
+	r.HandleFunc("/order/pay/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.PayOrderHandler)))).Methods("POST")
+	r.HandleFunc("/order/complete/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.CompleteOrderHandler)))).Methods("POST")
 
-	r.HandleFunc("/orders/user", utils.AddJSONHeaders(utils.Authorise(controllers.GetUserOrdersHandler)))
-	r.HandleFunc("/orders/all", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.GetAllOrdersHandler))))
+	r.HandleFunc("/orders/user", utils.AddJSONHeaders(utils.Authorise(controllers.GetUserOrdersHandler))).Methods("GET")
+	r.HandleFunc("/orders/all", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.GetAllOrdersHandler)))).Methods("GET")
 }
 
 func initAdminRoutes(r *mux.Router) {
-	r.HandleFunc("/admin/user/authorisation/get/{userEmail}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.GetUserAuthorisationHandler))))
-	r.HandleFunc("/admin/user/authorisation/set/{userId}/{authorisation}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.SetUserAuthorisationHandler))))
+	r.HandleFunc("/admin/user/authorisation/get/{userEmail}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.GetUserAuthorisationHandler)))).Methods("GET")
+	r.HandleFunc("/admin/user/authorisation/set/{userId}/{authorisation}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.SetUserAuthorisationHandler)))).Methods("POST")
 
-	r.HandleFunc("/admin/tags/add/{tag}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddTagHandler))))
+	r.HandleFunc("/admin/tags/add/{tag}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddTagHandler)))).Methods("POST")
 
-	r.HandleFunc("/admin/food/add", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddFoodHandler))))
-	r.HandleFunc("/admin/food/tags/update", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.UpdateFoodTagHandler))))
+	r.HandleFunc("/admin/food/add", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddFoodHandler)))).Methods("POST")
+	r.HandleFunc("/admin/food/tags/update", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.UpdateFoodTagHandler)))).Methods("POST")
 }
 
 func InitRouter() *mux.Router {

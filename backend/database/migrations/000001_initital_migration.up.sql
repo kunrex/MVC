@@ -5,7 +5,7 @@ CREATE TABLE Users (
     email VARCHAR(255) UNIQUE NOT NULL,
 
     pwdHash CHAR(60) NOT NULL,
-    refreshHash CHAR(60) DEFAULT NULL,
+    refreshHash CHAR(70) DEFAULT NULL,
 
     auth TINYINT UNSIGNED NOT NULL
 );

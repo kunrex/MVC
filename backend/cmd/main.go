@@ -3,6 +3,7 @@ package main
 import (
 	"MVC/pkg/api"
 	"MVC/pkg/database"
+	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
 	"context"
 	"errors"
@@ -35,6 +36,9 @@ func loadUtils() bool {
 
 	db := database.InitDB()
 	log.Printf("database connection initialised: %v", db)
+
+	models.ReloadTagCache()
+	models.ReloadMenuCache()
 
 	return jwt && hashing && db
 }
@@ -78,14 +82,13 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
+
 		log.Printf("server forced to shutdown: %v", err)
 	}
-
-	err := http.ListenAndServe(fmt.Sprintf(":%v", server.Addr), nil)
-	_ = database.DB.Close()
+	err := database.DB.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err.Error())
 	} else {
 		log.Println("server gracefully stopped")
 	}

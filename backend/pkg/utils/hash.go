@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"errors"
-	"fmt"
+	"crypto/sha256"
+	"encoding/hex"
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strconv"
@@ -24,11 +24,7 @@ func InitHashing() bool {
 	return true
 }
 
-func Hash(password string) ([]byte, error) {
-	if len(password) > MaxLength {
-		return nil, errors.New(fmt.Sprintf("maximum password length is %v", MaxLength))
-	}
-
+func HashPassword(password string) ([]byte, error) {
 	result, err := bcrypt.GenerateFromPassword([]byte(password), saltRounds)
 	if err != nil {
 		return nil, err
@@ -37,6 +33,11 @@ func Hash(password string) ([]byte, error) {
 	return result, nil
 }
 
-func CompareHash(password string, hash []byte) error {
+func ComparePasswordHash(password string, hash []byte) error {
 	return bcrypt.CompareHashAndPassword(hash, []byte(password))
+}
+
+func HashToken(token string) string {
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:])
 }
