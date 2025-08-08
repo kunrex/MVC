@@ -32,15 +32,16 @@ func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userEmail := vars["userEmail"]
 
-	authorisation, err := models.GetUserAuthorisationEmail(userEmail)
+	id, authorisation, err := models.GetUserIdAuthorisationEmail(userEmail)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "no such user exists", w)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]int{
-		"authorisation": authorisation,
+	_ = json.NewEncoder(w).Encode(map[string]int64{
+		"id":            id,
+		"authorisation": int64(authorisation),
 	})
 }
 

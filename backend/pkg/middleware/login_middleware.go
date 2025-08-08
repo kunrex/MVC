@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func LoginUserMiddleware(w http.ResponseWriter, r *http.Request) {
+func AuthUserMiddleware(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)

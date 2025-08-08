@@ -5,10 +5,13 @@ import (
 	"MVC/pkg/utils"
 	"encoding/json"
 	"net/http"
+	"regexp"
 )
 
+var emailRegex, _ = regexp.Compile("^[^\\s@]+@[^\\s@]+$")
+
 func sanitizeLoginUser(email string, password string) (bool, string) {
-	if !utils.EmailRegex.MatchString(email) {
+	if !emailRegex.MatchString(email) {
 		return false, "email was invalid"
 	}
 

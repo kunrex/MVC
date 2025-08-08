@@ -34,6 +34,49 @@ type SuborderExtra struct {
 	Suborder
 }
 
+func CheckOrderExists(orderId int64) (bool, error) {
+	err := database.DB.QueryRow("SELECT 1 FROM Orders WHERE id = ?;", orderId).Scan()
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+
+	return false, err
+}
+
+func CheckOrderRelations(orderId int64, userId int64) (bool, error) {
+	err := database.DB.QueryRow("SELECT 1 FROM OrderRelations WHERE userId = ? AND orderId = ?;", userId, orderId).Scan()
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+
+	return false, err
+}
+
+func TryFindNonPayedOrder(userId int64) (int64, error) {
+	var id int64
+	err := database.DB.QueryRow("SELECT id FROM Orders WHERE createdBy = ? AND payedBy IS NULL;", userId).Scan(&id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		res, err := database.DB.Exec(`INSERT INTO Orders (createdBy, completed, createdOn) VALUES (?, ?, ?);`, userId, false, time.Now())
+		if err != nil {
+			return id, err
+		}
+
+		id, err = res.LastInsertId()
+
+		_, err = database.DB.Exec("INSERT INTO OrderRelations (userId, orderId) VALUES (?, ?);", userId, id)
+		return id, err
+	}
+
+	return id, err
+}
+
 // cache this, since 2 requests will use this data and the sql querries are expensice
 func GetSuborderAuthor(id int64) (string, error) {
 	var authorName string
@@ -61,10 +104,10 @@ func GetOrderStatus(orderId int64) (bool, bool, error) {
 	var payed bool
 	var completed bool
 	err := database.DB.QueryRow("SELECT completed, payedBy IS NOT NULL AS isPayed FROM ORDERS WHERE id = ?;", orderId).Scan(&completed, &payed)
-
 	if err != nil {
 		return false, false, err
 	}
+
 	return completed, payed, nil
 }
 

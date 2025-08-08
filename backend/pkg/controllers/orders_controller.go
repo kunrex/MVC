@@ -23,7 +23,22 @@ type suborderUpdate struct {
 const OrderId utils.ContextKey = "orderId"
 const Readonly utils.ContextKey = "readonly"
 
-func GetTagMenuCache(w http.ResponseWriter, r *http.Request) {
+func NewOrderHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(utils.UserId).(int64)
+
+	id, err := models.TryFindNonPayedOrder(userId)
+	if err != nil {
+		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]int64{
+		"id": id,
+	})
+}
+
+func GetTagMenuCacheHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]string{
 		"tags": models.TagCacheString,

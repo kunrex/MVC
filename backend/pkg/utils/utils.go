@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"regexp"
 )
 
 const AccessCookie = "awt"
@@ -15,8 +14,6 @@ type ContextKey string
 
 const UserId ContextKey = "id"
 const UserAuthorisation ContextKey = "auth"
-
-var EmailRegex, _ = regexp.Compile("^[^\\s@]+@[^\\s@]+$")
 
 func Between(value int, min int, max int) bool {
 	return min <= value && value <= max

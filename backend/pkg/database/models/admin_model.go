@@ -7,11 +7,12 @@ import (
 	"time"
 )
 
-func GetUserAuthorisationEmail(userEmail string) (int, error) {
+func GetUserIdAuthorisationEmail(userEmail string) (int64, int, error) {
+	var id int64
 	var authorisation int
-	err := database.DB.QueryRow("SELECT auth FROM users WHERE email = ?;", userEmail).Scan(&authorisation)
+	err := database.DB.QueryRow("SELECT id, auth FROM users WHERE email = ?;", userEmail).Scan(&id, &authorisation)
 
-	return authorisation, err
+	return id, authorisation, err
 }
 
 func SetUserAuthorisation(userId int64, authorisation int) (bool, error) {

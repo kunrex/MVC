@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func GetOrderMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+func OrderVerificationMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		orderId := vars["orderId"]
@@ -41,6 +41,32 @@ func GetOrderMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 
 		ctx := context.WithValue(r.Context(), controllers.OrderId, convertedId)
 		ctx = context.WithValue(ctx, controllers.Readonly, false)
+		r = r.WithContext(ctx)
+		handler.ServeHTTP(w, r)
+	})
+}
+
+func OrderReadonlyMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		orderId := vars["orderId"]
+
+		convertedId, err := strconv.ParseInt(orderId, 10, 64)
+		if err != nil {
+			utils.ReturnFailedResponse(http.StatusBadRequest, "invalid order id", w)
+			return
+		}
+
+		exists, err := models.CheckOrderExists(convertedId)
+		if !exists {
+			utils.ReturnFailedResponse(http.StatusInternalServerError, "order does not exist", w)
+			return
+		}
+
+		readonly, err := models.CheckOrderRelations(convertedId, r.Context().Value(utils.UserId).(int64))
+
+		ctx := context.WithValue(r.Context(), controllers.OrderId, convertedId)
+		ctx = context.WithValue(ctx, controllers.Readonly, readonly)
 		r = r.WithContext(ctx)
 		handler.ServeHTTP(w, r)
 	})
