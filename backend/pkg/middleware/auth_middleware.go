@@ -13,12 +13,12 @@ func AuthUserMiddleware(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action := r.FormValue("action")
+	action := r.Form.Get("action")
 
-	if action == "signup" {
-		controllers.RegisterUserHandler(w, r)
-	} else if action == "login" {
+	if action == "login" {
 		controllers.LoginUserHandler(w, r)
+	} else if action == "signup" {
+		controllers.RegisterUserHandler(w, r)
 	} else {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid action", w)
 	}

@@ -25,7 +25,7 @@ type addNewFoodForm struct {
 	Description string    `json:"description"`
 	Vegetarian  bool      `json:"vegetarian"`
 	CookTime    time.Time `json:"cookTime"`
-	ImageURl    string    `json:"imageURl"`
+	ImageURL    string    `json:"imageURL"`
 }
 
 func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,12 +80,12 @@ func AddTagHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if models.CheckDuplicateTag(newTag) {
+	if models.CheckTagCache(newTag) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "tag already exists", w)
 		return
 	}
 
-	err := models.AddFoodTag(newTag)
+	err := models.AddTag(newTag)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
@@ -102,12 +102,12 @@ func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !models.ExistsFoodCacheId(foodTagsForm.FoodID) {
+	if !models.CheckFoodIDCache(foodTagsForm.FoodID) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "no such food", w)
 		return
 	}
 
-	tagIds := models.GetTagIDCache(foodTagsForm.Tags)
+	tagIds := models.MapTagIDsCache(foodTagsForm.Tags)
 	if tagIds == nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "tags passed were invalid", w)
 		return
@@ -124,22 +124,21 @@ func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
 
 func downloadImage(url string, imgPath string) error {
 	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(resp.Body)
 
+	out, err := os.Create(imgPath)
 	if err != nil {
+		_ = resp.Body.Close()
 		return err
 	}
-
-	out, err := os.Create(imgPath)
 	defer func(out *os.File) {
 		_ = out.Close()
 	}(out)
-
-	if err != nil {
-		return err
-	}
 
 	_, err = io.Copy(out, resp.Body)
 	return err
@@ -153,23 +152,23 @@ func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if models.ExistsFoodCacheName(newFoodForm.Name) {
+	if models.CheckFoodCache(newFoodForm.Name) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "food already exists", w)
 		return
 	}
 
-	if !utils.Between(len(newFoodForm.Name), 0, 100) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum length of name is 100 characters", w)
+	if !utils.Between(len(newFoodForm.Name), 1, 100) {
+		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum name length is 100 characters", w)
 		return
 	}
 
-	if !utils.Between(len(newFoodForm.Description), 0, 300) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum length of description is 300 characters", w)
+	if !utils.Between(len(newFoodForm.Description), 1, 300) {
+		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum description length is 300 characters", w)
 		return
 	}
 
 	path := filepath.Join("assets/", fmt.Sprintf("%v.jpeg", newFoodForm.Name))
-	err := downloadImage(newFoodForm.ImageURl, path)
+	err := downloadImage(newFoodForm.ImageURL, path)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("error downloading image: %v", err.Error()), w)
 		return

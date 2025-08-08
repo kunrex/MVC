@@ -3,10 +3,9 @@ package main
 import (
 	"MVC/pkg/api"
 	"MVC/pkg/database"
-	utils2 "MVC/pkg/utils"
+	"MVC/pkg/utils"
 	"context"
 	"errors"
-	"github.com/joho/godotenv"
 	"os/signal"
 	"syscall"
 	"time"
@@ -17,55 +16,77 @@ import (
 	"os"
 )
 
+func loadEnv() bool {
+	ok := utils.LoadEnv()
+	if !ok {
+		log.Print("error loading env")
+		return false
+	}
+
+	return true
+}
+
+func loadUtils() bool {
+	jwt := utils.InitJWT()
+	log.Printf("jwt initialised: %v", jwt)
+
+	hashing := utils.InitHashing()
+	log.Printf("bycrypt initialised: %v", hashing)
+
+	db := database.InitDB()
+	log.Printf("database connection initialised: %v", db)
+
+	return jwt && hashing && db
+}
+
+func serverInit(server *http.Server) {
+	log.Printf("starting server on %s\n", server.Addr)
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Printf("server error: %v", err)
+	}
+}
+
+func waitForShutdown() {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+}
+
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	ok := loadEnv()
+	if !ok {
 		return
 	}
 
-	jwt := utils2.InitJWT()
-	log.Printf("JWT Initialised: %v", jwt)
-	hashing := utils2.InitHashing()
-	log.Printf("Bycrypt Initialised: %v", hashing)
-
-	db := database.InitDB()
-	log.Printf("Database Connection Initialised: %v", db)
-
-	if !jwt || !hashing || !db {
+	ok = loadUtils()
+	if !ok {
 		return
 	}
 
 	router := api.InitRouter()
-
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", os.Getenv("APP_PORT")),
 		Handler: router,
 	}
 
-	go func() {
-		log.Printf("Starting server on %s\n", server.Addr)
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("Server error: %v", err)
-		}
-	}()
+	go serverInit(server)
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	log.Println("Shutting down server...")
+	waitForShutdown()
+	log.Println("shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	if err = server.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown: %v", err)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("server forced to shutdown: %v", err)
 	}
 
-	err = http.ListenAndServe(fmt.Sprintf(":%v", server.Addr), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", server.Addr), nil)
 	_ = database.DB.Close()
 
-	cancel()
-	log.Println("Server gracefully stopped")
-
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("server gracefully stopped")
+	}
 }

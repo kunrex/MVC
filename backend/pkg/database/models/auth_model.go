@@ -23,12 +23,12 @@ func CreateUser(name string, email string, passwordHash string) (int64, error) {
 	return id, nil
 }
 
-func SetRefreshHash(orderId int64, refreshHash string) error {
-	_, err := database.DB.Exec("UPDATE Users SET refreshHash = ? WHERE id = ?", refreshHash, orderId)
+func SetRefreshHash(userId int64, refreshHash string) error {
+	_, err := database.DB.Exec("UPDATE Users SET refreshHash = ? WHERE id = ?;", refreshHash, userId)
 	return err
 }
 
-func UserIdPasswordAuthorisationEmail(email string) (int64, int, string, error) {
+func UserIdAuthorisationPasswordEmail(email string) (int64, int, string, error) {
 	var id int64
 	var authorisation int
 	var hashedPassword string
@@ -39,20 +39,4 @@ func UserIdPasswordAuthorisationEmail(email string) (int64, int, string, error) 
 	}
 
 	return id, authorisation, hashedPassword, nil
-}
-
-func UserAuthorisation(id int64) (int, error) {
-	var authorisation int
-	err := database.DB.QueryRow("SELECT auth FROM Users WHERE id = ?;", id).Scan(&authorisation)
-
-	if err != nil {
-		return -1, err
-	}
-
-	return authorisation, nil
-}
-
-func SignOutUser(id int64) error {
-	_, err := database.DB.Exec("UPDATE Users SET refreshHash = NULL WHERE id = ?;", id)
-	return err
 }

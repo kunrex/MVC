@@ -34,30 +34,6 @@ type SuborderExtra struct {
 	Suborder
 }
 
-func CheckOrderExists(orderId int64) (bool, error) {
-	err := database.DB.QueryRow("SELECT 1 FROM Orders WHERE id = ?;", orderId).Scan()
-	if err == nil {
-		return true, nil
-	}
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
-	}
-
-	return false, err
-}
-
-func CheckOrderRelations(orderId int64, userId int64) (bool, error) {
-	err := database.DB.QueryRow("SELECT 1 FROM OrderRelations WHERE userId = ? AND orderId = ?;", userId, orderId).Scan()
-	if err == nil {
-		return true, nil
-	}
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
-	}
-
-	return false, err
-}
-
 func TryFindNonPayedOrder(userId int64) (int64, error) {
 	var id int64
 	err := database.DB.QueryRow("SELECT id FROM Orders WHERE createdBy = ? AND payedBy IS NULL;", userId).Scan(&id)
@@ -69,6 +45,9 @@ func TryFindNonPayedOrder(userId int64) (int64, error) {
 		}
 
 		id, err = res.LastInsertId()
+		if err != nil {
+			return id, err
+		}
 
 		_, err = database.DB.Exec("INSERT INTO OrderRelations (userId, orderId) VALUES (?, ?);", userId, id)
 		return id, err
@@ -77,13 +56,11 @@ func TryFindNonPayedOrder(userId int64) (int64, error) {
 	return id, err
 }
 
-// cache this, since 2 requests will use this data and the sql querries are expensice
-func GetSuborderAuthor(id int64) (string, error) {
+func GetOrderAuthor(orderId int64) (string, error) {
 	var authorName string
-	err := database.DB.QueryRow(`SELECT Users.name AS authorName FROM Orders
-                                            INNER JOIN Users ON Users.id = Orders.createdBy
-                                            WHERE Orders.id = ?;`, id).Scan(&authorName)
-
+	err := database.DB.QueryRow(`SELECT Users.name FROM Orders
+                                            INNER JOIN Users ON Users.orderId = Orders.createdBy
+                                            WHERE Orders.id = ?;`, orderId).Scan(&authorName)
 	if err != nil {
 		return "", err
 	}
@@ -92,9 +69,9 @@ func GetSuborderAuthor(id int64) (string, error) {
 }
 
 func AddOrderUserRelation(userId int64, orderId int64) error {
-	err := database.DB.QueryRow("SELECT 1 FROM ${orderRelations} WHERE userId = ? AND orderId = ?;", userId, orderId).Scan()
+	err := database.DB.QueryRow("SELECT 1 FROM OrderRelations WHERE userId = ? AND orderId = ?;", userId, orderId).Scan()
 	if errors.Is(err, sql.ErrNoRows) {
-		_, err = database.DB.Exec("INSERT INTO ${orderRelations} (userId, orderId) VALUES (?, ?);", userId, orderId)
+		_, err = database.DB.Exec("INSERT INTO OrderRelations (userId, orderId) VALUES (?, ?);", userId, orderId)
 	}
 
 	return err
@@ -103,7 +80,7 @@ func AddOrderUserRelation(userId int64, orderId int64) error {
 func GetOrderStatus(orderId int64) (bool, bool, error) {
 	var payed bool
 	var completed bool
-	err := database.DB.QueryRow("SELECT completed, payedBy IS NOT NULL AS isPayed FROM ORDERS WHERE id = ?;", orderId).Scan(&completed, &payed)
+	err := database.DB.QueryRow("SELECT completed, payedBy IS NOT NULL FROM Orders WHERE id = ?;", orderId).Scan(&completed, &payed)
 	if err != nil {
 		return false, false, err
 	}
@@ -145,6 +122,10 @@ func GetSuborders(orderId int64) (string, error) {
 }
 
 func UpdateSuborder(suborder SuborderExtra, orderId int64) error {
+	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
+		return errors.New("invalid suborder status")
+	}
+
 	_, err := database.DB.Exec(`UPDATE Suborders SET
                      					quantity = ?,
                      					instructions = ?,
@@ -159,11 +140,16 @@ func DeleteSuborder(suborderId int64, orderId int64) error {
 }
 
 func AddSuborders(suborders []Suborder, orderId int64, userId int64) error {
-	args := make([]interface{}, 0)
-	placeholders := make([]string, 0)
-	for _, suborder := range suborders {
-		args = append(args, suborder.FoodId, orderId, userId, suborder.Quantity, suborder.Instructions, suborder.Status)
-		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?)")
+	args := make([]interface{}, len(suborders)*6)
+	placeholders := make([]string, len(suborders))
+	for i, suborder := range suborders {
+		args[i] = suborder.FoodId
+		args[i+1] = orderId
+		args[i+2] = userId
+		args[i+3] = suborder.Quantity
+		args[i+4] = suborder.Instructions
+		args[i+5] = suborder.Status
+		placeholders[i] = "(?, ?, ?, ?, ?, ?)"
 	}
 
 	query := fmt.Sprintf("INSERT INTO Suborders (foodId, orderId, authorId, quantity, instructions, status) VALUES %v;", strings.Join(placeholders, ","))
@@ -180,10 +166,9 @@ func GetIncompleteSuborders() (string, error) {
 		return "", err
 	}
 
-	suborders := make([]Suborder, 0)
+	var suborders []Suborder
 	for rows.Next() {
 		var suborder Suborder
-
 		_ = rows.Scan(
 			&suborder.Quantity,
 			&suborder.Instructions,
@@ -222,17 +207,16 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 }
 
 func GetAllOrders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) AS createdOn, Users.name AS authorName, Orders.status FROM Orders
+	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.status FROM Orders
                                                  INNER JOIN Users ON Users.id = Orders.createdBy;`)
 
 	if err != nil {
 		return "", err
 	}
 
-	orders := make([]Order, 0)
+	var orders []Order
 	for rows.Next() {
 		var order Order
-
 		_ = rows.Scan(
 			&order.Id,
 			&order.CreatedOn,
@@ -251,7 +235,7 @@ func GetAllOrders() (string, error) {
 }
 
 func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) AS createdOn, Users.name AS authorName, Orders.status FROM Orders
+	rows, err := database.DB.Query(`SELECT Orders.id, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE), Users.name, Orders.status FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.userId = Orders.Id 
                                             INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE OrderRelations.userId = ?;`, userId)
@@ -260,10 +244,9 @@ func GetUserOrders(userId int64) (string, error) {
 		return "", err
 	}
 
-	orders := make([]Order, 0)
+	var orders []Order
 	for rows.Next() {
 		var order Order
-
 		_ = rows.Scan(
 			&order.Id,
 			&order.CreatedOn,

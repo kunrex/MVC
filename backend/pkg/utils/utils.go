@@ -4,6 +4,7 @@ import (
 	"MVC/pkg/database/models"
 	"context"
 	"encoding/json"
+	"github.com/joho/godotenv"
 	"net/http"
 )
 
@@ -19,9 +20,14 @@ func Between(value int, min int, max int) bool {
 	return min <= value && value <= max
 }
 
+func LoadEnv() bool {
+	err := godotenv.Load()
+	return err == nil
+}
+
 func AddJSONHeaders(handler http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 	})
 }
 

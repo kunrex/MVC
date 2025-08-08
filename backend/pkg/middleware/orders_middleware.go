@@ -22,7 +22,7 @@ func OrderVerificationMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		expectedAuthor, err := models.GetSuborderAuthor(convertedId)
+		expectedAuthor, err := models.GetOrderAuthor(convertedId)
 		if err != nil {
 			utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 			return
@@ -39,35 +39,8 @@ func OrderVerificationMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), controllers.OrderId, convertedId)
-		ctx = context.WithValue(ctx, controllers.Readonly, false)
-		r = r.WithContext(ctx)
-		handler.ServeHTTP(w, r)
-	})
-}
+		r = r.WithContext(context.WithValue(r.Context(), controllers.OrderId, convertedId))
 
-func OrderReadonlyMiddleware(handler http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		orderId := vars["orderId"]
-
-		convertedId, err := strconv.ParseInt(orderId, 10, 64)
-		if err != nil {
-			utils.ReturnFailedResponse(http.StatusBadRequest, "invalid order id", w)
-			return
-		}
-
-		exists, err := models.CheckOrderExists(convertedId)
-		if !exists {
-			utils.ReturnFailedResponse(http.StatusInternalServerError, "order does not exist", w)
-			return
-		}
-
-		readonly, err := models.CheckOrderRelations(convertedId, r.Context().Value(utils.UserId).(int64))
-
-		ctx := context.WithValue(r.Context(), controllers.OrderId, convertedId)
-		ctx = context.WithValue(ctx, controllers.Readonly, readonly)
-		r = r.WithContext(ctx)
 		handler.ServeHTTP(w, r)
 	})
 }

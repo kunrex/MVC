@@ -25,8 +25,8 @@ func SetUserAuthorisation(userId int64, authorisation int) (bool, error) {
 	return rowsAffected > 0, err
 }
 
-func AddFoodTag(tag string) error {
-	res, err := database.DB.Exec("INSERT INTO FoodTags (name) VALUES (?)", tag)
+func AddTag(tag string) error {
+	res, err := database.DB.Exec("INSERT INTO FoodTags (name) VALUES (?);", tag)
 	if err != nil {
 		return err
 	}
@@ -47,20 +47,21 @@ func UpdateFoodTags(foodId int64, tags []int64) error {
 	}
 
 	placeholders := make([]string, len(tags))
-	values := make([]interface{}, len(tags))
-	for _, tag := range tags {
-		placeholders = append(placeholders, "(?, ?)")
-		values = append(values, foodId, tag)
+	values := make([]interface{}, len(tags)*2)
+	for i, tag := range tags {
+		values[i] = foodId
+		values[i+1] = tag
+		placeholders[i] = "(?, ?)"
 	}
 
-	query := fmt.Sprintf("INSERT INTO FoodTagRelations (foodID, tagID) VALUES %v", strings.Join(placeholders, ","))
+	query := fmt.Sprintf("INSERT INTO FoodTagRelations (foodID, tagID) VALUES %v;", strings.Join(placeholders, ","))
 	_, err = database.DB.Exec(query, values...)
 
 	if err != nil {
 		return err
 	}
 
-	UpdateFoodTagsCache(foodId, tags)
+	ReloadMenuCache()
 	return nil
 }
 
