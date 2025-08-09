@@ -1,5 +1,7 @@
-/.idea
-/assets
 /.env
+/.idea
+
+assets/*
+!assets/.gitkeep
 
 .DS_Store
