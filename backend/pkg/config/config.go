@@ -8,7 +8,20 @@ import (
 	"strconv"
 )
 
-func tryReadInt(envVariable string, address *int) bool {
+var TimeZoneMinutes int
+
+func readString(envVariable string, address *string) bool {
+	temp := os.Getenv(envVariable)
+	if temp == "" {
+		log.Printf("%v is empty", envVariable)
+		return false
+	}
+
+	*address = temp
+	return true
+}
+
+func readInt(envVariable string, address *int) bool {
 	temp, err := strconv.Atoi(os.Getenv(envVariable))
 	if err != nil {
 		log.Printf("error converting %v to int: %v", envVariable, err.Error())
@@ -24,34 +37,20 @@ func InitConfig() *types.Config {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Printf("rrror loading .env file: %v", err.Error())
+		log.Printf("error loading .env file: %v", err.Error())
 		return nil
 	}
 
-	ok := tryReadInt("APP_PORT", &config.AppPort)
-	if !ok {
-		return nil
-	}
-
-	config.DBHost = os.Getenv("DB_HOST")
-	config.DBUser = os.Getenv("DB_USER")
-	config.DBName = os.Getenv("DB_NAME")
-	config.DBPassword = os.Getenv("DB_PASSWORD")
-
-	ok = tryReadInt("DB_MAX_IDLE_CONNECTIONS", &config.MaxDbIdleConnections)
-	if !ok {
-		return nil
-	}
-
-	ok = tryReadInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections)
-	if !ok {
-		return nil
-	}
-
-	config.JWTSecret = os.Getenv("JWT_SECRET")
-
-	ok = tryReadInt("SALT_ROUNDS", &config.SaltRounds)
-	if !ok {
+	if !readInt("APP_PORT", &config.AppPort) ||
+		!readInt("SALT_ROUNDS", &config.SaltRounds) ||
+		!readString(os.Getenv("DB_HOST"), &config.DBHost) ||
+		!readString(os.Getenv("DB_USER"), &config.DBUser) ||
+		!readString(os.Getenv("DB_NAME"), &config.DBName) ||
+		!readString(os.Getenv("JWT_SECRET"), &config.JWTSecret) ||
+		!readString(os.Getenv("DB_PASSWORD"), &config.DBPassword) ||
+		!readInt("TIMEZONE_DIFFERENCE_MINUTES", &TimeZoneMinutes) ||
+		!readInt("DB_MAX_IDLE_CONNECTIONS", &config.MaxDbIdleConnections) ||
+		!readInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections) {
 		return nil
 	}
 

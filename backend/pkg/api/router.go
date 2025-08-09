@@ -6,19 +6,19 @@ import (
 )
 
 func InitRouter() *mux.Router {
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
-	r.Use(utils.AddJSONHeaders)
+	router.Use(utils.AddJSONHeaders)
 
-	initAuthRoutes(r)
-	initUserRoutes(r)
+	initAuthRoutes(router)
+	initUserRoutes(router)
 
-	initMenuRoute(r)
-	initOrderRoutes(r)
-	initOrdersRoutes(r)
-	initSubordersRoutes(r)
+	initMenuRoute(router)
+	initSingleOrderRoutes(router)
+	initMultipleOrderRoutes(router)
+	initSubordersRoutes(router)
 
-	initAdminRoutes(r)
+	initAdminRoutes(router)
 
-	return r
+	return router
 }

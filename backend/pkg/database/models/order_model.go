@@ -1,6 +1,7 @@
 package models
 
 import (
+	"MVC/pkg/config"
 	"MVC/pkg/database"
 	"MVC/pkg/types"
 	"database/sql"
@@ -198,7 +199,7 @@ func CompleteOrder(orderId int64) (bool, error) {
 	return true, nil
 }
 
-func CalculateOrderSubtotal(orderId int64) (int, error) {
+func CalculateOrderSubtotal(orderId int64) (float32, error) {
 	var subtotal int
 	err := database.DB.QueryRow(`SELECT IFNULL(SUM(Foods.price * Suborders.quantity), 0) FROM Suborders
 	                                              INNER JOIN Foods ON Foods.id = Suborders.foodId
@@ -207,7 +208,7 @@ func CalculateOrderSubtotal(orderId int64) (int, error) {
 		return 0, err
 	}
 
-	return subtotal, nil
+	return float32(subtotal), nil
 }
 
 func PayOrder(orderId int64, subtotal float32, tip int, discount int, total float32, userId int64) (bool, error) {
@@ -237,8 +238,8 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 }
 
 func GetAllOrders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) FROM Orders
-                                                 INNER JOIN Users ON Users.id = Orders.createdBy;`)
+	rows, err := database.DB.Query(fmt.Sprintf(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL %v MINUTE) FROM Orders
+                                                 INNER JOIN Users ON Users.id = Orders.createdBy;`, config.TimeZoneMinutes))
 
 	if err != nil {
 		return "", err
@@ -265,10 +266,10 @@ func GetAllOrders() (string, error) {
 }
 
 func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL 330 MINUTE) FROM Orders
+	rows, err := database.DB.Query(fmt.Sprintf(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL %v MINUTE) FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.orderId = Orders.Id 
     										INNER JOIN Users ON Users.id = Orders.createdBy
-                                            WHERE OrderRelations.userId = ?;`, userId)
+                                            WHERE OrderRelations.userId = ?;`, config.TimeZoneMinutes), userId)
 	if err != nil {
 		return "", err
 	}

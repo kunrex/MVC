@@ -10,7 +10,7 @@ import (
 
 var DB *sql.DB = nil
 
-func InitDB(config *types.Config) bool {
+func InitDB(config *types.Config) error {
 	dbUser := config.DBUser
 	dbHost := config.DBHost
 	dbName := config.DBName
@@ -18,7 +18,7 @@ func InitDB(config *types.Config) bool {
 
 	result, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPassword, dbHost, dbName))
 	if err != nil {
-		return false
+		return err
 	}
 
 	DB = result
@@ -27,5 +27,5 @@ func InitDB(config *types.Config) bool {
 	DB.SetMaxIdleConns(config.MaxDbIdleConnections)
 	DB.SetConnMaxLifetime(5 * time.Minute)
 
-	return true
+	return nil
 }

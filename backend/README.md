@@ -21,6 +21,8 @@ DB_NAME=database
 
 DB_MAX_IDLE_CONNECTIONS=5
 DB_MAX_OPEN_CONNECTIONS=25
+
+TIMEZONE_DIFFERENCE_MINUTES=330 #Indian Standard Time
 ```
 
 Makefile commands (run from `MVC/backend`)

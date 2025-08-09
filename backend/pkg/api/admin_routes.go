@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initAdminRoutes(r *mux.Router) {
-	subRouter := r.PathPrefix("/admin").Subrouter()
+func initAdminRoutes(router *mux.Router) {
+	subRouter := router.PathPrefix("/admin").Subrouter()
 
 	subRouter.Use(utils.Authorise)
 	subRouter.Use(utils.AuthoriseAdmin)
@@ -18,5 +18,5 @@ func initAdminRoutes(r *mux.Router) {
 	subRouter.HandleFunc("/tags/add/{tag}", controllers.AddTagHandler).Methods("POST")
 
 	subRouter.HandleFunc("/food/add", controllers.AddFoodHandler).Methods("POST")
-	subRouter.HandleFunc("/food/updateTags/", controllers.UpdateFoodTagHandler).Methods("PATCH")
+	subRouter.HandleFunc("/food/updateTags", controllers.UpdateFoodTagHandler).Methods("PATCH")
 }

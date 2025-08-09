@@ -7,9 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -111,28 +109,6 @@ func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func downloadImage(url string, imgPath string) error {
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
-
-	out, err := os.Create(imgPath)
-	if err != nil {
-		_ = resp.Body.Close()
-		return err
-	}
-	defer func(out *os.File) {
-		_ = out.Close()
-	}(out)
-
-	_, err = io.Copy(out, resp.Body)
-	return err
-}
-
 func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
 	var newFoodForm types.AddNewFoodForm
 	decoder := json.NewDecoder(r.Body)
@@ -162,7 +138,7 @@ func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := filepath.Join("assets/", fmt.Sprintf("%v.jpeg", newFoodForm.Name))
-	err := downloadImage(newFoodForm.ImageURL, path)
+	err := utils.DownloadImage(newFoodForm.ImageURL, path)
 	if err != nil {
 		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("error downloading image: %v", err.Error()), w)
 		return

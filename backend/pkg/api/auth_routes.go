@@ -5,8 +5,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initAuthRoutes(r *mux.Router) {
-	subRouter := r.PathPrefix("/auth").Subrouter()
-
-	subRouter.HandleFunc("", controllers.AuthoriseUserHandler).Methods("POST")
+func initAuthRoutes(router *mux.Router) {
+	router.HandleFunc("/auth", controllers.AuthoriseUserHandler).Methods("POST")
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initUserRoutes(r *mux.Router) {
-	subRouter := r.PathPrefix("/user").Subrouter()
+func initUserRoutes(router *mux.Router) {
+	subRouter := router.PathPrefix("/user").Subrouter()
 
 	subRouter.Use(utils.Authorise)
 

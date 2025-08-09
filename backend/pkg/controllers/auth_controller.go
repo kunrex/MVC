@@ -71,12 +71,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:  utils.AccessCookie,
-		Value: accessToken,
-		Path:  "/",
-	})
-
+	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -107,12 +102,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:  utils.AccessCookie,
-		Value: accessToken,
-		Path:  "/",
-	})
-
+	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
 	w.WriteHeader(http.StatusOK)
 }
 

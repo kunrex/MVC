@@ -20,19 +20,24 @@ import (
 )
 
 func loadUtils(configuration *types.Config) bool {
-	jwt := utils.InitJWT(configuration)
-	log.Printf("jwt initialised: %v", jwt)
+	utils.InitJWT(configuration)
+	log.Printf("jwt initialised")
 
-	hashing := utils.InitHashing(configuration)
-	log.Printf("bycrypt initialised: %v", hashing)
+	utils.InitHashing(configuration)
+	log.Printf("bycrypt initialised")
 
 	db := database.InitDB(configuration)
-	log.Printf("database connection initialised: %v", db)
+	if db != nil {
+		log.Printf("database initualisation failed: %v", db.Error())
+		return false
+	} else {
+		log.Print("database connection initialised")
+	}
 
 	models.ReloadTagCache()
 	models.ReloadMenuCache()
 
-	return jwt && hashing && db
+	return true
 }
 
 func serverInit(server *http.Server) {

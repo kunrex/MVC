@@ -5,6 +5,7 @@ import (
 	"MVC/pkg/types"
 	"MVC/pkg/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -61,6 +62,30 @@ func GetSuborderDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(jsonData)
 }
 
+func updateSuborder(suborder *types.SuborderExtra, orderId int64) error {
+	rowsAffected, err := models.UpdateSuborder(suborder, orderId)
+	if err != nil {
+		return errors.New(fmt.Sprintf("SQL Error: %v", err.Error()))
+	}
+	if rowsAffected == 0 {
+		return errors.New(fmt.Sprintf("suborder does not exist or does not belong to order"))
+	}
+
+	return nil
+}
+
+func deleteSuborder(suborderId int64, orderId int64) error {
+	rowsAffected, err := models.DeleteSuborder(suborderId, orderId)
+	if err != nil {
+		return errors.New(fmt.Sprintf("SQL Error: %v", err.Error()))
+	}
+	if rowsAffected == 0 {
+		return errors.New(fmt.Sprintf("suborder does not exist or does not belong to order"))
+	}
+
+	return nil
+}
+
 func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 	var suborderUpdates []types.SuborderUpdateForm
 	decoder := json.NewDecoder(r.Body)
@@ -74,33 +99,27 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 
 	var additions []types.Suborder
 	for _, element := range suborderUpdates {
-		switch element.Code {
-		case 0:
-			if element.Quantity > 0 {
-				rowsAffected, err := models.UpdateSuborder(&element.SuborderExtra, orderId)
-				if err != nil {
-					utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
-					return
-				}
-				if rowsAffected == 0 {
-					utils.WriteFailedResponse(http.StatusInternalServerError, "suborder does not exist or does not belong to order", w)
-					return
-				}
-			} else {
-				rowsAffected, err := models.DeleteSuborder(element.Id, orderId)
-				if err != nil {
-					utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
-					return
-				}
-				if rowsAffected == 0 {
-					utils.WriteFailedResponse(http.StatusInternalServerError, "suborder does not exist or does not belong to order", w)
-					return
-				}
+		switch {
+		case element.Code == 0 && element.Quantity > 0:
+			err := updateSuborder(&element.SuborderExtra, orderId)
+			if err != nil {
+				utils.WriteFailedResponse(http.StatusInternalServerError, err.Error(), w)
+				return
 			}
 			break
-		case 1:
+		case element.Code == 0 && element.Quantity < 0:
+			err := deleteSuborder(element.Id, orderId)
+			if err != nil {
+				utils.WriteFailedResponse(http.StatusInternalServerError, err.Error(), w)
+				return
+			}
+			break
+		case element.Code == 1 && element.Quantity > 0:
 			additions = append(additions, element.Suborder)
 			break
+		default:
+			utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+			return
 		}
 	}
 
@@ -148,19 +167,15 @@ func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	discount := 0
-	if subtotal > 2000 {
-		discount = 10
-	} else if subtotal > 1000 {
-		discount = 5
-	}
+	discount := utils.CalculateDiscount(subtotal)
+	total := subtotal*float32(discount)*0.01 + float32(tip)
 
-	ok, err := models.PayOrder(orderId, float32(subtotal), tip, discount, float32(subtotal)*float32(discount)*0.01+float32(tip), userId)
+	paymentRegistered, err := models.PayOrder(orderId, subtotal, tip, discount, total, userId)
 	if err != nil {
 		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
-	if !ok {
+	if !paymentRegistered {
 		utils.WriteFailedResponse(http.StatusBadRequest, "order is already payed for", w)
 		return
 	}

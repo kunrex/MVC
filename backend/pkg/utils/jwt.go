@@ -16,9 +16,8 @@ var secret []byte = nil
 
 const AccessRefreshTime = time.Hour * 24 * 7
 
-func InitJWT(config *types.Config) bool {
+func InitJWT(config *types.Config) {
 	secret = []byte(config.JWTSecret)
-	return true
 }
 
 func GenerateAccessToken(id int64, authorisation int) (string, error) {

@@ -7,13 +7,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const MaxLength = 72
+var saltRounds int
 
-var saltRounds = 10
-
-func InitHashing(config *types.Config) bool {
+func InitHashing(config *types.Config) {
 	saltRounds = config.SaltRounds
-	return true
 }
 
 func HashPassword(password string) ([]byte, error) {

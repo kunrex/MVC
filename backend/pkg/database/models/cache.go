@@ -5,6 +5,7 @@ import (
 	"MVC/pkg/types"
 	"encoding/json"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -26,6 +27,8 @@ type foodCache struct {
 	ImageURL    string `json:"imageURL"`
 	Tags        string `json:"tags"`
 }
+
+var sessionsCacheMutex sync.Mutex
 
 func ReloadTagCache() {
 	rows, err := database.DB.Query("SELECT id, name FROM FoodTags;")
@@ -131,21 +134,27 @@ func MapTagIDsCache(tags []string) []int64 {
 }
 
 func CacheOrderSession(orderId int64, authorName string) {
+	sessionsCacheMutex.Lock()
 	orderSessionsCache[orderId] = types.OrderSessionCache{
 		AuthorName: authorName,
 		ExpiresOn:  time.Now().Add(time.Minute * 5),
 	}
+	sessionsCacheMutex.Unlock()
 }
 
 func CheckOrderSessionCache(orderId int64, authorName string) (bool, bool) {
+	sessionsCacheMutex.Lock()
 	result, found := orderSessionsCache[orderId]
+	sessionsCacheMutex.Unlock()
 	return found, result.AuthorName == authorName
 }
 
 func ClearExpiredOrderSessions() {
+	sessionsCacheMutex.Lock()
 	for id, orderSession := range orderSessionsCache {
 		if time.Now().After(orderSession.ExpiresOn) {
 			delete(orderSessionsCache, id)
 		}
 	}
+	sessionsCacheMutex.Unlock()
 }
