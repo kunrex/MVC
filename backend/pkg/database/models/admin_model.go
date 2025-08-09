@@ -4,7 +4,6 @@ import (
 	"MVC/pkg/database"
 	"fmt"
 	"strings"
-	"time"
 )
 
 func GetUserIdAuthorisationEmail(userEmail string) (int64, int, error) {
@@ -31,12 +30,12 @@ func AddTag(tag string) error {
 		return err
 	}
 
-	id, err := res.LastInsertId()
+	_, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
-	AddTagCache(id, tag)
+	ReloadTagCache()
 	return nil
 }
 
@@ -65,17 +64,17 @@ func UpdateFoodTags(foodId int64, tags []int64) error {
 	return nil
 }
 
-func AddFoodItem(name string, price uint, description string, vegetarian bool, cookTime time.Time, image string) error {
+func AddFoodItem(name string, price uint, description string, vegetarian bool, cookTime string, image string) error {
 	res, err := database.DB.Exec("INSERT INTO Foods (name, price, description, veg, cookTime, image) VALUES (?, ?, ?, ?, ?, ?);", name, price, description, vegetarian, cookTime, image)
 	if err != nil {
 		return err
 	}
 
-	id, err := res.LastInsertId()
+	_, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
-	AddFoodCache(id, name)
+	ReloadMenuCache()
 	return err
 }

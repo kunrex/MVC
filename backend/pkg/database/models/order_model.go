@@ -90,7 +90,7 @@ func GetOrderStatus(orderId int64) (bool, bool, error) {
 }
 
 func GetSuborders(orderId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status, Foods.name, Users.name AS authorName FROM Suborders
+	rows, err := database.DB.Query(`SELECT Foods.id as foodId, Foods.name, Users.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												INNER JOIN Users ON Suborders.authorId = Users.id
 												WHERE Suborders.orderId = ?;`, orderId)
@@ -104,12 +104,13 @@ func GetSuborders(orderId int64) (string, error) {
 		var suborder SuborderExtra
 
 		_ = rows.Scan(
+			&suborder.FoodId,
+			&suborder.FoodName,
+			&suborder.AuthorName,
 			&suborder.Id,
 			&suborder.Quantity,
 			&suborder.Instructions,
-			&suborder.Status,
-			&suborder.FoodName,
-			&suborder.AuthorName)
+			&suborder.Status)
 
 		suborders = append(suborders, suborder)
 	}
@@ -159,7 +160,7 @@ func AddSuborders(suborders []Suborder, orderId int64, userId int64) error {
 }
 
 func GetIncompleteSuborders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Suborders.quantity, Suborders.instructions, Suborders.status, Foods.name, Foods.id as foodId FROM Suborders
+	rows, err := database.DB.Query(`SELECT Foods.name, Foods.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												WHERE Suborders.status != ?;`, "completed")
 
@@ -167,15 +168,15 @@ func GetIncompleteSuborders() (string, error) {
 		return "", err
 	}
 
-	var suborders []Suborder
+	suborders := make([]Suborder, 0)
 	for rows.Next() {
 		var suborder Suborder
 		_ = rows.Scan(
+			&suborder.FoodName,
+			&suborder.FoodId,
 			&suborder.Quantity,
 			&suborder.Instructions,
-			&suborder.Status,
-			&suborder.FoodName,
-			&suborder.FoodId)
+			&suborder.Status)
 
 		suborders = append(suborders, suborder)
 	}
@@ -196,14 +197,27 @@ func CompleteOrder(orderId int64) bool {
 	return err == nil
 }
 
+func CalculateOrderSubtotal(orderId int64) (int, error) {
+	var subtotal int
+	err := database.DB.QueryRow(`SELECT IFNULL(SUM(Foods.price * Suborders.quantity), 0) FROM Suborders
+	                                              INNER JOIN Foods ON Foods.id = Suborders.foodId
+	                                              WHERE Suborders.orderId = ?`, orderId).Scan(&subtotal)
+	if err != nil {
+		return 0, err
+	}
+
+	return subtotal, nil
+}
+
 func PayOrder(orderId int64, subtotal float32, tip int, discount int, total float32, userId int64) error {
 	_, err := database.DB.Exec(`UPDATE Orders SET 
                   							tip = ?, 
                   							total = ?,
                   							discount = ?,
                   							subtotal = ?,
-                  							payedBy = ? 
-              								WHERE id = ?;`, tip, total, discount, subtotal, userId, orderId)
+                  							payedBy = ?,
+                  							payedOn = ?
+              								WHERE id = ?;`, tip, total, discount, subtotal, userId, orderId, time.Now())
 	return err
 }
 
@@ -215,7 +229,7 @@ func GetAllOrders() (string, error) {
 		return "", err
 	}
 
-	var orders []Order
+	orders := make([]Order, 0)
 	for rows.Next() {
 		var order Order
 		_ = rows.Scan(
@@ -244,7 +258,7 @@ func GetUserOrders(userId int64) (string, error) {
 		return "", err
 	}
 
-	var orders []Order
+	orders := make([]Order, 0)
 	for rows.Next() {
 		var order Order
 		_ = rows.Scan(

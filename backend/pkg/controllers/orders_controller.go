@@ -8,13 +8,6 @@ import (
 	"net/http"
 )
 
-type paymentDetails struct {
-	Tip      int     `json:"tip"`
-	Total    float32 `json:"total"`
-	Discount int     `json:"discount"`
-	Subtotal float32 `json:"subtotal"`
-}
-
 type suborderUpdate struct {
 	Code int `json:"code"`
 	models.SuborderExtra
@@ -107,10 +100,12 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := models.AddSuborders(additions, orderId, userId)
-	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
-		return
+	if len(additions) > 0 {
+		err := models.AddSuborders(additions, orderId, userId)
+		if err != nil {
+			utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -129,9 +124,9 @@ func CompleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
-	var details paymentDetails
+	var tip int
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&details); err != nil {
+	if err := decoder.Decode(&tip); err != nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
@@ -139,7 +134,20 @@ func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(utils.UserId).(int64)
 	orderId := r.Context().Value(OrderId).(int64)
 
-	err := models.PayOrder(orderId, details.Subtotal, details.Tip, details.Discount, details.Total, userId)
+	subtotal, err := models.CalculateOrderSubtotal(orderId)
+	if err != nil {
+		utils.ReturnFailedResponse(http.StatusBadRequest, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		return
+	}
+
+	discount := 0
+	if subtotal > 2000 {
+		discount = 10
+	} else if subtotal > 1000 {
+		discount = 5
+	}
+
+	err = models.PayOrder(orderId, float32(subtotal), tip, discount, float32(subtotal)*float32(discount)*0.01+float32(tip), userId)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return

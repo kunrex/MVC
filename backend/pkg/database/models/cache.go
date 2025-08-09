@@ -3,7 +3,7 @@ package models
 import (
 	"MVC/pkg/database"
 	"encoding/json"
-	"time"
+	"log"
 )
 
 var TagCacheString string
@@ -13,49 +13,52 @@ var tagsCache = make(map[string]int64)
 var foodsCache = make(map[string]int64)
 
 type foodCache struct {
-	ID          int64     `json:"id"`
-	Name        string    `json:"name"`
-	Price       uint      `json:"price"`
-	Description string    `json:"description"`
-	Vegetarian  bool      `json:"vegetarian"`
-	CookTime    time.Time `json:"cookTime"`
-	ImageURL    string    `json:"imageURL"`
-	Tags        string    `json:"tags"`
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Price       uint   `json:"price"`
+	Description string `json:"description"`
+	Vegetarian  bool   `json:"vegetarian"`
+	CookTime    string `json:"cookTime"`
+	ImageURL    string `json:"imageURL"`
+	Tags        string `json:"tags"`
 }
 
 func ReloadTagCache() {
-	rows, err := database.DB.Query("SELECT name FROM FoodTags;")
+	rows, err := database.DB.Query("SELECT id, name FROM FoodTags;")
 	if err != nil {
-		return
+		log.Printf("SQL Error which caching tags: %v", err.Error())
 	}
 
 	var tags []string
 	for rows.Next() {
+		var id int64
 		var tag string
-		err = rows.Scan(&tag)
+		err = rows.Scan(&id, &tag)
 		if err != nil {
-			return
+			log.Printf("SQL Error which caching menu: %v", err.Error())
 		}
+
+		tagsCache[tag] = id
 
 		tags = append(tags, tag)
 	}
 
 	jsonData, err := json.Marshal(tags)
 	if err != nil {
-		return
+		log.Printf("JSON Error which caching tags: %v", err.Error())
 	}
 
 	TagCacheString = string(jsonData)
 }
 
 func ReloadMenuCache() {
-	rows, err := database.DB.Query(`SELECT Foods.id, Foods.name, Foods.description, Foods.veg, Foods.cookTime, Foods.price, Foods.image, IFNULL(GROUP_CONCAT(FoodTags.name ORDER BY FoodTags.id), '') AS tags FROM ${foods}
+	rows, err := database.DB.Query(`SELECT Foods.id, Foods.name, Foods.description, Foods.veg, Foods.cookTime, Foods.price, Foods.image, IFNULL(GROUP_CONCAT(FoodTags.name ORDER BY FoodTags.id), '') AS tags FROM Foods
                                             LEFT JOIN FoodTagRelations ON Foods.id = FoodTagRelations.foodId
                                             LEFT JOIN FoodTags ON FoodTags.id = FoodTagRelations.tagId
                                             GROUP BY Foods.id
                                             ORDER BY Foods.id;`)
 	if err != nil {
-		return
+		log.Printf("SQL Error which caching menu: %v", err.Error())
 	}
 
 	var foods []foodCache
@@ -71,8 +74,10 @@ func ReloadMenuCache() {
 			&food.ImageURL,
 			&food.Tags)
 
+		foodsCache[food.Name] = food.ID
+
 		if err != nil {
-			return
+			log.Printf("SQL Error which caching menu: %v", err.Error())
 		}
 
 		foods = append(foods, food)
@@ -80,20 +85,10 @@ func ReloadMenuCache() {
 
 	jsonData, err := json.Marshal(foods)
 	if err != nil {
-		return
+		log.Printf("JSON Error which caching menu: %v", err.Error())
 	}
 
 	MenuCacheString = string(jsonData)
-}
-
-func AddTagCache(id int64, tag string) {
-	tagsCache[tag] = id
-	ReloadTagCache()
-}
-
-func AddFoodCache(id int64, name string) {
-	tagsCache[name] = id
-	ReloadMenuCache()
 }
 
 func CheckTagCache(tag string) bool {
@@ -125,8 +120,8 @@ func MapTagIDsCache(tags []string) []int64 {
 			continue
 		}
 
-		break
+		return nil
 	}
 
-	return nil
+	return ids
 }

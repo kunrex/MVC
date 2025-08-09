@@ -10,23 +10,25 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
-	"time"
 )
 
 type foodTagsUpdateForm struct {
-	FoodID int64    `json:"foodID"`
+	FoodId int64    `json:"foodId"`
 	Tags   []string `json:"tags"`
 }
 
 type addNewFoodForm struct {
-	Name        string    `json:"name"`
-	Price       uint      `json:"price"`
-	Description string    `json:"description"`
-	Vegetarian  bool      `json:"vegetarian"`
-	CookTime    time.Time `json:"cookTime"`
-	ImageURL    string    `json:"imageURL"`
+	Name        string `json:"name"`
+	Price       uint   `json:"price"`
+	Description string `json:"description"`
+	Vegetarian  bool   `json:"vegetarian"`
+	CookTime    string `json:"cookTime"`
+	ImageURL    string `json:"imageURL"`
 }
+
+var timeRegex, _ = regexp.Compile("^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
 
 func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -102,7 +104,7 @@ func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !models.CheckFoodIDCache(foodTagsForm.FoodID) {
+	if !models.CheckFoodIDCache(foodTagsForm.FoodId) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "no such food", w)
 		return
 	}
@@ -113,7 +115,7 @@ func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := models.UpdateFoodTags(foodTagsForm.FoodID, tagIds)
+	err := models.UpdateFoodTags(foodTagsForm.FoodId, tagIds)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusBadRequest, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
@@ -148,6 +150,11 @@ func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
 	var newFoodForm addNewFoodForm
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newFoodForm); err != nil {
+		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		return
+	}
+
+	if !timeRegex.MatchString(newFoodForm.CookTime) {
 		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
