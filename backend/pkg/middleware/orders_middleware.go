@@ -22,21 +22,33 @@ func OrderVerificationMiddleware(handler http.Handler) http.Handler {
 			return
 		}
 
-		expectedAuthor, err := models.GetOrderAuthor(convertedId)
-		if err != nil {
-			utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
-			return
-		}
+		authorName := vars["authorName"]
 
-		if expectedAuthor != vars["authorName"] {
-			utils.WriteFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
-			return
-		}
+		cacheHit, cacheCheck := models.CheckOrderSessionCache(convertedId, authorName)
+		if cacheHit {
+			if !cacheCheck {
+				utils.WriteFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
+				return
+			}
+		} else {
+			expectedAuthor, err := models.GetOrderAuthor(convertedId)
+			if err != nil {
+				utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+				return
+			}
 
-		err = models.AddOrderUserRelation(r.Context().Value(utils.UserId).(int64), convertedId)
-		if err != nil {
-			utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
-			return
+			if expectedAuthor != vars["authorName"] {
+				utils.WriteFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
+				return
+			}
+
+			err = models.AddOrderUserRelation(r.Context().Value(utils.UserId).(int64), convertedId)
+			if err != nil {
+				utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+				return
+			}
+
+			models.CacheOrderSession(convertedId, authorName)
 		}
 
 		r = r.WithContext(context.WithValue(r.Context(), controllers.OrderId, convertedId))

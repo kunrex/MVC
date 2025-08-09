@@ -25,3 +25,8 @@ type SuborderExtra struct {
 
 	Suborder
 }
+
+type OrderSessionCache struct {
+	AuthorName string
+	ExpiresOn  time.Time
+}

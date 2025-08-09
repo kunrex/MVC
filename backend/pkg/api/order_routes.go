@@ -26,7 +26,7 @@ func initOrderRoutes(r *mux.Router) {
 
 	subRouter.Use(utils.Authorise)
 
-	subRouter.HandleFunc("/", controllers.NewOrderHandler).Methods("GET")
+	subRouter.HandleFunc("", controllers.NewOrderHandler).Methods("GET")
 	subRouter.Handle("/{orderId}/{authorName}", chain(controllers.GetOrderDetailsHandler, middleware.OrderVerificationMiddleware)).Methods("GET")
 
 	subRouter.Handle("/pay/{orderId}/{authorName}", chain(controllers.PayOrderHandler, middleware.OrderVerificationMiddleware)).Methods("POST")

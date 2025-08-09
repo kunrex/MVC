@@ -7,6 +7,7 @@ import (
 	"MVC/pkg/database/models"
 	"MVC/pkg/types"
 	"MVC/pkg/utils"
+	"MVC/pkg/workers"
 	"context"
 	"errors"
 	"fmt"
@@ -41,10 +42,11 @@ func serverInit(server *http.Server) {
 	}
 }
 
-func waitForShutdown() {
+func createQuitSignal() chan os.Signal {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+
+	return quit
 }
 
 func main() {
@@ -67,7 +69,11 @@ func main() {
 
 	go serverInit(server)
 
-	waitForShutdown()
+	quit := createQuitSignal()
+	workers.InitOrderSessionClearanceWorker(quit)
+
+	<-quit
+
 	log.Println("shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

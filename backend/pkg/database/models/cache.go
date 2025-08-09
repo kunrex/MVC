@@ -2,8 +2,10 @@ package models
 
 import (
 	"MVC/pkg/database"
+	"MVC/pkg/types"
 	"encoding/json"
 	"log"
+	"time"
 )
 
 var TagCacheString string
@@ -11,6 +13,8 @@ var MenuCacheString string
 
 var tagsCache = make(map[string]int64)
 var foodsCache = make(map[string]int64)
+
+var orderSessionsCache = make(map[int64]types.OrderSessionCache)
 
 type foodCache struct {
 	ID          int64  `json:"id"`
@@ -124,4 +128,24 @@ func MapTagIDsCache(tags []string) []int64 {
 	}
 
 	return ids
+}
+
+func CacheOrderSession(orderId int64, authorName string) {
+	orderSessionsCache[orderId] = types.OrderSessionCache{
+		AuthorName: authorName,
+		ExpiresOn:  time.Now().Add(time.Minute * 5),
+	}
+}
+
+func CheckOrderSessionCache(orderId int64, authorName string) (bool, bool) {
+	result, found := orderSessionsCache[orderId]
+	return found, result.AuthorName == authorName
+}
+
+func ClearExpiredOrderSessions() {
+	for id, orderSession := range orderSessionsCache {
+		if time.Now().After(orderSession.ExpiresOn) {
+			delete(orderSessionsCache, id)
+		}
+	}
 }

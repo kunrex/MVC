@@ -11,7 +11,7 @@ func UserExistsEmail(email string) error {
 }
 
 func CreateUser(name string, email string, passwordHash string) (int64, error) {
-	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash) Values (?, ?, ?, ?, ?);", name, email, 1, passwordHash, nil)
+	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash) Values (?, ?, ?, ?);", name, email, 1, passwordHash)
 	if err != nil {
 		return 0, err
 	}
