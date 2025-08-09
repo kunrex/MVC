@@ -15,20 +15,11 @@ func SignOutUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessCookie := &http.Cookie{
+	http.SetCookie(w, &http.Cookie{
 		Name:  utils.AccessCookie,
 		Value: "",
 		Path:  "/",
-	}
-
-	refreshCookie := &http.Cookie{
-		Name:  utils.RefreshCookie,
-		Value: "",
-		Path:  "/",
-	}
-
-	http.SetCookie(w, accessCookie)
-	http.SetCookie(w, refreshCookie)
+	})
 
 	w.WriteHeader(http.StatusOK)
 }

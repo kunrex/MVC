@@ -1,13 +1,13 @@
 package tests
 
 import (
-	"MVC/pkg/types"
+	"MVC/pkg/config"
 	"MVC/pkg/utils"
 	"testing"
 )
 
 func JWTTest(t *testing.T) {
-	configuration := types.InitConfig()
+	configuration := config.InitConfig()
 	if configuration == nil {
 		t.Error("failed to load config")
 		return
@@ -35,7 +35,7 @@ func JWTTest(t *testing.T) {
 }
 
 func ByCryptTest(t *testing.T) {
-	configuration := types.InitConfig()
+	configuration := config.InitConfig()
 	if configuration == nil {
 		t.Error("failed to load config")
 		return

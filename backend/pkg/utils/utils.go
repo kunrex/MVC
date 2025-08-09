@@ -8,7 +8,6 @@ import (
 )
 
 const AccessCookie = "awt"
-const RefreshCookie = "rwt"
 
 type ContextKey string
 
@@ -36,21 +35,15 @@ func WriteFailedResponse(code int, error string, w http.ResponseWriter) {
 func Authorise(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessCookie, accessCookieError := r.Cookie(AccessCookie)
-		refreshCookie, refreshCookieError := r.Cookie(RefreshCookie)
 
-		if accessCookieError != nil || refreshCookieError != nil || accessCookie.Value == "" || refreshCookie.Value == "" {
+		if accessCookieError != nil || accessCookie.Value == "" {
 			WriteFailedResponse(http.StatusUnauthorized, "failed to authorise, please sign up if you dont have an account or log in again if you do", w)
 			return
 		}
 
 		accessId, accessAuthorisation, err := VerifyToken(accessCookie.Value)
 		if err != nil {
-			w.WriteHeader(http.StatusTemporaryRedirect)
-			_ = json.NewEncoder(w).Encode(map[string]string{
-				"refresh": "/auth/refresh",
-				"method":  "POST",
-			})
-
+			WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
 			return
 		}
 

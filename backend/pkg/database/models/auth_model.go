@@ -11,7 +11,7 @@ func UserExistsEmail(email string) error {
 }
 
 func CreateUser(name string, email string, passwordHash string) (int64, error) {
-	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash, refreshHash) Values (?, ?, ?, ?, ?);", name, email, 1, passwordHash, nil)
+	result, err := database.DB.Exec("INSERT INTO Users (name, email, auth, pwdHash) Values (?, ?, ?, ?, ?);", name, email, 1, passwordHash, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -22,11 +22,6 @@ func CreateUser(name string, email string, passwordHash string) (int64, error) {
 	}
 
 	return id, nil
-}
-
-func SetRefreshHash(userId int64, refreshHash string) error {
-	_, err := database.DB.Exec("UPDATE Users SET refreshHash = ? WHERE id = ?;", refreshHash, userId)
-	return err
 }
 
 func UserIdAuthorisationPasswordEmail(email string) (int64, int, string, error) {

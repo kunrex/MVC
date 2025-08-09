@@ -14,8 +14,7 @@ type jwtClaims struct {
 
 var secret []byte = nil
 
-const AccessRefreshTime = time.Second * 1800
-const RefreshRefreshTime = time.Hour * 24 * 7
+const AccessRefreshTime = time.Hour * 24 * 7
 
 func InitJWT(config *types.Config) bool {
 	secret = []byte(config.JWTSecret)
@@ -29,27 +28,6 @@ func GenerateAccessToken(id int64, authorisation int) (string, error) {
 
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessRefreshTime)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	signed, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-
-	return signed, nil
-}
-
-func GenerateRefreshToken(id int64, authorisation int) (string, error) {
-	claims := jwtClaims{
-		Id:            id,
-		Authorisation: authorisation,
-
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(RefreshRefreshTime)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
