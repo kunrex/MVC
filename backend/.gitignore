@@ -1,5 +1,5 @@
 /.idea
-/.assets
+/assets
 /.env
 
 .DS_Store
