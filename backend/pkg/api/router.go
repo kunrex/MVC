@@ -25,7 +25,7 @@ func initOrderRoutes(r *mux.Router) {
 
 	r.HandleFunc("/suborders/incomplete", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseChef(controllers.GetIncompleteSubordersHandler)))).Methods("GET")
 	r.HandleFunc("/suborders/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.GetSuborderDetailsHandler)))).Methods("GET")
-	r.HandleFunc("/suborders/update/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.UpdateSubordersHandler)))).Methods("POST")
+	r.HandleFunc("/suborders/update/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.UpdateSubordersHandler)))).Methods("PATCH")
 
 	r.HandleFunc("/order/pay/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.PayOrderHandler)))).Methods("POST")
 	r.HandleFunc("/order/complete/{orderId}/{authorName}", utils.AddJSONHeaders(utils.Authorise(middleware.OrderVerificationMiddleware(controllers.CompleteOrderHandler)))).Methods("POST")
@@ -41,7 +41,7 @@ func initAdminRoutes(r *mux.Router) {
 	r.HandleFunc("/admin/tags/add/{tag}", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddTagHandler)))).Methods("POST")
 
 	r.HandleFunc("/admin/food/add", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.AddFoodHandler)))).Methods("POST")
-	r.HandleFunc("/admin/food/tags/update", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.UpdateFoodTagHandler)))).Methods("POST")
+	r.HandleFunc("/admin/food/tags/update", utils.AddJSONHeaders(utils.Authorise(utils.AuthoriseAdmin(controllers.UpdateFoodTagHandler)))).Methods("PATCH")
 }
 
 func InitRouter() *mux.Router {
