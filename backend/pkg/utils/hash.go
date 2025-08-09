@@ -1,26 +1,18 @@
 package utils
 
 import (
+	"MVC/pkg/types"
 	"crypto/sha256"
 	"encoding/hex"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"strconv"
 )
 
 const MaxLength = 72
 
 var saltRounds = 10
 
-func InitHashing() bool {
-	envValue := os.Getenv("SALT_ROUNDS")
-
-	value, err := strconv.Atoi(envValue)
-	if err != nil {
-		return false
-	}
-
-	saltRounds = value
+func InitHashing(config *types.Config) bool {
+	saltRounds = config.SaltRounds
 	return true
 }
 

@@ -42,18 +42,18 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 
 	if ok, errStr := sanitizeCreateUser(name, email, password); !ok {
-		utils.ReturnFailedResponse(http.StatusBadRequest, errStr, w)
+		utils.WriteFailedResponse(http.StatusBadRequest, errStr, w)
 		return
 	}
 
 	if err := models.UserExistsEmail(email); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "user already exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "user already exists", w)
 		return
 	}
 
 	hashedPasswordBytes, err := utils.HashPassword(password)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to hash password", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to hash password", w)
 		return
 	}
 
@@ -61,24 +61,24 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	insertId, err := models.CreateUser(name, email, hashedPassword)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
 	accessToken, err := utils.GenerateAccessToken(insertId, 1)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
 		return
 	}
 
 	refreshToken, err := utils.GenerateRefreshToken(insertId, 1)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to generate refresh token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to generate refresh token", w)
 		return
 	}
 
 	if err = models.SetRefreshHash(insertId, utils.HashToken(refreshToken)); err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
@@ -105,36 +105,36 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 
 	if ok, errStr := sanitizeLoginUser(email, password); !ok {
-		utils.ReturnFailedResponse(http.StatusBadRequest, errStr, w)
+		utils.WriteFailedResponse(http.StatusBadRequest, errStr, w)
 		return
 	}
 
 	id, authorisation, passwordHash, err := models.UserIdAuthorisationPasswordEmail(email)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
+		utils.WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
 		return
 	}
 
 	err = utils.ComparePasswordHash(password, []byte(passwordHash))
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "email or password was incorrect", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "email or password was incorrect", w)
 		return
 	}
 
 	refreshToken, err := utils.GenerateRefreshToken(id, authorisation)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to generate refresh token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to generate refresh token", w)
 		return
 	}
 
 	if err = models.SetRefreshHash(id, utils.HashToken(refreshToken)); err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to update refresh token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to update refresh token", w)
 		return
 	}
 
 	accessToken, err := utils.GenerateAccessToken(id, authorisation)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
 		return
 	}
 
@@ -156,33 +156,51 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func AuthoriseUserHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		return
+	}
+
+	action := r.Form.Get("action")
+
+	if action == "login" {
+		LoginUserHandler(w, r)
+	} else if action == "signup" {
+		RegisterUserHandler(w, r)
+	} else {
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid action", w)
+	}
+}
+
 func AuthRefreshHandler(w http.ResponseWriter, r *http.Request) {
 	refreshCookie, err := r.Cookie(utils.RefreshCookie)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusUnauthorized, "failed to get refresh token, please log in again", w)
+		utils.WriteFailedResponse(http.StatusUnauthorized, "failed to get refresh token, please log in again", w)
 		return
 	}
 
 	id, cookieAuthorisation, err := utils.VerifyToken(refreshCookie.Value)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusUnauthorized, "refresh token expired, please log in again", w)
+		utils.WriteFailedResponse(http.StatusUnauthorized, "refresh token expired, please log in again", w)
 		return
 	}
 
 	authorisation, err := models.UserAuthorisation(id)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusUnauthorized, "no such user exists, please sign up", w)
+		utils.WriteFailedResponse(http.StatusUnauthorized, "no such user exists, please sign up", w)
 		return
 	}
 
 	if authorisation != cookieAuthorisation {
-		utils.ReturnFailedResponse(http.StatusUnauthorized, "authorisation level changed, please log in again", w)
+		utils.WriteFailedResponse(http.StatusUnauthorized, "authorisation level changed, please log in again", w)
 		return
 	}
 
 	accessToken, err := utils.GenerateAccessToken(id, authorisation)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to generate access token", w)
 		return
 	}
 

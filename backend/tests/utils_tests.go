@@ -1,20 +1,17 @@
 package tests
 
 import (
+	"MVC/pkg/types"
 	"MVC/pkg/utils"
 	"testing"
 )
 
-func LoadEnvTest(t *testing.T) {
-	ok := utils.LoadEnv()
-	if !ok {
-		t.Fatal("failed to read env")
+func JWTTest(t *testing.T) {
+	configuration := types.InitConfig()
+	if configuration == nil {
+		t.Error("failed to load config")
 		return
 	}
-}
-
-func JWTTest(t *testing.T) {
-	LoadEnvTest(t)
 
 	id := int64(1)
 	authorisation := 7
@@ -38,7 +35,11 @@ func JWTTest(t *testing.T) {
 }
 
 func ByCryptTest(t *testing.T) {
-	LoadEnvTest(t)
+	configuration := types.InitConfig()
+	if configuration == nil {
+		t.Error("failed to load config")
+		return
+	}
 
 	password := "helloworld"
 	hash, err := utils.HashPassword(password)

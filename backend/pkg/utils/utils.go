@@ -4,7 +4,6 @@ import (
 	"MVC/pkg/database/models"
 	"context"
 	"encoding/json"
-	"github.com/joho/godotenv"
 	"net/http"
 )
 
@@ -20,32 +19,27 @@ func Between(value int, min int, max int) bool {
 	return min <= value && value <= max
 }
 
-func LoadEnv() bool {
-	err := godotenv.Load()
-	return err == nil
-}
-
-func AddJSONHeaders(handler http.HandlerFunc) http.HandlerFunc {
+func AddJSONHeaders(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		handler.ServeHTTP(w, r)
 	})
 }
 
-func ReturnFailedResponse(code int, error string, w http.ResponseWriter) {
+func WriteFailedResponse(code int, error string, w http.ResponseWriter) {
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(map[string]string{
 		"error": error,
 	})
 }
 
-func Authorise(handler http.HandlerFunc) http.HandlerFunc {
+func Authorise(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessCookie, accessCookieError := r.Cookie(AccessCookie)
 		refreshCookie, refreshCookieError := r.Cookie(RefreshCookie)
 
 		if accessCookieError != nil || refreshCookieError != nil || accessCookie.Value == "" || refreshCookie.Value == "" {
-			ReturnFailedResponse(http.StatusUnauthorized, "failed to authorise, please sign up if you dont have an account or log in again if you do", w)
+			WriteFailedResponse(http.StatusUnauthorized, "failed to authorise, please sign up if you dont have an account or log in again if you do", w)
 			return
 		}
 
@@ -62,12 +56,12 @@ func Authorise(handler http.HandlerFunc) http.HandlerFunc {
 
 		authorisation, err := models.UserAuthorisation(accessId)
 		if err != nil {
-			ReturnFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
+			WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
 			return
 		}
 
 		if authorisation != accessAuthorisation {
-			ReturnFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
+			WriteFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
 			return
 		}
 
@@ -79,24 +73,24 @@ func Authorise(handler http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-func AuthoriseChef(handler http.HandlerFunc) http.HandlerFunc {
+func AuthoriseChef(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Context().Value(UserAuthorisation).(int)
 		if (auth & 2) == 2 {
 			handler.ServeHTTP(w, r)
 		} else {
-			ReturnFailedResponse(http.StatusUnauthorized, "lacking chef permissions", w)
+			WriteFailedResponse(http.StatusUnauthorized, "lacking chef permissions", w)
 		}
 	})
 }
 
-func AuthoriseAdmin(handler http.HandlerFunc) http.HandlerFunc {
+func AuthoriseAdmin(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Context().Value(UserAuthorisation).(int)
 		if (auth & 4) == 4 {
 			handler.ServeHTTP(w, r)
 		} else {
-			ReturnFailedResponse(http.StatusUnauthorized, "lacking admin permissions", w)
+			WriteFailedResponse(http.StatusUnauthorized, "lacking admin permissions", w)
 		}
 	})
 }

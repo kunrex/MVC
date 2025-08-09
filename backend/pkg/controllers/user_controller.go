@@ -11,7 +11,7 @@ func SignOutUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(utils.UserId).(int64)
 
 	if err := models.ClearRefreshHash(userId); err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to clear refresh hash", w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to clear refresh hash", w)
 		return
 	}
 
@@ -33,7 +33,7 @@ func SignOutUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
+func GetPermissionsHandler(w http.ResponseWriter, r *http.Request) {
 	authorisation := r.Context().Value(utils.UserAuthorisation).(int)
 
 	w.WriteHeader(http.StatusOK)

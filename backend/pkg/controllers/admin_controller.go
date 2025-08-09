@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"MVC/pkg/database/models"
+	"MVC/pkg/types"
 	"MVC/pkg/utils"
 	"encoding/json"
 	"fmt"
@@ -14,20 +15,6 @@ import (
 	"strconv"
 )
 
-type foodTagsUpdateForm struct {
-	FoodId int64    `json:"foodId"`
-	Tags   []string `json:"tags"`
-}
-
-type addNewFoodForm struct {
-	Name        string `json:"name"`
-	Price       uint   `json:"price"`
-	Description string `json:"description"`
-	Vegetarian  bool   `json:"vegetarian"`
-	CookTime    string `json:"cookTime"`
-	ImageURL    string `json:"imageURL"`
-}
-
 var timeRegex, _ = regexp.Compile("^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
 
 func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +23,7 @@ func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, authorisation, err := models.GetUserIdAuthorisationEmail(userEmail)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "no such user exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "no such user exists", w)
 		return
 	}
 
@@ -54,19 +41,19 @@ func SetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
 
 	convertedId, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid id", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid id", w)
 		return
 	}
 
 	convertedAuthorisation, err := strconv.Atoi(newAuthorisation)
 	if err != nil || !utils.Between(convertedAuthorisation, 1, 7) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid authorisation", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid authorisation", w)
 		return
 	}
 
 	affected, err := models.SetUserAuthorisation(convertedId, convertedAuthorisation)
 	if err != nil || !affected {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "no such user exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "no such user exists", w)
 		return
 	}
 
@@ -78,18 +65,18 @@ func AddTagHandler(w http.ResponseWriter, r *http.Request) {
 	newTag := vars["tag"]
 
 	if !utils.Between(len(newTag), 1, 50) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum tag length is 50", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "maximum tag length is 50", w)
 		return
 	}
 
 	if models.CheckTagCache(newTag) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "tag already exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "tag already exists", w)
 		return
 	}
 
 	err := models.AddTag(newTag)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
@@ -97,27 +84,27 @@ func AddTagHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateFoodTagHandler(w http.ResponseWriter, r *http.Request) {
-	var foodTagsForm foodTagsUpdateForm
+	var foodTagsForm types.FoodTagsUpdateForm
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&foodTagsForm); err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
 
 	if !models.CheckFoodIDCache(foodTagsForm.FoodId) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "no such food", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "no such food", w)
 		return
 	}
 
 	tagIds := models.MapTagIDsCache(foodTagsForm.Tags)
 	if tagIds == nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "tags passed were invalid", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "tags passed were invalid", w)
 		return
 	}
 
 	err := models.UpdateFoodTags(foodTagsForm.FoodId, tagIds)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusBadRequest, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
@@ -147,43 +134,43 @@ func downloadImage(url string, imgPath string) error {
 }
 
 func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
-	var newFoodForm addNewFoodForm
+	var newFoodForm types.AddNewFoodForm
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newFoodForm); err != nil {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
 
 	if !timeRegex.MatchString(newFoodForm.CookTime) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
 
 	if models.CheckFoodCache(newFoodForm.Name) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "food already exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "food already exists", w)
 		return
 	}
 
 	if !utils.Between(len(newFoodForm.Name), 1, 100) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum name length is 100 characters", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "maximum name length is 100 characters", w)
 		return
 	}
 
 	if !utils.Between(len(newFoodForm.Description), 1, 300) {
-		utils.ReturnFailedResponse(http.StatusBadRequest, "maximum description length is 300 characters", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, "maximum description length is 300 characters", w)
 		return
 	}
 
 	path := filepath.Join("assets/", fmt.Sprintf("%v.jpeg", newFoodForm.Name))
 	err := downloadImage(newFoodForm.ImageURL, path)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("error downloading image: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("error downloading image: %v", err.Error()), w)
 		return
 	}
 
 	err = models.AddFoodItem(newFoodForm.Name, newFoodForm.Price, newFoodForm.Description, newFoodForm.Vegetarian, newFoodForm.CookTime, path)
 	if err != nil {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 

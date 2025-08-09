@@ -2,39 +2,30 @@ package main
 
 import (
 	"MVC/pkg/api"
+	"MVC/pkg/config"
 	"MVC/pkg/database"
 	"MVC/pkg/database/models"
+	"MVC/pkg/types"
 	"MVC/pkg/utils"
 	"context"
 	"errors"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
-func loadEnv() bool {
-	ok := utils.LoadEnv()
-	if !ok {
-		log.Print("error loading env")
-		return false
-	}
-
-	return true
-}
-
-func loadUtils() bool {
-	jwt := utils.InitJWT()
+func loadUtils(configuration *types.Config) bool {
+	jwt := utils.InitJWT(configuration)
 	log.Printf("jwt initialised: %v", jwt)
 
-	hashing := utils.InitHashing()
+	hashing := utils.InitHashing(configuration)
 	log.Printf("bycrypt initialised: %v", hashing)
 
-	db := database.InitDB()
+	db := database.InitDB(configuration)
 	log.Printf("database connection initialised: %v", db)
 
 	models.ReloadTagCache()
@@ -57,19 +48,20 @@ func waitForShutdown() {
 }
 
 func main() {
-	ok := loadEnv()
-	if !ok {
+	configuration := config.InitConfig()
+	if configuration == nil {
+		log.Fatal("failed to load config")
 		return
 	}
 
-	ok = loadUtils()
+	ok := loadUtils(configuration)
 	if !ok {
 		return
 	}
 
 	router := api.InitRouter()
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%v", os.Getenv("APP_PORT")),
+		Addr:    fmt.Sprintf(":%v", configuration.AppPort),
 		Handler: router,
 	}
 

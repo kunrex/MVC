@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"MVC/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
-	"os"
 	"time"
 )
 
@@ -17,8 +17,8 @@ var secret []byte = nil
 const AccessRefreshTime = time.Second * 1800
 const RefreshRefreshTime = time.Hour * 24 * 7
 
-func InitJWT() bool {
-	secret = []byte(os.Getenv("JWT_SECRET"))
+func InitJWT(config *types.Config) bool {
+	secret = []byte(config.JWTSecret)
 	return true
 }
 

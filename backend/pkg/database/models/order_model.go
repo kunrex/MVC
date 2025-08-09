@@ -2,6 +2,7 @@ package models
 
 import (
 	"MVC/pkg/database"
+	"MVC/pkg/types"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -9,30 +10,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Order struct {
-	Id         int64     `json:"id"`
-	CreatedOn  time.Time `json:"createdOn"`
-	AuthorName string    `json:"authorName"`
-	Completed  bool      `json:"completed"`
-}
-
-type Suborder struct {
-	FoodId   int64  `json:"foodId"`
-	FoodName string `json:"foodName"`
-
-	Status string `json:"status"`
-
-	Quantity     int    `json:"quantity"`
-	Instructions string `json:"instructions"`
-}
-
-type SuborderExtra struct {
-	Id         int64  `json:"id"`
-	AuthorName string `json:"authorName"`
-
-	Suborder
-}
 
 func TryFindNonPayedOrder(userId int64) (int64, error) {
 	var id int64
@@ -99,9 +76,9 @@ func GetSuborders(orderId int64) (string, error) {
 		return "", err
 	}
 
-	suborders := make([]SuborderExtra, 0)
+	suborders := make([]types.SuborderExtra, 0)
 	for rows.Next() {
-		var suborder SuborderExtra
+		var suborder types.SuborderExtra
 
 		_ = rows.Scan(
 			&suborder.FoodId,
@@ -123,7 +100,7 @@ func GetSuborders(orderId int64) (string, error) {
 	return string(jsonString), nil
 }
 
-func UpdateSuborder(suborder SuborderExtra, orderId int64) (int64, error) {
+func UpdateSuborder(suborder *types.SuborderExtra, orderId int64) (int64, error) {
 	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
 		return 0, errors.New("invalid suborder status")
 	}
@@ -152,7 +129,7 @@ func DeleteSuborder(suborderId int64, orderId int64) (int64, error) {
 	return rowsAffected, err
 }
 
-func AddSuborders(suborders []Suborder, orderId int64, userId int64) error {
+func AddSuborders(suborders []types.Suborder, orderId int64, userId int64) error {
 	args := make([]interface{}, len(suborders)*6)
 	placeholders := make([]string, len(suborders))
 	for i, suborder := range suborders {
@@ -179,9 +156,9 @@ func GetIncompleteSuborders() (string, error) {
 		return "", err
 	}
 
-	suborders := make([]Suborder, 0)
+	suborders := make([]types.Suborder, 0)
 	for rows.Next() {
-		var suborder Suborder
+		var suborder types.Suborder
 		_ = rows.Scan(
 			&suborder.FoodName,
 			&suborder.FoodId,
@@ -267,9 +244,9 @@ func GetAllOrders() (string, error) {
 		return "", err
 	}
 
-	orders := make([]Order, 0)
+	orders := make([]types.Order, 0)
 	for rows.Next() {
-		var order Order
+		var order types.Order
 		_ = rows.Scan(
 			&order.AuthorName,
 			&order.Id,
@@ -296,9 +273,9 @@ func GetUserOrders(userId int64) (string, error) {
 		return "", err
 	}
 
-	orders := make([]Order, 0)
+	orders := make([]types.Order, 0)
 	for rows.Next() {
-		var order Order
+		var order types.Order
 		_ = rows.Scan(
 			&order.AuthorName,
 			&order.Id,

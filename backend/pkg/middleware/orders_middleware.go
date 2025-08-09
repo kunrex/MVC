@@ -11,31 +11,31 @@ import (
 	"strconv"
 )
 
-func OrderVerificationMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+func OrderVerificationMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		orderId := vars["orderId"]
 
 		convertedId, err := strconv.ParseInt(orderId, 10, 64)
 		if err != nil {
-			utils.ReturnFailedResponse(http.StatusBadRequest, "invalid order id", w)
+			utils.WriteFailedResponse(http.StatusBadRequest, "invalid order id", w)
 			return
 		}
 
 		expectedAuthor, err := models.GetOrderAuthor(convertedId)
 		if err != nil {
-			utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+			utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 			return
 		}
 
 		if expectedAuthor != vars["authorName"] {
-			utils.ReturnFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
+			utils.WriteFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
 			return
 		}
 
 		err = models.AddOrderUserRelation(r.Context().Value(utils.UserId).(int64), convertedId)
 		if err != nil {
-			utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+			utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 			return
 		}
 
