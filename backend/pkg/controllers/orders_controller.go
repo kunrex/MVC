@@ -81,15 +81,23 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 		switch element.Code {
 		case 0:
 			if element.Quantity > 0 {
-				err := models.UpdateSuborder(element.SuborderExtra, orderId)
+				rowsAffected, err := models.UpdateSuborder(element.SuborderExtra, orderId)
 				if err != nil {
 					utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 					return
 				}
+				if rowsAffected == 0 {
+					utils.ReturnFailedResponse(http.StatusInternalServerError, "suborder does not exist or does not belong to order", w)
+					return
+				}
 			} else {
-				err := models.DeleteSuborder(element.Id, orderId)
+				rowsAffected, err := models.DeleteSuborder(element.Id, orderId)
 				if err != nil {
 					utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+					return
+				}
+				if rowsAffected == 0 {
+					utils.ReturnFailedResponse(http.StatusInternalServerError, "suborder does not exist or does not belong to order", w)
 					return
 				}
 			}
@@ -114,9 +122,13 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 func CompleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 	orderId := r.Context().Value(OrderId).(int64)
 
-	ok := models.CompleteOrder(orderId)
+	ok, err := models.CompleteOrder(orderId)
+	if err != nil {
+		utils.ReturnFailedResponse(http.StatusInternalServerError, err.Error(), w)
+		return
+	}
 	if !ok {
-		utils.ReturnFailedResponse(http.StatusInternalServerError, "failed to complete order", w)
+		utils.ReturnFailedResponse(http.StatusBadRequest, "order is already marked completed", w)
 		return
 	}
 
@@ -147,9 +159,13 @@ func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
 		discount = 5
 	}
 
-	err = models.PayOrder(orderId, float32(subtotal), tip, discount, float32(subtotal)*float32(discount)*0.01+float32(tip), userId)
+	ok, err := models.PayOrder(orderId, float32(subtotal), tip, discount, float32(subtotal)*float32(discount)*0.01+float32(tip), userId)
 	if err != nil {
 		utils.ReturnFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+		return
+	}
+	if !ok {
+		utils.ReturnFailedResponse(http.StatusBadRequest, "order is already payed for", w)
 		return
 	}
 

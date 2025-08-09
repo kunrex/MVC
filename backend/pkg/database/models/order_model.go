@@ -123,22 +123,33 @@ func GetSuborders(orderId int64) (string, error) {
 	return string(jsonString), nil
 }
 
-func UpdateSuborder(suborder SuborderExtra, orderId int64) error {
+func UpdateSuborder(suborder SuborderExtra, orderId int64) (int64, error) {
 	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
-		return errors.New("invalid suborder status")
+		return 0, errors.New("invalid suborder status")
 	}
 
-	_, err := database.DB.Exec(`UPDATE Suborders SET
+	res, err := database.DB.Exec(`UPDATE Suborders SET
                      					quantity = ?,
                      					instructions = ?,
                      					status = ?
                      					WHERE id = ? AND orderId = ?;`, suborder.Quantity, suborder.Instructions, suborder.Status, suborder.Id, orderId)
-	return err
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, err
 }
 
-func DeleteSuborder(suborderId int64, orderId int64) error {
-	_, err := database.DB.Exec(`DELETE FROM Suborders WHERE id = ? AND orderId = ?;`, suborderId, orderId)
-	return err
+func DeleteSuborder(suborderId int64, orderId int64) (int64, error) {
+	res, err := database.DB.Exec(`DELETE FROM Suborders WHERE id = ? AND orderId = ?;`, suborderId, orderId)
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, err
 }
 
 func AddSuborders(suborders []Suborder, orderId int64, userId int64) error {
@@ -189,12 +200,25 @@ func GetIncompleteSuborders() (string, error) {
 	return string(jsonString), nil
 }
 
-func CompleteOrder(orderId int64) bool {
-	_, err := database.DB.Exec(`UPDATE Orders SET 
+func CompleteOrder(orderId int64) (bool, error) {
+	res, err := database.DB.Exec(`UPDATE Orders SET 
                   							completed = ?,
                   							completedOn = ? 
-              								WHERE id = ?;`, true, time.Now(), orderId)
-	return err == nil
+              								WHERE id = ? AND completed = ?;`, true, time.Now(), orderId, false)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func CalculateOrderSubtotal(orderId int64) (int, error) {
@@ -209,16 +233,30 @@ func CalculateOrderSubtotal(orderId int64) (int, error) {
 	return subtotal, nil
 }
 
-func PayOrder(orderId int64, subtotal float32, tip int, discount int, total float32, userId int64) error {
-	_, err := database.DB.Exec(`UPDATE Orders SET 
+func PayOrder(orderId int64, subtotal float32, tip int, discount int, total float32, userId int64) (bool, error) {
+	res, err := database.DB.Exec(`UPDATE Orders SET 
                   							tip = ?, 
                   							total = ?,
                   							discount = ?,
                   							subtotal = ?,
                   							payedBy = ?,
                   							payedOn = ?
-              								WHERE id = ?;`, tip, total, discount, subtotal, userId, orderId, time.Now())
-	return err
+              								WHERE id = ? and payedBy = ?;`, tip, total, discount, subtotal, userId, time.Now(), orderId, nil)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func GetAllOrders() (string, error) {
