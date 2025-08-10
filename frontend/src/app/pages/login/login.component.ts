@@ -88,8 +88,7 @@ export class LoginComponent extends Page {
       });
 
       if (response.status == 200) {
-        this.routes.registerLogin();
-        this.routes.setLocalName(name);
+        this.routes.registerLogin(name);
 
         await this.routes.loadDashBoard();
         return
@@ -125,7 +124,7 @@ export class LoginComponent extends Page {
       });
 
       if (response.status == 200) {
-        this.routes.registerLogin();
+        this.routes.registerLogin(await response.text());
 
         await this.routes.loadDashBoard();
         return

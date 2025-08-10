@@ -16,23 +16,21 @@ export class RouteService {
 
   public getLocalName() : string {
     const result = localStorage.getItem(NameKey);
-    return result == null ? defaultName : result;
-  }
-
-  public setLocalName(name: string): void {
-    localStorage.setItem(NameKey, name)
+    return result == null || result == "" ? defaultName : result;
   }
 
   public async loadLogin() : Promise<void> {
     await this.router.navigate(["/login"]);
   }
 
-  public registerLogin() {
+  public registerLogin(name: string) {
     this.loggedIn = true;
+    localStorage.setItem(NameKey, name)
   }
 
   public registerSignOut() {
     this.loggedIn = false;
+    localStorage.setItem(NameKey, "")
   }
 
   public async loadDashBoard() : Promise<void> {
