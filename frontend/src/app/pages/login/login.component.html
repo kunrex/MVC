@@ -1,0 +1,74 @@
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+  <div class="container px-5">
+    <a class="navbar-brand">MVC.Food</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item text-center"><a class="nav-link">Log In</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="masthead text-black align-content-center h-100">
+  <div class="masthead-content">
+    <div class="container main d-flex flex-column justify-content-center align-items-center bg-white rounded-5 p-4 p-md-5">
+      <div class="text-center">
+        <h1>
+          Almost ready for the best food in town!
+        </h1>
+      </div>
+      <ul class="nav nav-tabs w-100" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="home" aria-selected="true">Sign Up</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="profile" aria-selected="false">Log In</button>
+        </li>
+      </ul>
+      <div class="tab-content w-100 d-flex justify-content-center p-3">
+        <form id="signup" role="tabpanel" class="tab-pane fade show active w-100">
+          <div class="mb-3">
+            <label for="sign-name" class="form-label">Name</label>
+            <input type="text" name="name" minlength="1" maxlength="100" class="form-control" id="sign-name" placeholder="Enter name" required>
+          </div>
+          <div class="mb-3">
+            <label for="sign-email" class="form-label">Email Address</label>
+            <input type="email" name="email" minlength="1" maxlength="255" class="form-control" id="sign-email" placeholder="Enter email" required>
+          </div>
+          <div class="mb-3">
+            <label for="sign-pwd" class="form-label">Password</label>
+            <div class="progress m-2">
+              <div id="strength" class="progress-bar"></div>
+            </div>
+            <input type="password" name="password" minlength="1" maxlength="72" class="form-control" id="sign-pwd" placeholder="Password" required>
+          </div>
+          <div class="mb-3 w-100 overflow-x-scroll no-wrap">
+            <span id="strength-text" class="text-danger"></span>
+          </div>
+          <div id="signup-error" class="mb-3 text-center text-danger"></div>
+          <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
+            <button id="signup-btn" type="submit" class="btn btn-primary btn-xl rounded-pill">Sign Up</button>
+          </div>
+        </form>
+        <form id="login" role="tabpanel" class="tab-pane fade w-100">
+          <div class="mb-3">
+            <label for="long-email" class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" id="long-email" placeholder="Enter email" required>
+          </div>
+          <div class="mb-3">
+            <label for="login-pwd" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="login-pwd" placeholder="Password" required>
+          </div>
+          <div id="login-error" class="mb-3 text-center text-danger"></div>
+          <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
+            <button id="login-btn" type="submit" class="btn btn-primary btn-xl rounded-pill">Log In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="bg-circle-1 bg-circle bobble-effect-10"></div>
+  <div class="bg-circle-2 bg-circle bobble-effect-8"></div>
+  <div class="bg-circle-3 bg-circle bobble-effect-6"></div>
+  <div class="bg-circle-4 bg-circle bobble-effect-4"></div>
+</header>

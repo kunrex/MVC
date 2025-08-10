@@ -1,1 +1,55 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import "~node_modules/startbootstrap-one-page-wonder/dist/css/styles.css";
+
+header.masthead {
+  min-height: 100vh;
+}
+
+.mt-6 {
+  margin-top: 5rem;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.scroll {
+  max-height: 400px;
+}
+
+.main {
+  max-width: 800px;
+}
+
+@keyframes bobble {
+  0% {
+    transform: translateY(10px);
+  }
+  50% {
+    transform: translateY(40px);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+@mixin bobble-time($time) {
+  animation: bobble $time infinite;
+}
+
+.bobble-effect-10 {
+  @include bobble-time(10s)
+}
+
+.bobble-effect-4 {
+  @include bobble-time(4s)
+}
+
+.bobble-effect-6 {
+  @include bobble-time(6s)
+}
+
+.bobble-effect-8 {
+  @include bobble-time(8s)
+}
