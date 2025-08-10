@@ -36,3 +36,10 @@ func UserIdAuthorisationPasswordEmail(email string) (int64, int, string, error) 
 
 	return id, authorisation, hashedPassword, nil
 }
+
+func GetUserName(id int64) (string, error) {
+	var name string
+	err := database.DB.QueryRow("SELECT name FROM Users WHERE id = ?;", id).Scan(&name)
+
+	return name, err
+}

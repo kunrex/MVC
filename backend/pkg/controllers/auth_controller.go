@@ -4,6 +4,7 @@ import (
 	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -102,8 +103,15 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userName, err := models.GetUserName(id)
+	if err != nil {
+		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to get user name", w)
+		return
+	}
+
 	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(userName)
 }
 
 func AuthoriseUserHandler(w http.ResponseWriter, r *http.Request) {
