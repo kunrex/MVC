@@ -26,7 +26,7 @@
         </li>
       </ul>
       <div class="tab-content w-100 d-flex justify-content-center p-3">
-        <form id="signup" role="tabpanel" class="tab-pane fade show active w-100">
+        <form #signup id="signup" role="tabpanel" class="tab-pane fade show active w-100">
           <div class="mb-3">
             <label for="sign-name" class="form-label">Name</label>
             <input type="text" name="name" minlength="1" maxlength="100" class="form-control" id="sign-name" placeholder="Enter name" required>
@@ -38,19 +38,19 @@
           <div class="mb-3">
             <label for="sign-pwd" class="form-label">Password</label>
             <div class="progress m-2">
-              <div id="strength" class="progress-bar"></div>
+              <div #strength id="strength" class="progress-bar"></div>
             </div>
-            <input type="password" name="password" minlength="1" maxlength="72" class="form-control" id="sign-pwd" placeholder="Password" required>
+            <input #passwordInput type="password" name="password" minlength="1" maxlength="72" class="form-control" id="sign-pwd" placeholder="Password" required>
           </div>
           <div class="mb-3 w-100 overflow-x-scroll no-wrap">
-            <span id="strength-text" class="text-danger"></span>
+            <span #strengthText id="strength-text" class="text-danger"></span>
           </div>
-          <div id="signup-error" class="mb-3 text-center text-danger"></div>
+          <div #signupError id="signup-error" class="mb-3 text-center text-danger"></div>
           <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
             <button id="signup-btn" type="submit" class="btn btn-primary btn-xl rounded-pill">Sign Up</button>
           </div>
         </form>
-        <form id="login" role="tabpanel" class="tab-pane fade w-100">
+        <form #login id="login" role="tabpanel" class="tab-pane fade w-100">
           <div class="mb-3">
             <label for="long-email" class="form-label">Email Address</label>
             <input type="email" name="email" class="form-control" id="long-email" placeholder="Enter email" required>
@@ -59,7 +59,7 @@
             <label for="login-pwd" class="form-label">Password</label>
             <input type="password" name="password" class="form-control" id="login-pwd" placeholder="Password" required>
           </div>
-          <div id="login-error" class="mb-3 text-center text-danger"></div>
+          <div #loginError id="login-error" class="mb-3 text-center text-danger"></div>
           <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
             <button id="login-btn" type="submit" class="btn btn-primary btn-xl rounded-pill">Log In</button>
           </div>

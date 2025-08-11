@@ -47,7 +47,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.UserExistsEmail(email); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err := models.UserExistsEmail(email); err != nil || !errors.Is(err, sql.ErrNoRows) {
 		utils.WriteFailedResponse(http.StatusBadRequest, "user already exists", w)
 		return
 	}

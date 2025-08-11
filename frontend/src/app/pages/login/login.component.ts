@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params } from "@angular/router";
 
 import { Page } from "../page";
@@ -7,49 +7,34 @@ import { serverAddress } from "../../utils";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 
+const colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success']
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent extends Page {
-  private readonly passwordInput : HTMLInputElement;
+export class LoginComponent extends Page implements AfterViewInit {
+  @ViewChild("login") private login!: ElementRef;
+  @ViewChild("loginError") private loginError! : ElementRef;
 
-  private readonly strengthBar : HTMLElement;
-  private readonly strengthText : HTMLElement;
+  @ViewChild("signup") private signup! : ElementRef;
+  @ViewChild("signupError") private signUpError! : ElementRef;
 
-  private readonly login: HTMLFormElement;
-  private readonly loginError : HTMLElement;
-  private readonly loginButton : HTMLButtonElement;
-
-  private readonly signup : HTMLFormElement;
-  private readonly signUpError : HTMLElement;
-  private readonly signUpButton : HTMLButtonElement;
-
-  private readonly colours : string[] = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success']
+  @ViewChild("strength") private strengthBar! : ElementRef;
+  @ViewChild("strengthText") private strengthText! : ElementRef;
+  @ViewChild("passwordInput") private passwordInput! : ElementRef;
 
   constructor(route: ActivatedRoute, routes: RouteService, audio: AudioService) {
     super(route, routes, audio);
+  }
 
-    this.passwordInput = document.getElementById('sign-pwd') as HTMLInputElement;
-
-    this.strengthBar = document.getElementById('strength') as HTMLElement;
-    this.strengthText = document.getElementById('strength-text') as HTMLElement;
-
-    this.login = document.getElementById("login") as HTMLFormElement;
-    this.signup = document.getElementById("signup") as HTMLFormElement;
-
-    this.loginButton = document.getElementById('login-btn') as HTMLButtonElement;
-    this.signUpButton = document.getElementById('signup-btn') as HTMLButtonElement;
-
-    this.loginError = document.getElementById('login-error') as HTMLElement;
-    this.signUpError = document.getElementById('signup-error') as HTMLElement;
-
+  public ngAfterViewInit() : void {
     this.initLogIn();
     this.initSignUp();
 
-    this.passwordInput.onkeyup = (e) => {
-      this.checkPassword(this.passwordInput.value);
+    this.passwordInput.nativeElement.onkeyup = () => {
+      this.checkPassword(this.passwordInput.nativeElement as HTMLInputElement);
     }
   }
 
@@ -60,30 +45,33 @@ export class LoginComponent extends Page {
   }
 
   private initSignUp() : void {
-    this.signup.onsubmit = async (e) => {
+    const signupForm = this.signup.nativeElement as HTMLFormElement;
+
+    signupForm.onsubmit = async (e) => {
       e.preventDefault();
 
-      if (!this.signup.checkValidity()) {
-        this.signup.reportValidity();
+      if (!signupForm.checkValidity()) {
+        signupForm.reportValidity();
         return;
       }
 
       const params = new URLSearchParams();
-      const formData = new FormData(this.signup);
+      const formData = new FormData(signupForm);
 
       const name = formData.get('name') as string;
 
-      params.set("action", 'signup');
+      params.set('action', 'signup');
 
-      params.set("name", name);
-      params.set("email", formData.get('email') as string);
-      params.set("password", formData.get('password') as string);
+      params.set('name', name);
+      params.set('email', formData.get('email') as string);
+      params.set('password', formData.get('password') as string);
 
       const response = await fetch(`${serverAddress}/auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
+        credentials: 'include',
         body: params.toString()
       });
 
@@ -95,21 +83,23 @@ export class LoginComponent extends Page {
       }
 
       const json = await response.json();
-      this.signUpError.textContent = json.error;
+      this.signUpError.nativeElement.textContent = json.error;
     }
   }
 
   private initLogIn() : void {
-    this.login.onsubmit = async (e) => {
+    const loginForm = this.login.nativeElement as HTMLFormElement;
+
+    loginForm.onsubmit = async (e) => {
       e.preventDefault();
 
-      if (!this.login.checkValidity()) {
-        this.login.reportValidity();
+      if (!loginForm.checkValidity()) {
+        loginForm.reportValidity();
         return;
       }
 
       const params = new URLSearchParams();
-      const formData = new FormData(this.login);
+      const formData = new FormData(loginForm);
 
       params.set("action", 'login');
       params.set("email", formData.get('email') as string);
@@ -120,6 +110,7 @@ export class LoginComponent extends Page {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
+        credentials: 'include',
         body: params.toString()
       });
 
@@ -131,11 +122,13 @@ export class LoginComponent extends Page {
       }
 
       const json = await response.json();
-      this.loginError.textContent = json.error;
+      this.loginError.nativeElement.textContent = json.error;
     }
   }
 
-  private checkPassword(password: string) {
+  private checkPassword(element: HTMLInputElement) {
+    const password = element.value;
+
     let strength = 0;
     if (password.match(/[a-z]+/))
       strength += 1;
@@ -149,19 +142,19 @@ export class LoginComponent extends Page {
       strength += 1;
 
     if(strength === 0)
-      this.strengthText.innerHTML = '';
+      this.strengthText.nativeElement.innerHTML = '';
     else if(strength < 5)
     {
-      this.strengthText.innerHTML = 'Recommended length is at least 8 characters with numbers, symbols and both case letters';
-      this.strengthText.className = 'text-danger';
+      this.strengthText.nativeElement.innerHTML = 'Recommended length is at least 8 characters with numbers, symbols and both case letters';
+      this.strengthText.nativeElement.className = 'text-danger';
     }
     else
     {
-      this.strengthText.innerHTML = 'Strong Password';
-      this.strengthText.className = 'text-success';
+      this.strengthText.nativeElement.innerHTML = 'Strong Password';
+      this.strengthText.nativeElement.className = 'text-success';
     }
 
-    this.strengthBar.className = `progress-bar ${this.colours[strength - 1]}`;
-    this.strengthBar.style.width = (strength * 20) + '%';
+    this.strengthBar.nativeElement.className = `progress-bar ${colours[strength - 1]}`;
+    this.strengthBar.nativeElement.style.width = (strength * 20) + '%';
   }
 }

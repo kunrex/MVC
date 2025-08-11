@@ -43,11 +43,11 @@ func InitConfig() *types.Config {
 
 	if !readInt("APP_PORT", &config.AppPort) ||
 		!readInt("SALT_ROUNDS", &config.SaltRounds) ||
-		!readString(os.Getenv("DB_HOST"), &config.DBHost) ||
-		!readString(os.Getenv("DB_USER"), &config.DBUser) ||
-		!readString(os.Getenv("DB_NAME"), &config.DBName) ||
-		!readString(os.Getenv("JWT_SECRET"), &config.JWTSecret) ||
-		!readString(os.Getenv("DB_PASSWORD"), &config.DBPassword) ||
+		!readString("DB_HOST", &config.DBHost) ||
+		!readString("DB_USER", &config.DBUser) ||
+		!readString("DB_NAME", &config.DBName) ||
+		!readString("JWT_SECRET", &config.JWTSecret) ||
+		!readString("DB_PASSWORD", &config.DBPassword) ||
 		!readInt("TIMEZONE_DIFFERENCE_MINUTES", &TimeZoneMinutes) ||
 		!readInt("DB_MAX_IDLE_CONNECTIONS", &config.MaxDbIdleConnections) ||
 		!readInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections) {
