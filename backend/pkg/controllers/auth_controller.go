@@ -72,7 +72,9 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, utils.GenerateLoginCookie(true))
 	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -109,7 +111,9 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, utils.GenerateLoginCookie(true))
 	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
+
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(userName)
 }

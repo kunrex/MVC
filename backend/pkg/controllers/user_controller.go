@@ -15,7 +15,9 @@ func SignOutUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, utils.GenerateLoginCookie(false))
 	http.SetCookie(w, utils.GenerateAccessCookie(""))
+
 	w.WriteHeader(http.StatusOK)
 }
 

@@ -8,7 +8,10 @@ export const NameKey: string = "name"
 export class RouteService {
   private loggedIn: boolean = false;
 
-  constructor(private readonly router: Router) { }
+  constructor(private readonly router: Router) {
+    const result = localStorage.getItem(NameKey);
+    this.loggedIn = result != null && result != "";
+  }
 
   public isLoggedIn(): boolean {
     return this.loggedIn;

@@ -37,7 +37,21 @@ func GenerateAccessCookie(value string) *http.Cookie {
 		Value:    value,
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
+	}
+}
+
+func GenerateLoginCookie(loggedIn bool) *http.Cookie {
+	value := ""
+	if loggedIn {
+		value = "true"
+	}
+
+	return &http.Cookie{
+		Name:     loginCookie,
+		Value:    value,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
 	}
 }
 
