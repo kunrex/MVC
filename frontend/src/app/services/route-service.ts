@@ -1,7 +1,10 @@
 import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
+import {getCookie} from "../utils";
 
-const defaultName: string = "user"
+const defaultName = "user"
+const loggedInCookie = "loggedIn"
+
 export const NameKey: string = "name"
 
 @Injectable()
@@ -9,8 +12,8 @@ export class RouteService {
   private loggedIn: boolean = false;
 
   constructor(private readonly router: Router) {
-    const result = localStorage.getItem(NameKey);
-    this.loggedIn = result != null && result != "";
+    const cookieValue = getCookie(loggedInCookie)
+    this.loggedIn = cookieValue != null && cookieValue != "";
   }
 
   public isLoggedIn(): boolean {

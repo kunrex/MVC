@@ -39,7 +39,6 @@ export class LoginComponent extends Page implements AfterViewInit {
   }
 
   protected override onPageOpen(params: Params) {
-    console.log(this.routes.isLoggedIn())
     if (this.routes.isLoggedIn()) {
       this.routes.loadDashBoard().then();
     }

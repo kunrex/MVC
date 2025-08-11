@@ -13,3 +13,6 @@ DB_MAX_IDLE_CONNECTIONS=5
 DB_MAX_OPEN_CONNECTIONS=25
 
 TIMEZONE_DIFFERENCE_MINUTES=330
+
+LOCAL_PEM=certificates/localhost.pem
+LOCAL_PEM_KEY=certificates/localhost-key.pem

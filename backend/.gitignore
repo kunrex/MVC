@@ -4,4 +4,7 @@
 assets/*
 !assets/.gitkeep
 
+certificates/*
+!certificates/.gitkeep
+
 .DS_Store

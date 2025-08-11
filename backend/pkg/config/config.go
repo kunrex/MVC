@@ -50,7 +50,9 @@ func InitConfig() *types.Config {
 		!readString("DB_PASSWORD", &config.DBPassword) ||
 		!readInt("TIMEZONE_DIFFERENCE_MINUTES", &TimeZoneMinutes) ||
 		!readInt("DB_MAX_IDLE_CONNECTIONS", &config.MaxDbIdleConnections) ||
-		!readInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections) {
+		!readInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections) ||
+		!readString("LOCAL_PEM", &config.LocalhostCertificate) ||
+		!readString("LOCAL_PEM_KEY", &config.LocalhostCertificateKey) {
 		return nil
 	}
 

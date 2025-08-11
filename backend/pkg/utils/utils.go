@@ -37,6 +37,7 @@ func GenerateAccessCookie(value string) *http.Cookie {
 		Value:    value,
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
 }
@@ -51,6 +52,7 @@ func GenerateLoginCookie(loggedIn bool) *http.Cookie {
 		Name:     loginCookie,
 		Value:    value,
 		Path:     "/",
+		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
 }

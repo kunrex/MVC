@@ -40,9 +40,9 @@ func loadUtils(configuration *types.Config) bool {
 	return true
 }
 
-func serverInit(server *http.Server) {
+func serverInit(config *types.Config, server *http.Server) {
 	log.Printf("starting server on %s\n", server.Addr)
-	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := server.ListenAndServeTLS(config.LocalhostCertificate, config.LocalhostCertificateKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("server error: %v", err)
 	}
 }
@@ -72,7 +72,7 @@ func main() {
 		Handler: router,
 	}
 
-	go serverInit(server)
+	go serverInit(configuration, server)
 
 	quit := createQuitSignal()
 	workers.InitOrderSessionClearanceWorker(quit)
