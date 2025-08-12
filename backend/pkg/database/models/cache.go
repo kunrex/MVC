@@ -17,17 +17,6 @@ var foodsCache = make(map[string]int64)
 
 var orderSessionsCache = make(map[int64]types.OrderSessionCache)
 
-type foodCache struct {
-	ID          int64  `json:"id"`
-	Name        string `json:"name"`
-	Price       uint   `json:"price"`
-	Description string `json:"description"`
-	Vegetarian  bool   `json:"vegetarian"`
-	CookTime    string `json:"cookTime"`
-	ImageURL    string `json:"imageURL"`
-	Tags        string `json:"tags"`
-}
-
 var sessionsCacheMutex sync.Mutex
 
 func ReloadTagCache() {
@@ -68,9 +57,9 @@ func ReloadMenuCache() {
 		log.Printf("SQL Error which caching menu: %v", err.Error())
 	}
 
-	var foods []foodCache
+	var foods []FoodCache
 	for rows.Next() {
-		var food foodCache
+		var food FoodCache
 		err = rows.Scan(
 			&food.ID,
 			&food.Name,

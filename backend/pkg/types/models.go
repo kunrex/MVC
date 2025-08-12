@@ -10,9 +10,9 @@ type Order struct {
 }
 
 type Suborder struct {
-	FoodId   int64  `json:"foodId"`
-	FoodName string `json:"foodName"`
-	FoodPrice uint `json:"foodPrice"`
+	FoodId    int64  `json:"foodId"`
+	FoodName  string `json:"foodName"`
+	FoodPrice uint   `json:"foodPrice"`
 
 	Status string `json:"status"`
 
@@ -30,4 +30,15 @@ type SuborderExtra struct {
 type OrderSessionCache struct {
 	AuthorName string
 	ExpiresOn  time.Time
+}
+
+type FoodCache struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Price       uint   `json:"price"`
+	Description string `json:"description"`
+	Vegetarian  bool   `json:"vegetarian"`
+	CookTime    string `json:"cookTime"`
+	ImageURL    string `json:"imageURL"`
+	Tags        string `json:"tags"`
 }
