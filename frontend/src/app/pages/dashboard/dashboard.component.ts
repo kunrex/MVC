@@ -1,4 +1,3 @@
-import { ActivatedRoute, Params } from "@angular/router";
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import { Modal } from "bootstrap";
@@ -24,14 +23,20 @@ export class DashboardComponent extends LoadablePage implements AfterViewInit {
   @ViewChild("errorText") private readonly errorText!: ElementRef;
   @ViewChild("error") private readonly errorModalReference!: ElementRef;
 
-  constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService) {
-    super(route, routes, audioService);
+  constructor(routes: RouteService, audioService: AudioService) {
+    super(routes, audioService);
   }
 
   public isChef() : boolean { return this.chef; }
   public isAdmin() : boolean { return this.admin; }
 
   ngAfterViewInit(): void {
+    if (!this.routes.isLoggedIn())
+    {
+      await this.routes.loadLogin()
+      return
+    }
+
     const modal = this.errorModalReference.nativeElement
     this.errorModal = new Modal(modal, {
       backdrop: 'static',
@@ -49,17 +54,6 @@ export class DashboardComponent extends LoadablePage implements AfterViewInit {
 
       await this.routes.registerSignOut()
     }
-  }
-
-  protected async onPageRoute(params: Params) : Promise<void> {
-    if (!this.routes.isLoggedIn())
-    {
-      await this.routes.loadLogin()
-      return
-    }
-
-    if(this.errorModal != undefined)
-      this.errorModal.hide()
 
     const response = await fetch(`${serverAddress}/user/permissions`, {
       method: 'GET',
@@ -77,9 +71,6 @@ export class DashboardComponent extends LoadablePage implements AfterViewInit {
 
     const text = this.errorText.nativeElement as HTMLElement
     text.textContent = json.error
-
-    if (this.errorModal != undefined)
-      this.errorModal.show()
   }
 
   public async login() : Promise<void> {

@@ -138,6 +138,11 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public async ngAfterViewInit(): Promise<void> {
+    if (!this.routes.isLoggedIn()) {
+      await this.routes.loadLogin();
+      return;
+    }
+
     await this.loadTagsMenu();
     await this.loadOrderDetails();
     await this.loadSuborders();
