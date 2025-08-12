@@ -16,6 +16,10 @@ export class RouteService {
     this.loggedIn = cookieValue != null && cookieValue != "";
   }
 
+  public matchRoute(route: string) : boolean {
+    return this.router.url == route;
+  }
+
   public isLoggedIn(): boolean {
     return this.loggedIn;
   }
@@ -55,10 +59,7 @@ export class RouteService {
 
   public async loadOrder(id: number, authorName: string, readonly: boolean) : Promise<void> {
     if (this.loggedIn) {
-      if (readonly)
-        await this.router.navigate(["/order", id]);
-      else
-        await this.router.navigate(["/order", id, authorName]);
+      await this.router.navigate(["/order", id, authorName, readonly]);
     }
   }
 

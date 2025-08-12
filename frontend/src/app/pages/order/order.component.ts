@@ -1,4 +1,6 @@
 import { Component, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
 import {serverAddress} from "../../utils";
 import {Page} from "../page";
 import {RouteService} from "../../services/route-service";
@@ -14,6 +16,8 @@ class Suborder {
   constructor(public readonly id: number, public readonly authorName: string, public readonly foodId: number, public readonly foodName: string, public readonly foodPrice: number, public readonly status: string, public quantity: number, public instructions: string, public code: number = 2) { }
 }
 
+const naturalNumber = /^[1-9][0-9]*$/
+
 @Component({
   selector: 'app-order',
   templateUrl: './order.component.html',
@@ -22,6 +26,7 @@ class Suborder {
 export class OrderComponent extends Page implements AfterViewInit {
   public orderId: number = 0;
   public authorName: string = '';
+  public readonly: boolean = false;
 
   public payable: boolean = false;
   public completable: boolean = false;
@@ -46,8 +51,19 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   private maxSuborderId: number = 0;
 
-  constructor(routes: RouteService, audioService: AudioService,) {
+  constructor(private readonly route: ActivatedRoute, routes: RouteService, audioService: AudioService,) {
     super(routes, audioService);
+
+    route.params.subscribe(params => {
+      const orderId = params['id'];
+      if (!naturalNumber.test(orderId)) {
+        //error modal
+      }
+
+      this.orderId = parseInt(orderId);
+      this.authorName = params['authorName'];
+      this.readonly = params['readonly'] == 'true';
+    })
   }
 
   private async loadTagsMenu() : Promise<void> {

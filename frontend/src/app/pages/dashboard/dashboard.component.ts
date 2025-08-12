@@ -30,7 +30,7 @@ export class DashboardComponent extends LoadablePage implements AfterViewInit {
   public isChef() : boolean { return this.chef; }
   public isAdmin() : boolean { return this.admin; }
 
-  ngAfterViewInit(): void {
+  public async ngAfterViewInit(): Promise<void> {
     if (!this.routes.isLoggedIn())
     {
       await this.routes.loadLogin()
