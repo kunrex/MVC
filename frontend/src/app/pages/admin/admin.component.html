@@ -1,1 +1,144 @@
-<p>admin works!</p>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+  <div class="container px-5">
+    <a class="navbar-brand">MVC.Food</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item text-center"><a class="nav-link">Administrative Options</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="masthead text-black align-content-center h-100">
+  <div class="masthead-content">
+    <div class="main container d-flex flex-column justify-content-center align-items-center bg-white rounded-5 p-5">
+      <div class="text-center w-100">
+        <h1>
+          Add New Items and Tags
+        </h1>
+        <hr class="w-100">
+      </div>
+      <div class="flex-grow-1 overflow-y-scroll no-wrap p-3 mb-3 w-100">
+        <div class="w-100 scroll">
+          <div class="accordion w-100" id="accordionAdd">
+            <div class="accordion-item w-100">
+              <h2 class="accordion-header w-100" id="allTags">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                  Current Tags
+                </button>
+              </h2>
+              <div id="collapseOne" class="accordion-collapse collapse w-100" aria-labelledby="allTags" data-bs-parent="#accordionAdd">
+                <div #allTags class="accordion-body w-100 overflow-x-scroll no-wrap"></div>
+              </div>
+            </div>
+            <div class="accordion-item w-100">
+              <h2 class="accordion-header w-100" id="allItems">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  Edit Food Tags
+                </button>
+              </h2>
+              <div id="collapseTwo" class="accordion-collapse collapse w-100" aria-labelledby="allItems" data-bs-parent="#accordionAdd">
+                <div class="accordion-body w-100 d-flex flex-column">
+                  <div class="w-100 d-flex flex-column mb-3">
+                    <label for="editTagItems" class="mb-2">Choose an Item:</label>
+                    <select #editTagItems name="items" id="editTagItems" class="p-2">
+                      <option value="" selected disabled>Select an option</option>
+                    </select>
+                  </div>
+                  <div class="w-100 text-center mb-3">
+                    <h5>
+                      Tags
+                    </h5>
+                  </div>
+                  <div #editTagButtons class="w-100 overflow-x-scroll no-wrap mb-3 p-2"></div>
+                  <div class="w-100 text-center">
+                    <button disabled #editTagConfirm class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item w-100">
+              <h2 class="accordion-header w-100" id="newTag">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Create a New Tag
+                </button>
+              </h2>
+              <div id="collapseThree" class="accordion-collapse collapse w-100"  aria-labelledby="newTag" data-bs-parent="#accordionAdd">
+                <div class="accordion-body w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+                  <div class="w-100 w-md-75">
+                    <label for="createTagInput" class="form-label">New Tag</label>
+                    <span #createTagError class="text-danger fs-6"></span>
+                    <input #createTagInput type="text" name="tag" class="form-control" id="createTagInput" placeholder="Enter New Tag" maxlength="50">
+                  </div>
+                  <div class="w-100 w-md-25 text-center">
+                    <button #createTagConfirm class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item w-100">
+              <h2 class="accordion-header w-100" id="newItem">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                  Add a New Food Item
+                </button>
+              </h2>
+              <div id="collapseFour" class="accordion-collapse collapse w-100" aria-labelledby="newItem" data-bs-parent="#accordionAdd">
+                <div class="accordion-body w-100">
+                  <div class="mb-3 w-100">
+                    <label for="addFoodName" class="form-label">Name</label>
+                    <input #addFoodName type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" maxlength="100">
+                  </div>
+                  <div class="mb-3 w-100">
+                    <label for="addFoodDescription" class="form-label">Enter Description</label>
+                    <input #addFoodDescription type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" maxlength="300">
+                  </div>
+                  <div class="mb-3 w-100">
+                    <label for="addFoodPrice" class="form-label">Enter Price</label>
+                    <input #addFoodPrice type="number" name="price" class="form-control" id="addFoodPrice" min="0" placeholder="Enter Price">
+                  </div>
+                  <div class="mb-3 w-100 d-flex justify-content-evenly">
+                    <button #addFoodVegetarian onclick="setVegetarian()" class="btn text-success-emphasis text-bg-success fw-bold ms-1 me-1">Vegetarian</button>
+                    <button #addFoodNonVegetarian onclick="setNonVegetarian()" class="btn text-danger fw-bold ms-1 me-1">Non Vegetarian</button>
+                  </div>
+                  <div class="mb-3 w-100">
+                    <label>Cooking Duration</label>
+                    <div class="d-flex justify-content-evenly">
+                      <input #addFoodHours type="number" class="form-control ms-1 me-1" name="hours" min="0" max="24" step="1" placeholder="hh">
+                      <input #addFoodMinutes type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm">
+                      <input #addFoodSeconds type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss">
+                    </div>
+                  </div>
+                  <div class="mb-3 w-100 d-flex flex-column flex-md-row justify-content-evenly">
+                    <div class="w-100 w-md-75">
+                      <label for="addFoodImageURL" class="form-label">Image Source</label>
+                      <input #addFoodImageURL type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL">
+                    </div>
+                    <div class="w-100 w-md-25 text-center">
+                      <button onclick="fetchImage()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill m-3">Fetch</button>
+                    </div>
+                  </div>
+                  <div class="mb-3 w-100 form-control d-flex flex-column p-2">
+                    <img #addFoodImage src="" class="w-100 h-auto">
+                  </div>
+                  <div class="mb-3 w-100 d-flex justify-content-center align-items-end text-danger overflow-x-scroll no-wrap p-2">
+                    <span #addFoodError></span>
+                  </div>
+                  <div class="mb-3 w-100 text-center">
+                    <button onclick="addFoodConfirm()" class="btn btn-primary btn-xl rounded-pill">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-100 text-center">
+        <button onclick="window.location.href = '/dashboard'" class="btn btn-primary btn-xl rounded-pill">Return</button>
+      </div>
+    </div>
+  </div>
+  <div class="bg-circle-1 bg-circle bobble-effect-10"></div>
+  <div class="bg-circle-2 bg-circle bobble-effect-8"></div>
+  <div class="bg-circle-3 bg-circle bobble-effect-6"></div>
+  <div class="bg-circle-4 bg-circle bobble-effect-4"></div>
+</header>

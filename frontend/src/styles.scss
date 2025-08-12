@@ -34,6 +34,18 @@ header.masthead {
   }
 }
 
+@keyframes loading {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @mixin bobble-time($time) {
   animation: bobble $time infinite;
 }
@@ -52,4 +64,15 @@ header.masthead {
 
 .bobble-effect-8 {
   @include bobble-time(8s)
+}
+
+.loading {
+  width: 5rem;
+  height: 5rem;
+
+  border-radius: 50%;
+
+  color: var(--bs-pink);
+
+  animation: loading 1s infinite linear;
 }

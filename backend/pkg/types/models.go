@@ -12,6 +12,7 @@ type Order struct {
 type Suborder struct {
 	FoodId   int64  `json:"foodId"`
 	FoodName string `json:"foodName"`
+	FoodPrice uint `json:"foodPrice"`
 
 	Status string `json:"status"`
 

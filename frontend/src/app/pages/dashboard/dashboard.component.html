@@ -1,1 +1,111 @@
-<p>dashboard works!</p>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+  <div class="container px-5">
+    <a class="navbar-brand">MVC.Food</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul #navbarOptions class="navbar-nav ms-auto g-3">
+        <ng-template [ngIf]="hasLoaded()">
+          <li class="nav-item text-center"><a onclick="playClickSFX()" class="nav-link" href="#customer">Customer</a></li>
+          <ng-template [ngIf]="isChef()">
+            <li class="nav-item text-center"><a onClick="playClickSFX()" class="nav-link" href="#chef">Chef</a></li>
+          </ng-template>
+          <ng-template [ngIf]="isAdmin()">
+            <li class="nav-item text-center"><a onClick="playClickSFX()" class="nav-link" href="#admin">Admin</a></li>
+          </ng-template>
+          <li class="nav-item text-bg-danger text-center"><a #signOut onClick="playClickSFX()" class="nav-link text-white">Sign Out</a></li>
+        </ng-template>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div id="options" class="d-flex flex-column justify-content-center align-content-center mt-6 p-5">
+  <div *ngIf="hasLoaded(); then loaded else loading"></div>
+  <ng-template #loaded>
+    <div id="customer">
+      <div class="ps-5 pe-5">
+        <h1>Customer Options</h1>
+        <hr>
+      </div>
+      <div class="d-flex flex-lg-row flex-column justify-content-evenly align-items-center align-items-lg-baseline p-5">
+        <div onclick="newOrder()" class="card container p-0 m-3">
+          <img src="assets/img/order.jpg" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h4 class="card-title">New Order</h4>
+            <h6 class="card-subtitle mb-2 text-muted">Places a new order</h6>
+            <p class="card-text">Places a new order, or gets your most recent order not marked as completed</p>
+          </div>
+        </div>
+        <div onclick="userOrders()" class="card container p-0 m-3">
+          <img src="assets/img/orders.jpg" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h4 class="card-title">Your Orders</h4>
+            <h6 class="card-subtitle mb-2 text-muted">Shows all your orders</h6>
+            <p class="card-text">View and open all your orders to date</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template [ngIf]="isChef()">
+      <div id="chef">
+        <div class="ps-5 pe-5">
+          <h1>Chef Options</h1>
+          <hr>
+        </div>
+        <div class="d-flex flex-lg-row flex-column justify-content-evenly align-items-center align-items-lg-baseline p-5">
+          <div onclick="incompleteSuborders()" class="card container p-0 m-3">
+            <img src="assets/img/cook.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h4 class="card-title">Incomplete Suborders</h4>
+              <h6 class="card-subtitle mb-2 text-muted">Update suborder status</h6>
+              <p class="card-text">Let customers know the status of their suborders</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template [ngIf]="isAdmin()">
+      <div id="admin">
+        <div class="ps-5 pe-5">
+          <h1>Admin Options</h1>
+          <hr>
+        </div>
+        <div class="d-flex flex-lg-row flex-column justify-content-evenly align-items-center align-items-lg-baseline p-5">
+          <div onclick="allOrders()" class="card container p-0 m-3">
+            <img src="assets/img/complete.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h4 class="card-title">All Orders</h4>
+              <h6 class="card-subtitle mb-2 text-muted">View all orders to date</h6>
+              <p class="card-text">View all orders ever placed to date by an customer</p>
+            </div>
+          </div>
+          <div onclick="adminOptions()" class="card container p-0 m-3">
+            <img src="assets/img/complete.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h4 class="card-title">Admin Options</h4>
+              <h6 class="card-subtitle mb-2 text-muted">Administrative options for your restaurant</h6>
+              <p class="card-text">View and create food tags, add new food items, update tags on existing food items, and update user permissions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ng-template>
+  <ng-template #loading>
+    <div class="loading"></div>
+  </ng-template>
+</div>
+<div #error class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">An error occurred</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div #errorText class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+

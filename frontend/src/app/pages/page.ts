@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Params } from "@angular/router";
 
 import { RouteService } from "../services/route-service";
 import { AudioService } from "../services/audio-service";
@@ -8,17 +7,9 @@ import { AudioService } from "../services/audio-service";
   template: ''
 })
 export abstract class Page {
-  protected constructor(protected readonly route: ActivatedRoute, protected readonly routes: RouteService, protected readonly audioService: AudioService) { }
-
-  public ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.onPageOpen(params);
-    })
-  }
-
-  protected onPageOpen(params: Params): void { }
+  protected constructor(protected readonly routes: RouteService, protected readonly audioService: AudioService) { }
 
   public playClickSFX() : Promise<void> {
-    return this.audioService.PlayCLickSFX()
+    return this.audioService.playCLickSFX()
   }
 }

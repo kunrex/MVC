@@ -1,11 +1,10 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, Params } from "@angular/router";
 
-import { Page } from "../page";
 import { serverAddress } from "../../utils";
-
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
+
+import { Page } from "../page";
 
 const colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success']
 
@@ -25,22 +24,21 @@ export class LoginComponent extends Page implements AfterViewInit {
   @ViewChild("strengthText") private strengthText! : ElementRef;
   @ViewChild("passwordInput") private passwordInput! : ElementRef;
 
-  constructor(route: ActivatedRoute, routes: RouteService, audio: AudioService) {
-    super(route, routes, audio);
+  constructor(routes: RouteService, audio: AudioService) {
+    super(routes, audio);
   }
 
-  public ngAfterViewInit() : void {
+  public async ngAfterViewInit() : Promise<void> {
+    if (this.routes.isLoggedIn()) {
+      await this.routes.loadDashBoard();
+      return;
+    }
+
     this.initLogIn();
     this.initSignUp();
 
     this.passwordInput.nativeElement.onkeyup = () => {
       this.checkPassword(this.passwordInput.nativeElement as HTMLInputElement);
-    }
-  }
-
-  protected override onPageOpen(params: Params) {
-    if (this.routes.isLoggedIn()) {
-      this.routes.loadDashBoard().then();
     }
   }
 

@@ -68,7 +68,7 @@ func GetOrderStatus(orderId int64) (bool, bool, error) {
 }
 
 func GetSuborders(orderId int64) (string, error) {
-	rows, err := database.DB.Query(`SELECT Foods.id as foodId, Foods.name, Users.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
+	rows, err := database.DB.Query(`SELECT Foods.id, Foods.name, Foods.price, Users.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												INNER JOIN Users ON Suborders.authorId = Users.id
 												WHERE Suborders.orderId = ?;`, orderId)
@@ -84,6 +84,7 @@ func GetSuborders(orderId int64) (string, error) {
 		_ = rows.Scan(
 			&suborder.FoodId,
 			&suborder.FoodName,
+			&suborder.FoodPrice,
 			&suborder.AuthorName,
 			&suborder.Id,
 			&suborder.Quantity,

@@ -29,14 +29,16 @@ export class RouteService {
     await this.router.navigate(["/login"]);
   }
 
-  public registerLogin(name: string) {
+  public registerLogin(name: string) : void {
     this.loggedIn = true;
     localStorage.setItem(NameKey, name)
   }
 
-  public registerSignOut() {
+  public registerSignOut() : Promise<void> {
     this.loggedIn = false;
     localStorage.setItem(NameKey, "")
+
+    return this.loadLogin()
   }
 
   public async loadDashBoard() : Promise<void> {
@@ -44,14 +46,14 @@ export class RouteService {
       await this.router.navigate(["/dashboard"]);
   }
 
-  public async loadNewOrder() {
+  public async loadNewOrder() : Promise<void> {
     if (this.loggedIn) {
       //fetch
       await this.router.navigate(["/order", this.getLocalName()]);
     }
   }
 
-  public async loadOrder(id: number, authorName: string, readonly: boolean) {
+  public async loadOrder(id: number, authorName: string, readonly: boolean) : Promise<void> {
     if (this.loggedIn) {
       if (readonly)
         await this.router.navigate(["/order", id]);

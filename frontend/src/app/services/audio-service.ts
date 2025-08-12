@@ -19,15 +19,18 @@ export class AudioService {
     this.backgroundMusic.volume =.2
   }
 
-  public async PlayCLickSFX() : Promise<void> {
+  public async playCLickSFX() : Promise<void> {
     this.clickSFX.pause()
     this.clickSFX.currentTime = 0
 
     await this.clickSFX.play();
   }
 
-  public async InitBackgroundMusic() : Promise<void> {
+  public async playBackgroundMusic() : Promise<void> {
     if (!this.backgroundMusic.paused)
-      await this.backgroundMusic.play();
+      try {
+        await this.backgroundMusic.play();
+      }
+     catch { }
   }
 }
