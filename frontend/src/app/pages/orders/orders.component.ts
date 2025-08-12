@@ -14,15 +14,15 @@ class Order {
   styleUrls: ['./orders.component.scss']
 })
 export class OrdersComponent extends Page implements AfterViewInit {
-  public readonly: boolean = false
+  public readonly: boolean = true;
 
   constructor(routes: RouteService, audioService: AudioService) {
     super(routes, audioService);
   }
 
   public orders: Order[] = []
-  public trackOrder(i: number, order: Order) : number {
-    return order.id
+  public orderTracking(i: number, order: Order) : number {
+    return order.id;
   }
 
   public async ngAfterViewInit() : Promise<void> {
@@ -31,7 +31,7 @@ export class OrdersComponent extends Page implements AfterViewInit {
       return;
     }
 
-    this.readonly = this.routes.matchRoute('orders/all')
+    this.readonly = this.routes.matchRoute('orders/all');
   }
 
   public loadOrder(orderId: number, authorName: string) : Promise<void> {
@@ -56,6 +56,6 @@ export class OrdersComponent extends Page implements AfterViewInit {
   }
 
   public loadDashboard() : Promise<void> {
-    return this.routes.loadDashBoard();
+    return this.routes.loadDashboard();
   }
 }

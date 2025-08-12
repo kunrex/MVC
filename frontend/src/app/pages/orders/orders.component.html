@@ -1,10 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
   <div class="container px-5">
-    <a class="navbar-brand">Backend.Food</a>
+    <a class="navbar-brand">MVC.Food</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item text-center"><a class="nav-link"><%= allowJoin ? 'Your Orders' : 'All Orders' %></a></li>
+        <li class="nav-item text-center"><a class="nav-link">{{ readonly ? 'All Orders' : 'Your Orders' }}</a></li>
       </ul>
     </div>
   </div>
@@ -18,8 +18,8 @@
       </div>
       <div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center overflow-y-scroll no-wrap form-control p-3 mb-3">
         <div id="orders-parent" class="w-100 scroll">
-          <ng-container *ngIf=="orders.length > 0; else #noOrders">
-            <div *ngFor="let order of orders; index as i; trackBy: trackOrder" class="card w-100 mt-3 mb-3 d-flex flex-column justify-content-evenly align-items-baseline">
+          <ng-container *ngIf="orders.length > 0; else noOrders">
+            <div *ngFor="let order of orders; index as i; trackBy: orderTracking" class="card w-100 mt-3 mb-3 d-flex flex-column justify-content-evenly align-items-baseline">
               <div class="card-body w-100">
                 <div class="w-100 p-0 d-flex flex-column flex-md-row justify-content-evenly">
                   <div class="w-100 w-md-50 overflow-x-scroll no-wrap m-2">

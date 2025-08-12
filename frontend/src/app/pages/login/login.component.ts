@@ -25,7 +25,7 @@ export class LoginComponent extends Page implements AfterViewInit {
 
   public async ngAfterViewInit() : Promise<void> {
     if (this.routes.isLoggedIn()) {
-      await this.routes.loadDashBoard();
+      await this.routes.loadDashboard();
       return;
     }
   }
@@ -62,7 +62,7 @@ export class LoginComponent extends Page implements AfterViewInit {
     if (response.status == 200) {
       this.routes.registerLogin(name);
 
-      await this.routes.loadDashBoard();
+      await this.routes.loadDashboard();
       return
     }
 
@@ -97,7 +97,7 @@ export class LoginComponent extends Page implements AfterViewInit {
     if (response.status == 200) {
       this.routes.registerLogin(await response.text());
 
-      await this.routes.loadDashBoard();
+      await this.routes.loadDashboard();
       return
     }
 

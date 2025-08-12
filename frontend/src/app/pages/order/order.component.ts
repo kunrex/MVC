@@ -275,6 +275,11 @@ export class OrderComponent extends Page implements AfterViewInit {
         changes.push(current)
     }
 
+    if (changes.length == 0) {
+      await this.routes.loadDashboard();
+      return;
+    }
+
     const response = await fetch(`${serverAddress}/suborders/update/${this.orderId}/${this.authorName}`, {
       method: 'PATCH',
       headers: {
@@ -285,7 +290,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     });
 
     if (response.status == 200) {
-      await this.routes.loadDashBoard();
+      await this.routes.loadDashboard();
       return;
     }
 

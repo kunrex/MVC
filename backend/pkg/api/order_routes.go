@@ -29,9 +29,10 @@ func initSubordersRoutes(router *mux.Router) {
 	subRouter.Use(utils.Authorise)
 
 	subRouter.Handle("/incomplete", utils.Chain(controllers.GetIncompleteSubordersHandler, utils.AuthoriseChef)).Methods("GET")
+	subRouter.Handle("/incomplete/update", utils.Chain(controllers.UpdateIncompleteSubordersHandler, utils.AuthoriseChef)).Methods("PATCH")
 
-	subRouter.Handle("/{orderId}/{authorName}", utils.Chain(controllers.GetSuborderDetailsHandler, middleware.OrderVerificationMiddleware)).Methods("GET")
 	subRouter.Handle("/update/{orderId}/{authorName}", utils.Chain(controllers.UpdateSubordersHandler, middleware.OrderVerificationMiddleware)).Methods("PATCH")
+	subRouter.Handle("/{orderId}/{authorName}", utils.Chain(controllers.GetSuborderDetailsHandler, middleware.OrderVerificationMiddleware)).Methods("GET")
 }
 
 func initMultipleOrderRoutes(router *mux.Router) {

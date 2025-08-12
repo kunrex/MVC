@@ -194,6 +194,29 @@ func GetIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(jsonData)
 }
 
+func UpdateIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
+	var suborderUpdates []types.SuborderExtra
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&suborderUpdates); err != nil {
+		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
+		return
+	}
+
+	for _, element := range suborderUpdates {
+		rowsAffected, err := models.UpdateSuborderStatus(&element)
+		if err != nil {
+			utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
+			return
+		}
+		if rowsAffected == 0 {
+			utils.WriteFailedResponse(http.StatusBadRequest, "suborder does not exist", w)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func GetAllOrdersHandler(w http.ResponseWriter, r *http.Request) {
 	jsonData, err := models.GetAllOrders()
 	if err != nil {

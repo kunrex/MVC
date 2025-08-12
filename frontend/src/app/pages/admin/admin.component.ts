@@ -1,11 +1,15 @@
-import {AfterViewInit, Component, ViewChild, ElementRef} from '@angular/core';
-import { ActivatedRoute, Params } from "@angular/router";
+import {AfterViewInit, Component} from '@angular/core';
 
 import { Page } from "../page";
 
 import {RouteService} from "../../services/route-service";
 import {AudioService} from "../../services/audio-service";
-import {serverAddress} from "../../utils";
+import {between, serverAddress} from "../../utils";
+
+class MenuItem {
+  public readonly tags: string[] = [];
+  constructor(public readonly id: number, public readonly name: string) { }
+}
 
 @Component({
   selector: 'app-admin',
@@ -13,36 +17,53 @@ import {serverAddress} from "../../utils";
   styleUrls: ['./admin.component.scss']
 })
 export class AdminComponent extends Page implements AfterViewInit {
-  @ViewChild("allTags") private allTags!: ElementRef;
-
-  @ViewChild("editTagItems") private editTagItems!: ElementRef;
-  @ViewChild("editTagButtons") private editTagButtons!: ElementRef;
-  @ViewChild("editTagConfirm") private editTagConfirm!: ElementRef;
-
-  @ViewChild("createTagInput") private createTagInput!: ElementRef;
-  @ViewChild("createTagError") private createTagError!: ElementRef;
-  @ViewChild("createTagConfirm") private createTagConfirm!: ElementRef;
-
-  @ViewChild("addFoodImage") private addFoodImage!: ElementRef;
-  @ViewChild("addFoodError") private addFoodError!: ElementRef;
-  @ViewChild("addFoodImageURL") private addFoodImageURL!: ElementRef;
-  @ViewChild("addFoodVegetarian") private addFoodVegetarian!: ElementRef;
-  @ViewChild("addFoodNonVegetarian") private addFoodNonVegetarian!: ElementRef;
-
-  private tags: string[] = []
+  public tags: string[] = []
   private selectedTags: string[] = []
-  private menu: [number, string][] = [];
 
-  private imageLoaded = false;
-  private isVegetarian = false;
-
-  constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService) {
-    super(route, routes, audioService);
+  public tagTracking(i: number, tag: string) : string {
+    return tag;
   }
 
-  ngAfterViewInit(): void { }
+  public menu: MenuItem[] = []
+  public itemTracking(i: number, item: MenuItem) : number {
+    return item.id;
+  }
 
-  protected async onPageRoute(params: Params): Promise<void> {
+  public disableEditTags: boolean = true;
+  public selectedEditTagsItem: string = '';
+
+  public createTagError: string = '';
+  public createTagValue: string = '';
+
+  public foodName: string = '';
+  public foodDescription: string = '';
+
+  public isVegetarian = true;
+  public foodPrice: number = 0;
+
+  public foodTimeHours: number = 0;
+  public foodTimeMinutes: number = 0;
+  public foodTimeSeconds: number = 0;
+
+  public foodImageURL: string = '';
+  public imageShow: boolean = false;
+  public imageLoaded: boolean = false;
+
+  public addFoodError: string = '';
+
+  public userPermissionsEmail: string = '';
+  public userPermissionsError: string = '';
+
+  public userIsChef = false;
+  public userIsAdmin = false;
+  public userPermissionsId: number = 0;
+  public userShowPermissions: boolean = false;
+
+  constructor(routes: RouteService, audioService: AudioService) {
+    super(routes, audioService);
+  }
+
+  public async ngAfterViewInit(): Promise<void> {
     await this.loadTagsMenu()
   }
 
@@ -54,253 +75,249 @@ export class AdminComponent extends Page implements AfterViewInit {
 
     const json = await response.json();
 
-    const menu = json.menu;
-    const editTagItemsParent = this.editTagItems.nativeElement
-    for (let i = 0; i < menu.length; i++)
-    {
-      const name = menu[i].name;
-      this.menu.push([menu[i].id, name]);
+    const jsonMenu = json.menu;
+    const jsonMenuLength = jsonMenu.length;
+    for (let i = 0, l = jsonMenuLength; i < l; i++) {
+      const current = jsonMenu[i];
 
-      const child = document.createElement("option")
-      child.value = name;
-      child.innerText = name
+      const item = new MenuItem(
+        current.id,
+        current.name
+      );
 
-      editTagItemsParent.appendChild(child);
+      const tagsCount = current.tags.length;
+      for(let j = 0; j < tagsCount; j++)
+        item.tags.push(current.tags[j]);
+
+      this.menu.push(item);
     }
 
-    this.tags = json.tags
-    const tagsParent = this.allTags.nativeElement
-    const editTagsButtonsParent = this.editTagButtons.nativeElement
-
-    if (this.tags.length == 0) {
-      const div = document.createElement('div');
-      div.className = 'w-100 text-center text-dark-emphasis p5';
-
-      const heading = document.createElement('h4');
-      heading.textContent = 'No Tags';
-      div.appendChild(heading);
-
-      tagsParent.appendChild(div);
-      editTagsButtonsParent.appendChild(div.cloneNode(true));
-    }
-    else {
-      for (let i = 0; i < this.tags.length; i++) {
-        const tagElement = document.createElement("span")
-
-        tagElement.innerText = this.tags[i]
-        tagElement.className = 'p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1'
-
-        tagsParent.appendChild(tagElement)
-
-        const tagButton = document.createElement("button")
-
-        tagButton.disabled = true
-        tagButton.innerText = this.tags[i]
-        tagButton.className = 'btn text-warning fw-bold ms-1 me-1'
-
-        tagButton.onclick = () => {
-          this.toggleTag(this.tags[i], tagButton)
-        }
-
-        editTagsButtonsParent.appendChild(tagButton)
-      }
-    }
-
-    const editTagsConfirmButton = this.editTagConfirm.nativeElement as HTMLButtonElement;
-    const editTagItemsElement = this.editTagItems.nativeElement as HTMLSelectElement;
-
-    editTagItemsElement.onchange = (e: Event) => {
-      if (this.tags.length === 0)
-        return
-
-      const value = editTagItemsElement.value
-      const item = menu.find((x: string) => x === value)
-
-      if (item === undefined)
-        return
-
-      this.selectedTags.splice(0, this.selectedTags.length)
-
-      const itemTags = item.tags
-      for (let i = 0; i < editTagsButtonsParent.length; i++) {
-        const button = editTagsButtonsParent[i]
-
-        button.disabled = false
-        const tag = button.dataset.tag
-
-        if (itemTags.includes(tag)) {
-          this.selectedTags.push(tag)
-          button.classList = 'btn text-warning-emphasis text-bg-warning fw-bold ms-1 me-1'
-        } else
-          button.classList = 'btn text-warning fw-bold ms-1 me-1'
-      }
-
-      editTagsConfirmButton.disabled = false
-      editTagsConfirmButton.onclick = async () => {
-        const response = await fetch(`${serverAddress}/admin/food/updateTags/${item.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            foodId: item.id,
-            tags: this.selectedTags
-          })
-        })
-
-        if (response.status == 200) {
-          //reload page
-        }
-
-        //error in modal
-      }
-    }
-
-    const createTagError = this.createTagError.nativeElement
-    const createTagInput = this.createTagInput.nativeElement
-    const createTagConfirm = this.createTagConfirm.nativeElement
-
-    createTagConfirm.onclick = async () => {
-      const value = createTagInput.value.trim().toLowerCase()
-
-      if(!value) {
-        createTagError.innerHTML = '*Tag is empty'
-        return
-      }
-
-      if(this.tags.indexOf(value) >= 0) {
-        createTagError.innerHTML = '*Tag already exists'
-        return
-      }
-
-      const response = await fetch(`${serverAddress}/admin/tags/add/${value}`, {
-        method: 'POST',
-        headers: {
-          'Accept' : 'application/json',
-        }
-      })
-
-      if(response.status == 200){
-        createTagInput.value = ''
-      }
-
-      //modal error
-    }
+    const jsonTags = json.tags;
+    const jsonTagsLength = jsonTags.length;
+    for (let i = 0, l = jsonTagsLength; i < l; i++)
+      this.tags.push(jsonTags[i]);
   }
 
-  private toggleTag(tag: string, button: HTMLButtonElement) : void{
-    const index = this.selectedTags.indexOf(tag)
+  public checkTagSelected(tag: string) : boolean {
+    return this.selectedTags.indexOf(tag) > -1;
+  }
+
+  public selectEditTagsItem(e: Event) {
+    const parsed = parseInt(this.selectedEditTagsItem)
+
+    this.selectedTags.slice(0, this.selectedTags.length);
+    const menuCount = this.menu.length;
+    for(let i = 0; i < menuCount; i++) {
+      const current = this.menu[i];
+
+      if(current.id == parsed) {
+        const tagsCount = current.tags.length;
+        for(let j = 0; j < tagsCount; j++)
+          this.selectedTags.push(current.tags[j]);
+
+        break;
+      }
+    }
+
+    this.disableEditTags = false;
+  }
+
+  public toggleTag(tag: string) : void {
+    const index = this.selectedTags.indexOf(tag);
 
     if(index < 0)
-    {
-      this.selectedTags.push(tag)
-      button.className = 'btn text-warning-emphasis text-bg-warning fw-bold ms-1 me-1'
-    }
+      this.selectedTags.push(tag);
     else
-    {
-      this.selectedTags.splice(index, 1)
-      button.className = 'btn text-warning fw-bold ms-1 me-1'
+      this.selectedTags.splice(index, 1);
+
+    this.playClickSFX().then();
+  }
+
+  public async confirmEditTagChanges() : Promise<void> {
+    const response = await fetch(`${serverAddress}/admin/food/updateTags`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        foodId: parseInt(this.selectedEditTagsItem),
+        tags: this.selectedTags,
+      })
+    });
+
+    if (response.status == 200) {
+      this.selectedEditTagsItem = '';
+      this.disableEditTags = true;
     }
 
-    this.playClickSFX().then()
+    //error modal
+  }
+
+  public async createTag() : Promise<void> {
+    if(this.createTagValue == '') {
+      this.createTagError = '*Tag is empty';
+      return;
+    }
+
+    if(this.tags.indexOf(this.createTagValue) > -1) {
+      this.createTagError = '*Tag already exists';
+      return;
+    }
+
+    if(!between(this.createTagValue.length, 1, 50)) {
+      this.addFoodError = "*Exceeds max length";
+      return;
+    }
+
+    const response = await fetch(`${serverAddress}/admin/tags/add/${this.createTagValue}`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+
+    if (response.status == 200) {
+      this.createTagValue = this.createTagError = '';
+      return;
+    }
+
+    //modal error
   }
 
   public setVegetarian() : void {
-    this.isVegetarian = true
-
-    this.addFoodVegetarian.nativeElement.className = 'btn text-success-emphasis text-bg-success fw-bold ms-1 me-1'
-    this.addFoodNonVegetarian.nativeElement.className = 'btn text-danger fw-bold ms-1 me-1'
-
-    this.playClickSFX().then()
+    this.isVegetarian = true;
+    this.playClickSFX().then();
   }
 
   public setNonVegetarian() : void {
-    this.isVegetarian = false
-
-    this.addFoodVegetarian.nativeElement.className = 'btn text-success fw-bold ms-1 me-1'
-    this.addFoodNonVegetarian.nativeElement.className = 'btn text-danger-emphasis text-bg-danger fw-bold ms-1 me-1'
-
-    this.playClickSFX().then()
+    this.isVegetarian = false;
+    this.playClickSFX().then();
   }
 
   public fetchImage() : void {
-    this.imageLoaded = false
-    this.addFoodError.nativeElement.innerHTML = ''
-
-    this.playClickSFX().then()
-
-    const value = this.addFoodImageURL.nativeElement.value
-    if(!value)
-    {
-      this.addFoodError.nativeElement.innerHTML = "Empty URL"
-      return
-    }
-
-    this.addFoodImage.nativeElement.src = value
-    this.addFoodImage.nativeElement.onload = () => {
-      this.imageLoaded = true
-    }
+    this.imageShow = true;
+    this.imageLoaded = false;
+    this.playClickSFX().then();
   }
 
   public async addFoodConfirm() {
-    this.addFoodError.nativeElement.innerHTML = ''
-
-    const name = this.addFoodName.value
-    const price = parseInt(addFoodPrice.value)
-    const description = addFoodDescription.value
-
-    if(!name || !description)
-    {
-      addFoodError.innerHTML = "Please enter a valid name, price and description"
-      return
+    if(this.foodName == '' || this.foodDescription == '') {
+      this.addFoodError = "Please enter a valid name, price and description";
+      return;
     }
 
-    const hours = addFoodHours.value
-    const minutes = addFoodMinutes.value
-    const seconds = addFoodSeconds.value
-
-    if(!hours || !minutes || !seconds)
-    {
-      addFoodError.innerHTML = "Please enter a time, make sure to fill hours, minutes and seconds"
-      return
+    if(!between(this.foodName.length, 1, 100)) {
+      this.addFoodError = "Maximum length of food name is 100";
+      return;
     }
 
-    if(!parseInt(hours) && !parseInt(minutes) && !parseInt(seconds))
-    {
-      addFoodError.innerHTML = "Please enter a time, make sure to fill hours, minutes and seconds"
-      return
+    if(!between(this.foodDescription.length, 1, 100)) {
+      this.addFoodError = "Maximum length of food description is 300";
+      return;
     }
 
-    if(!this.imageLoaded)
-    {
-      addFoodError.innerHTML = "No image loaded"
-      return
+    if(!this.imageLoaded) {
+      this.addFoodError = "No image loaded";
+      return;
     }
-
-    const pad = (n: number) => String(n).padStart(2, '0');
 
     const response = await fetch('/admin/add/food', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({
-        name: name,
-        price: price,
-        description: description,
+        name: this.foodName,
+        price: this.foodPrice,
+        description: this.foodDescription,
 
         veg: this.isVegetarian,
-        cookTime: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+        cookTime: `${this.pad(this.foodTimeHours)}:${this.pad(this.foodTimeMinutes)}:${this.pad(this.foodTimeSeconds)}`,
 
-        image: this.addFoodImage.nativeElement.src
+        imageURL: this.foodImageURL
       })
+    });
+
+    if(response.status == 200) {
+      this.foodName = this.foodDescription = this.foodImageURL = '';
+      this.foodPrice = this.foodTimeHours = this.foodTimeMinutes = this.foodTimeSeconds = 0;
+
+      this.imageShow = this.imageLoaded = false;
+      this.isVegetarian = true;
+    }
+
+    //error modal
+  }
+
+  public async loadUserPermissions() : Promise<void> {
+    if(this.userPermissionsEmail == '') {
+      this.userPermissionsError = 'No email provided'
+    }
+
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/get/${this.userPermissionsEmail}`, {
+      method: 'GET',
+      credentials: 'include'
     })
 
-    if(response.status !== 200)
-    {
-      const json = await response.json()
-      this.addFoodError.nativeElement.innerHTML = json.error
+    const json = await response.json();
+
+    if(response.status == 200) {
+      this.userShowPermissions = true;
+
+      this.userPermissionsId = json.id;
+      const auth = json.authorisation;
+
+      this.userIsChef = (auth & 2) == 2;
+      this.userIsAdmin = (auth & 4) == 4;
+
+      return;
     }
+
+    this.userPermissionsError = json.error;
+  }
+
+  public toggleChef() : void {
+    this.userIsChef = !this.userIsChef;
+  }
+
+  public toggleAdmin() : void {
+    this.userIsAdmin = true;
+  }
+
+  public async confirmUserPermissions() : Promise<void> {
+    let auth = 1;
+    if (this.userIsChef)
+      auth &= 2;
+    if (this.userIsAdmin)
+      auth &= 4;
+
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userPermissionsId}/${auth}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if(response.status == 200) {
+      this.clearUserPermissions();
+
+      return;
+    }
+
+    //error modal
+  }
+
+  public clearUserPermissions() : void {
+    this.userPermissionsId = 0;
+    this.userIsChef = this.userIsAdmin = false;
+
+    this.userPermissionsEmail = '';
+    this.userShowPermissions = false;
+  }
+
+  public loadDashboard() : Promise<void> {
+    return this.routes.loadDashboard();
+  }
+
+  private pad(n: number): string {
+    return String(n).padStart(2, '0');
   }
 }

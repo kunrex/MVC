@@ -45,7 +45,7 @@ export class RouteService {
     return this.loadLogin()
   }
 
-  public async loadDashBoard() : Promise<void> {
+  public async loadDashboard() : Promise<void> {
     if (this.loggedIn)
       await this.router.navigate(["/dashboard"]);
   }

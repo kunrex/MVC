@@ -103,15 +103,25 @@ func GetSuborders(orderId int64) (string, error) {
 }
 
 func UpdateSuborder(suborder *types.SuborderExtra, orderId int64) (int64, error) {
+	res, err := database.DB.Exec(`UPDATE Suborders SET
+                     					quantity = ?,
+                     					instructions = ?,
+                     					WHERE id = ? AND orderId = ?;`, suborder.Quantity, suborder.Instructions, suborder.Id, orderId)
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, err
+}
+
+func UpdateSuborderStatus(suborder *types.SuborderExtra) (int64, error) {
 	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
 		return 0, errors.New("invalid suborder status")
 	}
 
-	res, err := database.DB.Exec(`UPDATE Suborders SET
-                     					quantity = ?,
-                     					instructions = ?,
-                     					status = ?
-                     					WHERE id = ? AND orderId = ?;`, suborder.Quantity, suborder.Instructions, suborder.Status, suborder.Id, orderId)
+	res, err := database.DB.Exec(`UPDATE Suborders SET status = ? WHERE id = ?;`, suborder.Status, suborder.Id)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -150,7 +160,7 @@ func AddSuborders(suborders []types.Suborder, orderId int64, userId int64) error
 }
 
 func GetIncompleteSuborders() (string, error) {
-	rows, err := database.DB.Query(`SELECT Foods.name, Foods.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
+	rows, err := database.DB.Query(`SELECT Foods.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												WHERE Suborders.status != ?;`, "completed")
 
@@ -158,12 +168,12 @@ func GetIncompleteSuborders() (string, error) {
 		return "", err
 	}
 
-	suborders := make([]types.Suborder, 0)
+	suborders := make([]types.SuborderExtra, 0)
 	for rows.Next() {
-		var suborder types.Suborder
+		var suborder types.SuborderExtra
 		_ = rows.Scan(
 			&suborder.FoodName,
-			&suborder.FoodId,
+			&suborder.Id,
 			&suborder.Quantity,
 			&suborder.Instructions,
 			&suborder.Status)

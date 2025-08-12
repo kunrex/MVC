@@ -28,7 +28,16 @@
                 </button>
               </h2>
               <div id="collapseOne" class="accordion-collapse collapse w-100" aria-labelledby="allTags" data-bs-parent="#accordionAdd">
-                <div #allTags class="accordion-body w-100 overflow-x-scroll no-wrap"></div>
+                <div class="accordion-body w-100 overflow-x-scroll no-wrap">
+                  <ng-container *ngIf="tags.length > 0; else noTags">
+                    <span *ngFor="let tag of tags; index as i; trackBy: tagTracking" class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1"> {{ tag }} </span>
+                  </ng-container>
+                  <ng-template #noTags>
+                    <div class="w-100 text-center text-dark-emphasis p5">
+                      <h4>No Tags</h4>
+                    </div>
+                  </ng-template>
+                </div>
               </div>
             </div>
             <div class="accordion-item w-100">
@@ -41,8 +50,9 @@
                 <div class="accordion-body w-100 d-flex flex-column">
                   <div class="w-100 d-flex flex-column mb-3">
                     <label for="editTagItems" class="mb-2">Choose an Item:</label>
-                    <select #editTagItems name="items" id="editTagItems" class="p-2">
+                    <select [(ngModel)]="selectedEditTagsItem" name="items" id="editTagItems" class="p-2">
                       <option value="" selected disabled>Select an option</option>
+                      <option *ngFor="let item of menu; index as i; trackBy: itemTracking" (change)="selectEditTagsItem($event)" value="{{ item.id }}"> {{ item.name }} </option>
                     </select>
                   </div>
                   <div class="w-100 text-center mb-3">
@@ -50,9 +60,18 @@
                       Tags
                     </h5>
                   </div>
-                  <div #editTagButtons class="w-100 overflow-x-scroll no-wrap mb-3 p-2"></div>
+                  <div class="w-100 overflow-x-scroll no-wrap mb-3 p-2">
+                    <ng-container *ngIf="tags.length > 0; else noTagsEdit">
+                      <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="disableEditTags" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
+                    </ng-container>
+                    <ng-template #noTagsEdit>
+                      <div class="w-100 text-center text-dark-emphasis p5">
+                        <h4>No Tags</h4>
+                      </div>
+                    </ng-template>
+                  </div>
                   <div class="w-100 text-center">
-                    <button disabled #editTagConfirm class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
+                    <button [disabled]="disableEditTags" (click)="confirmEditTagChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
                   </div>
                 </div>
               </div>
@@ -67,11 +86,11 @@
                 <div class="accordion-body w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
                   <div class="w-100 w-md-75">
                     <label for="createTagInput" class="form-label">New Tag</label>
-                    <span #createTagError class="text-danger fs-6"></span>
-                    <input #createTagInput type="text" name="tag" class="form-control" id="createTagInput" placeholder="Enter New Tag" maxlength="50">
+                    <span class="text-danger fs-6">{{ createTagError }}</span>
+                    <input [(ngModel)]="createTagValue" type="text" name="tag" class="form-control" id="createTagInput" placeholder="Enter New Tag" maxlength="50">
                   </div>
                   <div class="w-100 w-md-25 text-center">
-                    <button #createTagConfirm class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
+                    <button (click)="createTag()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
                   </div>
                 </div>
               </div>
@@ -86,46 +105,90 @@
                 <div class="accordion-body w-100">
                   <div class="mb-3 w-100">
                     <label for="addFoodName" class="form-label">Name</label>
-                    <input #addFoodName type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" maxlength="100">
+                    <input [(ngModel)]="foodName" type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" maxlength="100">
                   </div>
                   <div class="mb-3 w-100">
                     <label for="addFoodDescription" class="form-label">Enter Description</label>
-                    <input #addFoodDescription type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" maxlength="300">
+                    <input [(ngModel)]="foodDescription" type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" maxlength="300">
                   </div>
                   <div class="mb-3 w-100">
                     <label for="addFoodPrice" class="form-label">Enter Price</label>
-                    <input #addFoodPrice type="number" name="price" class="form-control" id="addFoodPrice" min="0" placeholder="Enter Price">
+                    <input [(ngModel)]="foodPrice" type="number" name="price" class="form-control" id="addFoodPrice" min="0" step="1" placeholder="Enter Price">
                   </div>
                   <div class="mb-3 w-100 d-flex justify-content-evenly">
-                    <button #addFoodVegetarian onclick="setVegetarian()" class="btn text-success-emphasis text-bg-success fw-bold ms-1 me-1">Vegetarian</button>
-                    <button #addFoodNonVegetarian onclick="setNonVegetarian()" class="btn text-danger fw-bold ms-1 me-1">Non Vegetarian</button>
+                    <button (click)="setVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="isVegetarian ? 'text-success-emphasis text-bg-success' : 'text-success'">Vegetarian</button>
+                    <button (click)="setNonVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="isVegetarian ? 'text-danger' : 'text-danger-emphasis text-bg-danger'">Non Vegetarian</button>
                   </div>
                   <div class="mb-3 w-100">
                     <label>Cooking Duration</label>
                     <div class="d-flex justify-content-evenly">
-                      <input #addFoodHours type="number" class="form-control ms-1 me-1" name="hours" min="0" max="24" step="1" placeholder="hh">
-                      <input #addFoodMinutes type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm">
-                      <input #addFoodSeconds type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss">
+                      <input [(ngModel)]="foodTimeHours" type="number" class="form-control ms-1 me-1" name="hours" min="0" max="23" step="1" placeholder="hh">
+                      <input [(ngModel)]="foodTimeMinutes" type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm">
+                      <input [(ngModel)]="foodTimeSeconds" type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss">
                     </div>
                   </div>
                   <div class="mb-3 w-100 d-flex flex-column flex-md-row justify-content-evenly">
                     <div class="w-100 w-md-75">
                       <label for="addFoodImageURL" class="form-label">Image Source</label>
-                      <input #addFoodImageURL type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL">
+                      <input [[ngModel]]="foodImageURL" type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL">
                     </div>
                     <div class="w-100 w-md-25 text-center">
-                      <button onclick="fetchImage()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill m-3">Fetch</button>
+                      <button (click)="fetchImage()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill m-3">Fetch</button>
                     </div>
                   </div>
-                  <div class="mb-3 w-100 form-control d-flex flex-column p-2">
-                    <img #addFoodImage src="" class="w-100 h-auto">
-                  </div>
+                  <ng-container *ngIf="imageShow">
+                    <div class="mb-3 w-100 form-control d-flex flex-column p-2">
+                      <img src="{{foodImageURL}}" (load)="imageLoaded = true" class="w-100 h-auto">
+                    </div>
+                  </ng-container>
                   <div class="mb-3 w-100 d-flex justify-content-center align-items-end text-danger overflow-x-scroll no-wrap p-2">
-                    <span #addFoodError></span>
+                    {{ addFoodError }}
                   </div>
                   <div class="mb-3 w-100 text-center">
-                    <button onclick="addFoodConfirm()" class="btn btn-primary btn-xl rounded-pill">Confirm</button>
+                    <button (click)="addFoodConfirm()" class="btn btn-primary btn-xl rounded-pill">Confirm</button>
                   </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item w-100">
+              <h2 class="accordion-header w-100" id="userPermissions">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                  Current Tags
+                </button>
+              </h2>
+              <div id="collapseFive" class="accordion-collapse collapse w-100" aria-labelledby="userPermissions" data-bs-parent="#accordionAdd">
+                <div class="accordion-body w-100 overflow-x-scroll no-wrap">
+                  <ng-container *ngIf="!userShowPermissions; else showPermissions">
+                    <div class="w-100 scroll">
+                      <form class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center mb-3">
+                        <div class="w-100 w-md-75 my-2 mx-5">
+                          <label for="email" class="form-label">User Email</label>
+                          <input [(ngModel)]="userPermissionsEmail" type="email" name="email" class="form-control" id="email" placeholder="Enter User Email">
+                        </div>
+                        <button type="submit" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Fetch User</button>
+                      </form>
+                      <div class="w-100 text-center m-2"> {{ userPermissionsError }} </div>
+                      <div class="w-100 text-center">
+                        <button (click)="loadUserPermissions()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-xl rounded-pill">Cancel</button>
+                      </div>
+                    </div>
+                  </ng-container>
+                  <ng-template #showPermissions>
+                    <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-end p-3">
+                      <div class="w-100 w-md-50 w-md-50 d-flex flex-column justify-content-evenly align-items-lg-baseline overflow-x-scroll no-wrap my-2 p-3">
+                        <h5> {{ userPermissionsEmail }} </h5>
+                      </div>
+                      <div class="w-100 w-md-50 d-flex justify-content-evenly overflow-x-scroll no-wrap my-2 p-3">
+                        <span class="p-2 rounded-2 text-center text-dark-emphasis text-bg-dark fw-bold ms-1 me-1">Customer</span>
+                        <button onclick="toggleChef()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userIsChef ? 'text-warning-emphasis text-bg-warning' : 'text-warning'">Chef</button>
+                        <button onclick="toggleAdmin()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userIsAdmin ? 'text-success-emphasis text-bg-success' : 'text-success'">Admin</button>
+                      </div>
+                    </div>
+                    <div class="w-100 d-flex flex-column flex-sm-row justify-content-evenly align-items-center">
+                      <button (click)="confirmUserPermissions()" id="confirm" class="btn btn-primary btn-xl rounded-pill m-2">Confirm</button>
+                      <button (click)="clearUserPermissions()" class="btn btn-primary btn-xl rounded-pill m-2">Cancel</button>
+                    </div>
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -133,7 +196,7 @@
         </div>
       </div>
       <div class="w-100 text-center">
-        <button onclick="window.location.href = '/dashboard'" class="btn btn-primary btn-xl rounded-pill">Return</button>
+        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill">Return</button>
       </div>
     </div>
   </div>

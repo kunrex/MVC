@@ -1,1 +1,64 @@
-<p>suborders works!</p>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+  <div class="container px-5">
+    <a class="navbar-brand">Backend.Food</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item text-center"><a class="nav-link">Incomplete Suborders</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="masthead text-black align-content-center h-100">
+  <div class="masthead-content h-100">
+    <div class="main h-100 w-100 container bg-white rounded-5 p-5" >
+      <div class="text-center w-100">
+        <h2>Incomplete Suborders</h2>
+        <hr>
+      </div>
+      <div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center overflow-y-scroll no-wrap form-control p-3 mb-3">
+        <div class="w-100 scroll">
+          <ng-container *ngIf="suborders.length > 0; else noSuborders">
+            <div *ngFor="let suborder of suborders; index as i; trackBy: suborderTracking" class="card w-100 mt-3 mb-3 d-flex flex-column justify-content-evenly align-items-baseline">
+              <div class="card-body w-100">
+                <div class="w-100 p-0 d-flex flex-column flex-md-row justify-content-evenly">
+                  <div class="w-100 w-md-50 overflow-x-scroll no-wrap p-2" style="white-space: nowrap">
+                    <h3 class="card-title m-0"> {{ suborder.foodName }} </h3>
+                  </div>
+                  <div class="w-100 w-md-50 overflow-x-scroll no-wrap text-md-end p-2" style="white-space: nowrap">
+                    <h5 class="card-title m-0"> Quantity: {{ suborder.quantity }} </h5>
+                  </div>
+                </div>
+                <div class="mt-3 w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+                  <div class="w-100 w-md-50 overflow-x-scroll no-wrap form-control m-3">
+                    <p class="card-text"> {{ suborder.instructions == "" ? "No Instructions" : suborder.instructions }} </p>
+                  </div>
+                  <div class="w-100 w-md-50 d-flex flex-column flex-md-row justify-content-evenly align-items-center no-wrap m-3">
+                    <button [disabled]="suborder.status != ordered"  class="btn fw-bold ms-1 me-1" [ngClass]="suborder.status == ordered ? 'text-dark-emphasis text-bg-dark' : 'text-dark'">Ordered</button>
+                    <button (click)="markProcessing(suborder.id)" [disabled]="suborder.status == completed" class="btn fw-bold ms-1 me-1" [ngClass]="suborder.status == processing ? 'text-warning-emphasis text-bg-warning' : 'text-warning'">Processing</button>
+                    <button (click)="markCompleted(suborder.id)" class="btn fw-bold ms-1 me-1" [ngClass]="suborder.status == completed ? 'text-success-emphasis text-bg-success' : 'text-success'">Complete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noSuborders>
+            <div class="w-100 text-center text-dark-emphasis p5">
+              <h3>No Orders</h3>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+      <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+        <ng-container *ngIf="suborders.length > 0">
+          <button (click)="confirmChanges($event)" class="btn btn-primary btn-xl rounded-pill m-2">Confirm</button>
+        </ng-container>
+        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill m-2"> {{ suborders.length > 0 ? "Cancel" : "Return" }} </button>
+      </div>
+    </div>
+  </div>
+  <div class="bg-circle-1 bg-circle bobble-effect-10"></div>
+  <div class="bg-circle-2 bg-circle bobble-effect-8"></div>
+  <div class="bg-circle-3 bg-circle bobble-effect-6"></div>
+  <div class="bg-circle-4 bg-circle bobble-effect-4"></div>
+</header>
