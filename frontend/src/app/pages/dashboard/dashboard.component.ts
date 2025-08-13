@@ -45,6 +45,8 @@ export class DashboardComponent extends Page implements AfterViewInit {
       this.isAdmin = json.admin
 
       this.loaded = true
+
+      return;
     }
 
     this.modalService.showError(json.error);
@@ -53,10 +55,10 @@ export class DashboardComponent extends Page implements AfterViewInit {
   public async signOut() : Promise<void> {
     await this.playClickSFX();
 
-    const response = await fetch(`${serverAddress}/user/signOut`, {
+    const response = await fetch(`${serverAddress}/user/signout`, {
       method: 'POST',
       credentials: 'include',
-    })
+    });
 
     if(response.status == 200)
       return this.routes.registerSignOut();

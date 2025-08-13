@@ -19,14 +19,14 @@
       </div>
       <ul class="nav nav-tabs w-100" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="home" aria-selected="true">Sign Up</button>
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="home" aria-selected="true">Sign Up</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="profile" aria-selected="false">Log In</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="profile" aria-selected="false">Log In</button>
         </li>
       </ul>
       <div class="tab-content w-100 d-flex justify-content-center p-3">
-        <form (submit)="signup($event)" role="tabpanel" class="tab-pane fade show active w-100">
+        <form id="signup" (submit)="signup($event)" role="tabpanel" class="tab-pane fade show active w-100">
           <div class="mb-3">
             <label for="sign-name" class="form-label">Name</label>
             <input type="text" name="name" minlength="1" maxlength="100" class="form-control" id="sign-name" placeholder="Enter name" required>
@@ -50,7 +50,7 @@
             <button id="signup-btn" type="submit" class="btn btn-primary btn-xl rounded-pill">Sign Up</button>
           </div>
         </form>
-        <form (submit)="login($event)" role="tabpanel" class="tab-pane fade w-100">
+        <form id="login" (submit)="login($event)" role="tabpanel" class="tab-pane fade w-100">
           <div class="mb-3">
             <label for="long-email" class="form-label">Email Address</label>
             <input type="email" name="email" class="form-control" id="long-email" placeholder="Enter email" required>

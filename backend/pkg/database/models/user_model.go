@@ -12,8 +12,3 @@ func UserAuthorisation(userId int64) (int, error) {
 
 	return authorisation, nil
 }
-
-func ClearRefreshHash(userId int64) error {
-	_, err := database.DB.Exec("UPDATE Users SET refreshHash = NULL WHERE id = ?;", userId)
-	return err
-}

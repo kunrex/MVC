@@ -25,7 +25,7 @@ func ReloadTagCache() {
 		log.Printf("SQL Error which caching tags: %v", err.Error())
 	}
 
-	var tags []string
+	tags := make([]string, 0)
 	for rows.Next() {
 		var id int64
 		var tag string
@@ -57,9 +57,9 @@ func ReloadMenuCache() {
 		log.Printf("SQL Error which caching menu: %v", err.Error())
 	}
 
-	var foods []FoodCache
+	foods := make([]types.FoodCache, 0)
 	for rows.Next() {
-		var food FoodCache
+		var food types.FoodCache
 		err = rows.Scan(
 			&food.ID,
 			&food.Name,

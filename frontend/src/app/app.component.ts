@@ -41,7 +41,9 @@ export class AppComponent implements AfterViewInit {
           this.routes.loadLogin().then();
 
         this.audioService.playCLickSFX().then();
-      })
+      });
+
+      modal.show();
     });
   }
 }

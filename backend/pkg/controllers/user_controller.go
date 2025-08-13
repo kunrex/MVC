@@ -1,20 +1,12 @@
 package controllers
 
 import (
-	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
 	"encoding/json"
 	"net/http"
 )
 
 func SignOutUserHandler(w http.ResponseWriter, r *http.Request) {
-	userId := r.Context().Value(utils.UserId).(int64)
-
-	if err := models.ClearRefreshHash(userId); err != nil {
-		utils.WriteFailedResponse(http.StatusInternalServerError, "failed to clear refresh hash", w)
-		return
-	}
-
 	http.SetCookie(w, utils.GenerateLoginCookie(false))
 	http.SetCookie(w, utils.GenerateAccessCookie(""))
 

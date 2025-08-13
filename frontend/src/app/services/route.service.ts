@@ -2,6 +2,7 @@ import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
 
 import { getCookie } from "../utils/cookies";
+import {serverAddress} from "../utils/constants";
 
 const defaultName = "user"
 const loggedInCookie = "loggedIn"
@@ -53,8 +54,13 @@ export class RouteService {
 
   public async loadNewOrder() : Promise<void> {
     if (this.loggedIn) {
-      //fetch
-      await this.router.navigate(["/order", this.getLocalName()]);
+      const response = await fetch(`${serverAddress}/order`, {
+        method: "GET",
+        credentials: "include"
+      });
+
+      if (response.status == 200)
+        await this.router.navigate(["/order", parseInt(await response.text()), this.getLocalName(), false]);
     }
   }
 
