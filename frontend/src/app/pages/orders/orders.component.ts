@@ -27,20 +27,18 @@ export class OrdersComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;
 
   public orders: Order[] = []
-  public allowJoin: boolean = true;
+  public allowJoin: boolean = false;
 
   constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
   }
 
   public async ngAfterViewInit() : Promise<void> {
-    if(!this.routes.isLoggedIn()) {
-      await this.routes.loadLogin();
-      return;
-    }
+    if(!this.routes.isLoggedIn())
+      return this.routes.loadLogin();
 
-    this.allowJoin = this.routes.matchRoute('orders/all');
-    const response = await fetch(this.allowJoin ? `${serverAddress}/orders/all` : `${serverAddress}/orders/user`, {
+    this.allowJoin = this.routes.matchRoute('/orders/user');
+    const response = await fetch(this.allowJoin ? `${serverAddress}/orders/user` : `${serverAddress}/orders/all`, {
       method: 'GET',
       credentials: 'include',
     });

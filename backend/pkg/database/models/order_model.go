@@ -5,7 +5,6 @@ import (
 	"MVC/pkg/database"
 	"MVC/pkg/types"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -17,7 +16,7 @@ func TryFindNonPayedOrder(userId int64) (int64, error) {
 	err := database.DB.QueryRow("SELECT id FROM Orders WHERE createdBy = ? AND payedBy IS NULL;", userId).Scan(&id)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		res, err := database.DB.Exec(`INSERT INTO Orders (createdBy, completed, createdOn) VALUES (?, ?, ?);`, userId, false, time.Now())
+		res, err := database.DB.Exec(`INSERT INTO Orders (createdBy, completed, createdOn) VALUES (?, ?, ?);`, userId, false, time.Now().UTC())
 		if err != nil {
 			return id, err
 		}
@@ -67,14 +66,14 @@ func GetOrderStatus(orderId int64) (bool, bool, error) {
 	return completed, payed, nil
 }
 
-func GetSuborders(orderId int64) (string, error) {
+func GetSuborders(orderId int64) ([]types.SuborderExtra, error) {
 	rows, err := database.DB.Query(`SELECT Foods.id, Foods.name, Foods.price, Users.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												INNER JOIN Users ON Suborders.authorId = Users.id
 												WHERE Suborders.orderId = ?;`, orderId)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	suborders := make([]types.SuborderExtra, 0)
@@ -94,12 +93,7 @@ func GetSuborders(orderId int64) (string, error) {
 		suborders = append(suborders, suborder)
 	}
 
-	jsonString, err := json.Marshal(suborders)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonString), nil
+	return suborders, nil
 }
 
 func UpdateSuborder(suborder *types.SuborderExtra, orderId int64) (int64, error) {
@@ -116,7 +110,7 @@ func UpdateSuborder(suborder *types.SuborderExtra, orderId int64) (int64, error)
 	return rowsAffected, err
 }
 
-func UpdateSuborderStatus(suborder *types.SuborderExtra) (int64, error) {
+func UpdateSuborderStatus(suborder *types.SuborderUpdateForm) (int64, error) {
 	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
 		return 0, errors.New("invalid suborder status")
 	}
@@ -159,13 +153,13 @@ func AddSuborders(suborders []types.Suborder, orderId int64, userId int64) error
 	return err
 }
 
-func GetIncompleteSuborders() (string, error) {
+func GetIncompleteSuborders() ([]types.SuborderExtra, error) {
 	rows, err := database.DB.Query(`SELECT Foods.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												WHERE Suborders.status != ?;`, "completed")
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	suborders := make([]types.SuborderExtra, 0)
@@ -181,19 +175,14 @@ func GetIncompleteSuborders() (string, error) {
 		suborders = append(suborders, suborder)
 	}
 
-	jsonString, err := json.Marshal(suborders)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonString), nil
+	return suborders, nil
 }
 
 func CompleteOrder(orderId int64) (bool, error) {
 	res, err := database.DB.Exec(`UPDATE Orders SET 
                   							completed = ?,
                   							completedOn = ? 
-              								WHERE id = ? AND completed = ?;`, true, time.Now(), orderId, false)
+              								WHERE id = ? AND completed = ?;`, true, time.Now().UTC(), orderId, false)
 	if err != nil {
 		return false, err
 	}
@@ -230,7 +219,7 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
                   							subtotal = ?,
                   							payedBy = ?,
                   							payedOn = ?
-              								WHERE id = ? and payedBy = ?;`, tip, total, discount, subtotal, userId, time.Now(), orderId, nil)
+              								WHERE id = ? and payedBy = ?;`, tip, total, discount, subtotal, userId, time.Now().UTC(), orderId, nil)
 
 	if err != nil {
 		return false, err
@@ -248,12 +237,12 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 	return true, nil
 }
 
-func GetAllOrders() (string, error) {
-	rows, err := database.DB.Query(fmt.Sprintf(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL %v MINUTE) FROM Orders
-                                                 INNER JOIN Users ON Users.id = Orders.createdBy;`, config.TimeZoneMinutes))
+func GetAllOrders() ([]types.Order, error) {
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn FROM Orders
+                                                 INNER JOIN Users ON Users.id = Orders.createdBy;`)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	orders := make([]types.Order, 0)
@@ -265,24 +254,20 @@ func GetAllOrders() (string, error) {
 			&order.Completed,
 			&order.CreatedOn)
 
+		order.CreatedOn = order.CreatedOn.Add(time.Minute * time.Duration(config.TimeZoneMinutes))
 		orders = append(orders, order)
 	}
 
-	jsonString, err := json.Marshal(orders)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonString), nil
+	return orders, nil
 }
 
-func GetUserOrders(userId int64) (string, error) {
-	rows, err := database.DB.Query(fmt.Sprintf(`SELECT Users.name, Orders.id, Orders.completed, DATE_ADD(Orders.createdOn, INTERVAL %v MINUTE) FROM Orders
+func GetUserOrders(userId int64) ([]types.Order, error) {
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.orderId = Orders.Id 
     										INNER JOIN Users ON Users.id = Orders.createdBy
-                                            WHERE OrderRelations.userId = ?;`, config.TimeZoneMinutes), userId)
+                                            WHERE OrderRelations.userId = ?;`, userId)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	orders := make([]types.Order, 0)
@@ -294,13 +279,9 @@ func GetUserOrders(userId int64) (string, error) {
 			&order.Completed,
 			&order.CreatedOn)
 
+		order.CreatedOn = order.CreatedOn.Add(time.Minute * time.Duration(config.TimeZoneMinutes))
 		orders = append(orders, order)
 	}
 
-	jsonString, err := json.Marshal(orders)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonString), nil
+	return orders, nil
 }

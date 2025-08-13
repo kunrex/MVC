@@ -107,7 +107,7 @@ export class LoginComponent extends Page implements AfterViewInit {
     });
 
     if (response.status == 200) {
-      this.routes.registerLogin(await response.text());
+      this.routes.registerLogin(await response.json());
 
       await this.routes.loadDashboard();
       return

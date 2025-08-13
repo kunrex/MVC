@@ -195,7 +195,7 @@ func GetIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
-	var suborderUpdates []types.SuborderExtra
+	var suborderUpdates []types.SuborderUpdateForm
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&suborderUpdates); err != nil {
 		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)

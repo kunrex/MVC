@@ -62,7 +62,7 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   private maxSuborderId: number = 0;
 
-  constructor(private readonly route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+  constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
 
     route.params.subscribe(params => {
@@ -79,10 +79,8 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if (!this.routes.isLoggedIn()) {
-      await this.routes.loadLogin();
-      return;
-    }
+    if (!this.routes.isLoggedIn())
+      return this.routes.loadLogin();
 
     await this.loadTagsMenu();
     await this.loadOrderDetails();
@@ -118,13 +116,13 @@ export class OrderComponent extends Page implements AfterViewInit {
           current.price,
           current.description,
           current.cookTime,
-          current.vegetarian,
-          current.imageUrl
+          current.imageURL,
+          current.vegetarian
         );
 
         const itemTags = current.tags.split(',')
         for(let i = 0; i < itemTags.length; i++)
-          current.tags.push(itemTags[i]);
+          item.tags.push(itemTags[i]);
 
         this.menuItems.push(item);
         this.displayedItems.push(Object.assign({}, item));
@@ -146,7 +144,7 @@ export class OrderComponent extends Page implements AfterViewInit {
 
     if(response.status == 200) {
       this.payable = !json.payed;
-      this.completable = !json.completed
+      this.completable = !json.completed;
 
       return;
     }
@@ -175,7 +173,7 @@ export class OrderComponent extends Page implements AfterViewInit {
           current.foodPrice,
           current.status,
           current.quantity,
-          current.instructions,
+          current.imageURL,
         )
 
         this.suborders.push(suborder);
@@ -210,7 +208,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public filter(tag: string) : void {
-    this.displayedItems.splice(0, this.selectedTag.length);
+    this.displayedItems.splice(0, this.displayedItems.length);
     const menuCount = this.menuItems.length;
     for(let i = 0; i < menuCount; i++) {
       const current = this.menuItems[i];
@@ -249,8 +247,12 @@ export class OrderComponent extends Page implements AfterViewInit {
       menuItem.price,
       ordered,
       1,
-      ""
+      "",
+      1
     ));
+
+    this.subtotal += menuItem.price;
+    this.calculateTotal();
 
     this.completable = this.payable = false;
   }
@@ -277,7 +279,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     for (let i = 0; i < suborderCount; i++) {
       const suborder = this.suborders[i];
 
-      if (suborder.id == suborderId) {
+      if (suborder.id == suborderId && suborder.quantity > 0) {
         suborder.quantity--;
         this.subtotal -= suborder.foodPrice;
 

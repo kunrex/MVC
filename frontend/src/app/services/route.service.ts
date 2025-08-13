@@ -2,7 +2,7 @@ import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
 
 import { getCookie } from "../utils/cookies";
-import {serverAddress} from "../utils/constants";
+import { serverAddress } from "../utils/constants";
 
 const defaultName = "user"
 const loggedInCookie = "loggedIn"

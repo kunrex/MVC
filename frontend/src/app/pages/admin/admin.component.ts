@@ -112,9 +112,10 @@ export class AdminComponent extends Page implements AfterViewInit {
         current.name
       );
 
-      const tagsCount = current.tags.length;
-      for(let j = 0; j < tagsCount; j++)
-        item.tags.push(current.tags[j]);
+      const tags = current.tags.split(',')
+      const tagsLength = tags.length;
+      for(let j = 0; j < tagsLength; j++)
+        item.tags.push(tags[j]);
 
       this.menu.push(item);
     }
@@ -129,7 +130,7 @@ export class AdminComponent extends Page implements AfterViewInit {
     return this.selectedTags.indexOf(tag) > -1;
   }
 
-  public selectEditTagsItem(e: Event) {
+  public selectItemUpdateTags(e: Event) {
     const parsed = parseInt(this.updateTagOptions.idValue)
 
     this.selectedTags.slice(0, this.selectedTags.length);
@@ -177,6 +178,9 @@ export class AdminComponent extends Page implements AfterViewInit {
       this.updateTagOptions.idValue = '';
       this.updateTagOptions.disableEditing = true;
 
+      this.selectedTags.splice(0, this.selectedTags.length);
+
+      this.modalService.showModal('Update successful', 'Item updated successfully');
       return;
     }
 
@@ -268,7 +272,7 @@ export class AdminComponent extends Page implements AfterViewInit {
         price: price,
         description: description,
 
-        veg: this.createFoodOptions.vegetarian,
+        vegetarian: this.createFoodOptions.vegetarian,
         cookTime: `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`,
 
         imageURL: this.createFoodOptions.imageURL

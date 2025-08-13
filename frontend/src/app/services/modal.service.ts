@@ -23,7 +23,6 @@ export class ModalService {
   }
 
   public showError(message: string) : void {
-    console.log(message)
     this.appEventSubject.next(JSON.stringify(new ModalOptions('An Error Occurred', message, true)));
   }
 }

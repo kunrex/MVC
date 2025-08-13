@@ -4,13 +4,10 @@ import (
 	"MVC/pkg/database/models"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func Between(value int, min int, max int) bool {
@@ -133,23 +130,6 @@ func CalculateDiscount(subtotal float32) int {
 }
 
 func DownloadImage(url string, imgPath string) error {
-	headResponse, err := http.Head(url)
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(headResponse.Body)
-	if err != nil {
-		return err
-	}
-
-	if headResponse.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %v", headResponse.Status)
-	}
-
-	contentType := headResponse.Header.Get("Content-Type")
-	if !strings.HasPrefix(contentType, "image/") {
-		return errors.New("URL does not point to an image")
-	}
-
 	resp, err := http.Get(url)
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()

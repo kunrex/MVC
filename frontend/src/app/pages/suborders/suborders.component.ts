@@ -10,7 +10,7 @@ import { AudioService } from "../../services/audio.service";
 import { ModalService } from "../../services/modal.service";
 
 class Suborder {
-  constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public readonly code: number = 1) { }
+  constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public code: number = 1) { }
 }
 
 @Component({
@@ -81,6 +81,7 @@ export class SubordersComponent extends Page implements AfterViewInit {
 
       if(current.id == suborderId) {
         current.status = this.processingProvider;
+        current.code = 0;
         break;
       }
     }
@@ -93,6 +94,7 @@ export class SubordersComponent extends Page implements AfterViewInit {
 
       if(current.id == suborderId) {
         current.status = this.completedProvider;
+        current.code = 0;
         break;
       }
     }
