@@ -69,13 +69,16 @@ export class OrdersComponent extends Page implements AfterViewInit {
     return order.id;
   }
 
-  public loadOrder(orderId: number, authorName: string) : Promise<void> {
+  public async loadOrder(orderId: number, authorName: string) : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadOrder(orderId, authorName);
   }
 
   public async fetchOrder(e: Event) : Promise<void> {
     e.preventDefault();
     const target = e.target as HTMLFormElement;
+
+    await this.playClickSFX();
 
     if (!target.checkValidity()) {
       target.reportValidity();
@@ -90,7 +93,8 @@ export class OrdersComponent extends Page implements AfterViewInit {
     await this.routes.loadOrder(id, author);
   }
 
-  public loadDashboard() : Promise<void> {
+  public async loadDashboard() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadDashboard();
   }
 }

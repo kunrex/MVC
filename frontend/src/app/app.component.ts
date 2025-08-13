@@ -36,9 +36,9 @@ export class AppComponent implements AfterViewInit {
       this.modalTitle = options.title;
       this.modalMessage = options.message;
 
-      target.addEventListener('hidden.bs.modal', () => {
+      target.addEventListener('hidden.bs.modal', async () => {
         if(options.loadLogin)
-          this.routes.loadLogin().then();
+          await this.routes.loadLogin();
 
         this.audioService.playCLickSFX().then();
       });

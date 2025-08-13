@@ -46,6 +46,8 @@ export class LoginComponent extends Page implements AfterViewInit {
     e.preventDefault();
     const target = e.target as HTMLFormElement;
 
+    await this.playClickSFX();
+
     if (!target.checkValidity()) {
       target.reportValidity();
       return;
@@ -84,6 +86,8 @@ export class LoginComponent extends Page implements AfterViewInit {
   public async login(e: Event) : Promise<void> {
     e.preventDefault();
     const target = e.target as HTMLFormElement;
+
+    await this.playClickSFX();
 
     if (!target.checkValidity()) {
       target.reportValidity();

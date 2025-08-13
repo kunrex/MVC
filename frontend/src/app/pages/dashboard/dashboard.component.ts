@@ -57,8 +57,6 @@ export class DashboardComponent extends Page implements AfterViewInit {
   }
 
   public async signOut() : Promise<void> {
-    await this.playClickSFX();
-
     const response = await fetch(`${serverAddress}/user/signout`, {
       method: 'POST',
       credentials: 'include',
@@ -70,36 +68,43 @@ export class DashboardComponent extends Page implements AfterViewInit {
     this.modalService.showError((await response.json()).error);
   }
 
-  public newOrder() : Promise<void> {
+  public async newOrder() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadNewOrder();
   }
 
-  public userOrders() : Promise<void> {
+  public async userOrders() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadUserOrders();
   }
 
-  public incompleteSuborders() : Promise<void> {
+  public async incompleteSuborders() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadSuborders();
   }
 
-  public allOrders() : Promise<void> {
+  public async allOrders() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadAllOrders();
   }
 
-  public adminOptions() : Promise<void> {
+  public async adminOptions() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadAdmin();
   }
 
-
-  public navigateCustomer() : void {
+  public async navigateCustomer() : Promise<void> {
+    await this.playClickSFX();
     this.customerReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
   }
 
-  public navigateChef() : void {
+  public async navigateChef() : Promise<void> {
+    await this.playClickSFX();
     this.chefReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
   }
 
-  public navigateAdmin() : void {
+  public async navigateAdmin() : Promise<void> {
+    await this.playClickSFX();
     this.adminReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
   }
 }

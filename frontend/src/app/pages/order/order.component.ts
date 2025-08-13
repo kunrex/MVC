@@ -230,6 +230,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     }
 
     this.selectedTag = tag;
+    this.playClickSFX().then()
   }
 
   public addItem(itemId: number) : void{
@@ -267,6 +268,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     this.calculateTotal();
 
     this.completed = this.payed = false;
+    this.playClickSFX().then();
   }
 
   public incrementSuborder(suborderId: number) : void {
@@ -282,6 +284,7 @@ export class OrderComponent extends Page implements AfterViewInit {
         this.subtotal += suborder.foodPrice;
 
         this.calculateTotal();
+        this.playClickSFX().then();
         break;
       }
     }
@@ -300,12 +303,15 @@ export class OrderComponent extends Page implements AfterViewInit {
         this.subtotal -= suborder.foodPrice;
 
         this.calculateTotal();
+        this.playClickSFX().then();
         break;
       }
     }
   }
 
   public async confirmChanges() : Promise<void> {
+    await this.playClickSFX();
+
     const suborderCount = this.suborders.length;
 
     const changes: Suborder[] = []
@@ -335,6 +341,8 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public async completeOrder() : Promise<void> {
+    await this.playClickSFX();
+
     const response = await fetch(`${serverAddress}/order/complete/${this.orderId}/${this.authorName}`, {
       method: 'POST',
       credentials: 'include',
@@ -351,6 +359,8 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public async completeOrderPayment() : Promise<void> {
+    await this.playClickSFX();
+
     const response = await fetch(`${serverAddress}/order/pay/${this.orderId}/${this.authorName}`, {
       method: 'POST',
       headers: {

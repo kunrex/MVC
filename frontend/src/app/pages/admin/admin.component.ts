@@ -148,6 +148,7 @@ export class AdminComponent extends Page implements AfterViewInit {
     }
 
     this.updateTagOptions.disableEditing = false;
+    this.playClickSFX().then()
   }
 
   public toggleTag(tag: string) : void {
@@ -173,6 +174,8 @@ export class AdminComponent extends Page implements AfterViewInit {
         tags: this.selectedTags,
       })
     });
+
+    await this.playClickSFX();
 
     if (response.status == 200) {
       this.updateTagOptions.idValue = '';
@@ -203,6 +206,8 @@ export class AdminComponent extends Page implements AfterViewInit {
       method: 'POST',
       credentials: 'include',
     })
+
+    await this.playClickSFX();
 
     if (response.status == 200) {
       this.createTagOptions.value = this.createTagOptions.error = '';
@@ -279,6 +284,8 @@ export class AdminComponent extends Page implements AfterViewInit {
       })
     });
 
+    await this.playClickSFX();
+
     if(response.status == 200) {
       const insertId = parseInt(await response.text());
       this.menu.push(new MenuItem(insertId, this.createFoodOptions.name));
@@ -301,6 +308,8 @@ export class AdminComponent extends Page implements AfterViewInit {
       credentials: 'include'
     })
 
+    await this.playClickSFX();
+
     const json = await response.json();
 
     if(response.status == 200) {
@@ -320,10 +329,12 @@ export class AdminComponent extends Page implements AfterViewInit {
 
   public toggleChef() : void {
     this.userPermissionsOptions.isChef = !this.userPermissionsOptions.isChef;
+    this.playClickSFX().then()
   }
 
   public setAdmin() : void {
     this.userPermissionsOptions.isAdmin = true;
+    this.playClickSFX().then();
   }
 
   public async confirmUserPermissions() : Promise<void> {
@@ -333,6 +344,8 @@ export class AdminComponent extends Page implements AfterViewInit {
       method: 'PATCH',
       credentials: 'include'
     })
+
+    await this.playClickSFX();
 
     if(response.status == 200) {
       this.clearUserPermissions();
@@ -353,7 +366,8 @@ export class AdminComponent extends Page implements AfterViewInit {
     this.userPermissionsOptions.error = '';
   }
 
-  public loadDashboard() : Promise<void> {
+  public async loadDashboard() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadDashboard();
   }
 

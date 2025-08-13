@@ -82,6 +82,8 @@ export class SubordersComponent extends Page implements AfterViewInit {
       if(current.id == suborderId) {
         current.status = this.processingProvider;
         current.code = 0;
+
+        this.playClickSFX().then();
         break;
       }
     }
@@ -95,6 +97,8 @@ export class SubordersComponent extends Page implements AfterViewInit {
       if(current.id == suborderId) {
         current.status = this.completedProvider;
         current.code = 0;
+
+        this.playClickSFX().then();
         break;
       }
     }
@@ -123,13 +127,16 @@ export class SubordersComponent extends Page implements AfterViewInit {
       body: JSON.stringify(changes)
     });
 
+    await this.playClickSFX();
+
     if (response.status == 200)
       return this.routes.loadDashboard();
 
     this.modalService.showError((await response.json()).error)
   }
 
-  public loadDashboard() : Promise<void> {
+  public async loadDashboard() : Promise<void> {
+    await this.playClickSFX();
     return this.routes.loadDashboard();
   }
 }
