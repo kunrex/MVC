@@ -56,7 +56,7 @@ export class SubordersComponent extends Page implements AfterViewInit {
 
         this.suborders.push(new Suborder(
           current.id,
-          current.foodId,
+          current.foodName,
           current.quantity,
           current.instructions,
           current.status

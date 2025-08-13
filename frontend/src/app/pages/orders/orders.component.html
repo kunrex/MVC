@@ -33,12 +33,12 @@
                   <div class="w-100 p-0 d-flex justify-content-evenly">
                     <div class="w-50 d-flex flex-column flex-md-row justify-content-evenly overflow-x-scroll no-wrap p-2">
                       <ng-container *ngIf="order.completed; else notCompleted">
-                        <span class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1">Ordered</span>
-                        <span class="p-2 rounded-2 text-center text-success fw-bold ms-1 me-1">Completed</span>
-                      </ng-container>
-                      <ng-template #notCompleted>
                         <span class="p-2 rounded-2 text-center text-warning fw-bold ms-1 me-1">Ordered</span>
                         <span class="p-2 rounded-2 text-center text-success-emphasis text-bg-success fw-bold ms-1 me-1">Completed</span>
+                      </ng-container>
+                      <ng-template #notCompleted>
+                        <span class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1">Ordered</span>
+                        <span class="p-2 rounded-2 text-center text-success fw-bold ms-1 me-1">Completed</span>
                       </ng-template>
                     </div>
                     <div class="w-50 text-end">

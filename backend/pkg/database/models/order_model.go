@@ -110,7 +110,7 @@ func UpdateSuborder(suborder *types.SuborderExtra, orderId int64) (int64, error)
 	return rowsAffected, err
 }
 
-func UpdateSuborderStatus(suborder *types.SuborderUpdateForm) (int64, error) {
+func UpdateSuborderStatus(suborder *types.SuborderExtra) (int64, error) {
 	if suborder.Status != "completed" && suborder.Status != "processing" && suborder.Status != "ordered" {
 		return 0, errors.New("invalid suborder status")
 	}
@@ -219,7 +219,7 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
                   							subtotal = ?,
                   							payedBy = ?,
                   							payedOn = ?
-              								WHERE id = ? and payedBy = ?;`, tip, total, discount, subtotal, userId, time.Now().UTC(), orderId, nil)
+              								WHERE id = ? and payedBy IS NULL;`, tip, total, discount, subtotal, userId, time.Now().UTC(), orderId)
 
 	if err != nil {
 		return false, err

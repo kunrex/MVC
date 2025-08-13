@@ -143,9 +143,10 @@ export class OrderComponent extends Page implements AfterViewInit {
     const json = await response.json();
 
     if(response.status == 200) {
-      this.payable = !json.payed;
       this.completable = !json.completed;
+      this.payable = !json.payed && json.completed;
 
+      this.readonly = !this.completable;
       return;
     }
 
@@ -258,6 +259,9 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public incrementSuborder(suborderId: number) : void {
+    if(!this.completable)
+      return;
+
     const suborderCount = this.suborders.length;
     for (let i = 0; i < suborderCount; i++) {
       const suborder = this.suborders[i];
@@ -275,6 +279,9 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public decrementSuborder(suborderId: number) : void {
+    if(!this.completable)
+      return;
+
     const suborderCount = this.suborders.length;
     for (let i = 0; i < suborderCount; i++) {
       const suborder = this.suborders[i];
@@ -359,6 +366,7 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   public setTip(tip: number) {
     this.tip = tip;
+    this.calculateTotal();
   }
 
   private calculateTotal() {

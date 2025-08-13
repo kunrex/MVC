@@ -19,8 +19,8 @@ func initSingleOrderRoutes(router *mux.Router) {
 	subRouter.HandleFunc("", controllers.NewOrderHandler).Methods("GET")
 	subRouter.Handle("/{orderId}/{authorName}", utils.Chain(controllers.GetOrderDetailsHandler, middleware.OrderVerificationMiddleware)).Methods("GET")
 
-	subRouter.Handle("/pay/{orderId}/{authorName}", utils.Chain(controllers.PayOrderHandler, middleware.OrderVerificationMiddleware)).Methods("POST")
 	subRouter.Handle("/complete/{orderId}/{authorName}", utils.Chain(controllers.CompleteOrderHandler, middleware.OrderVerificationMiddleware)).Methods("POST")
+	subRouter.Handle("/pay/{orderId}/{authorName}", utils.Chain(controllers.PayOrderHandler, middleware.OrderVerificationMiddleware)).Methods("POST", "OPTIONS")
 }
 
 func initSubordersRoutes(router *mux.Router) {
