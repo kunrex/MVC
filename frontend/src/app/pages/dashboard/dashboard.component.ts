@@ -1,6 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import { Page } from "../../utils/page";
 import { serverAddress } from "../../utils/constants";
@@ -24,6 +24,10 @@ export class DashboardComponent extends Page implements AfterViewInit {
 
   public isChef: boolean = false;
   public isAdmin: boolean = false;
+
+  @ViewChild('chef') private readonly chefReference!: ElementRef;
+  @ViewChild('admin') private readonly adminReference!: ElementRef;
+  @ViewChild('customer') private readonly customerReference!: ElementRef;
 
   constructor(routes: RouteService, audioService: AudioService, modalService: ModalService,) {
     super(routes, audioService, modalService);
@@ -67,22 +71,35 @@ export class DashboardComponent extends Page implements AfterViewInit {
   }
 
   public newOrder() : Promise<void> {
-    return this.routes.loadNewOrder()
+    return this.routes.loadNewOrder();
   }
 
   public userOrders() : Promise<void> {
-    return this.routes.loadUserOrders()
+    return this.routes.loadUserOrders();
   }
 
   public incompleteSuborders() : Promise<void> {
-    return this.routes.loadSuborders()
+    return this.routes.loadSuborders();
   }
 
   public allOrders() : Promise<void> {
-    return this.routes.loadAllOrders()
+    return this.routes.loadAllOrders();
   }
 
   public adminOptions() : Promise<void> {
-    return this.routes.loadAdmin()
+    return this.routes.loadAdmin();
+  }
+
+
+  public navigateCustomer() : void {
+    this.customerReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
+  }
+
+  public navigateChef() : void {
+    this.chefReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
+  }
+
+  public navigateAdmin() : void {
+    this.adminReference.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
   }
 }

@@ -5,12 +5,12 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto g-3">
         <ng-container *ngIf="loaded">
-          <li class="nav-item text-center"><a (click)="playClickSFX()" class="nav-link" href="#customer">Customer</a></li>
+          <li class="nav-item text-center"><a (click)="navigateCustomer()" class="nav-link">Customer</a></li>
           <ng-container *ngIf="isChef">
-            <li class="nav-item text-center"><a (click)="playClickSFX()" class="nav-link" href="#chef">Chef</a></li>
+            <li class="nav-item text-center"><a (click)="navigateChef()" class="nav-link">Chef</a></li>
           </ng-container>
           <ng-container *ngIf="isAdmin">
-            <li class="nav-item text-center"><a (click)="playClickSFX()" class="nav-link" href="#admin">Admin</a></li>
+            <li class="nav-item text-center"><a (click)="navigateAdmin()" class="nav-link">Admin</a></li>
           </ng-container>
           <li class="nav-item text-bg-danger text-center"><a (click)="signOut()" class="nav-link text-white">Sign Out</a></li>
         </ng-container>
@@ -20,7 +20,7 @@
 </nav>
 <div class="d-flex flex-column justify-content-center align-content-center mt-6 p-5">
   <ng-container *ngIf="loaded; else loading">
-    <div id="customer">
+    <div #customer>
       <div class="ps-5 pe-5">
         <h1>Customer Options</h1>
         <hr>
@@ -45,7 +45,7 @@
       </div>
     </div>
     <ng-container *ngIf="isChef">
-      <div id="chef">
+      <div #chef>
         <div class="ps-5 pe-5">
           <h1>Chef Options</h1>
           <hr>
@@ -63,7 +63,7 @@
       </div>
     </ng-container>
     <ng-container *ngIf="isAdmin">
-      <div id="admin">
+      <div #admin>
         <div class="ps-5 pe-5">
           <h1>Admin Options</h1>
           <hr>

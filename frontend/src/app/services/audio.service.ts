@@ -5,18 +5,20 @@ export class AudioService {
   private readonly clickSFX: HTMLAudioElement;
   private readonly backgroundMusic: HTMLAudioElement;
 
+  private playingBackground: boolean = false;
+
   constructor() {
     this.clickSFX = new Audio("assets/audio/click.ogg");
     this.backgroundMusic = new Audio("assets/audio/background.ogg");
 
-    this.clickSFX.load()
+    this.clickSFX.load();
     this.backgroundMusic.load();
 
-    this.clickSFX.loop = false
+    this.clickSFX.loop = false;
     this.backgroundMusic.loop = true;
 
-    this.clickSFX.volume = .8
-    this.backgroundMusic.volume =.2
+    this.clickSFX.volume = .8;
+    this.backgroundMusic.volume =.2;
   }
 
   public async playCLickSFX() : Promise<void> {
@@ -24,11 +26,14 @@ export class AudioService {
       await this.clickSFX.play();
   }
 
-  public async playBackgroundMusic() : Promise<void> {
-    if (!this.backgroundMusic.paused)
-      try {
-        await this.backgroundMusic.play();
-      }
-     catch { }
+  public async initBackgroundMusic() : Promise<void> {
+    if(this.playingBackground)
+      return;
+
+    try {
+      await this.backgroundMusic.play();
+      this.playingBackground = true;
+    }
+    catch { }
   }
 }

@@ -38,16 +38,19 @@ export class OrderComponent extends Page implements AfterViewInit {
   public orderId: number = 0;
   public authorName: string = '';
 
+  public payed: boolean = false;
+  public completed: boolean = false;
+
   public payable: boolean = false;
-  public completable: boolean = false;
+  public readonly: boolean = false;
 
   public selectedTag: string = "";
   public readonly tags: string[] = [];
 
-  private readonly menuItems: MenuItem[] = []
+  private readonly menuItems: MenuItem[] = [];
   public readonly displayedItems: MenuItem[] = [];
 
-  public suborders: Suborder[] = []
+  public suborders: Suborder[] = [];
 
   public readonly ordersProvider = ordered;
   public readonly processingProvider = processing;
@@ -141,8 +144,11 @@ export class OrderComponent extends Page implements AfterViewInit {
     const json = await response.json();
 
     if(response.status == 200) {
-      this.completable = !json.completed;
-      this.payable = !json.payed && json.completed;
+      this.payed = json.payed;
+      this.completed = json.completed;
+
+      this.readonly = this.completed;
+      this.payable = this.completed && !this.payed;
 
       return;
     }
@@ -208,11 +214,19 @@ export class OrderComponent extends Page implements AfterViewInit {
   public filter(tag: string) : void {
     this.displayedItems.splice(0, this.displayedItems.length);
     const menuCount = this.menuItems.length;
-    for(let i = 0; i < menuCount; i++) {
-      const current = this.menuItems[i];
 
-      if (current.tags.indexOf(tag) > -1)
-        this.displayedItems.push(new MenuItem(current.id, current.name, current.price, current.description, current.cookTime, current.description, current.vegetarian));
+    if(tag == '') {
+      for(let i = 0; i < menuCount; i++) {
+        const current = this.menuItems[i];
+        this.displayedItems.push(new MenuItem(current.id, current.name, current.price, current.description, current.cookTime, current.imageUrl, current.vegetarian));
+      }
+    } else {
+      for(let i = 0; i < menuCount; i++) {
+        const current = this.menuItems[i];
+
+        if (current.tags.indexOf(tag) > -1)
+          this.displayedItems.push(new MenuItem(current.id, current.name, current.price, current.description, current.cookTime, current.imageUrl, current.vegetarian));
+      }
     }
 
     this.selectedTag = tag;
@@ -252,11 +266,11 @@ export class OrderComponent extends Page implements AfterViewInit {
     this.subtotal += menuItem.price;
     this.calculateTotal();
 
-    this.completable = this.payable = false;
+    this.completed = this.payed = false;
   }
 
   public incrementSuborder(suborderId: number) : void {
-    if(!this.completable)
+    if(this.readonly)
       return;
 
     const suborderCount = this.suborders.length;
@@ -268,15 +282,13 @@ export class OrderComponent extends Page implements AfterViewInit {
         this.subtotal += suborder.foodPrice;
 
         this.calculateTotal();
-
-        this.completable = this.payable = false;
-        return;
+        break;
       }
     }
   }
 
   public decrementSuborder(suborderId: number) : void {
-    if(!this.completable)
+    if(this.readonly)
       return;
 
     const suborderCount = this.suborders.length;
@@ -288,9 +300,7 @@ export class OrderComponent extends Page implements AfterViewInit {
         this.subtotal -= suborder.foodPrice;
 
         this.calculateTotal();
-
-        this.completable = this.payable = false;
-        return;
+        break;
       }
     }
   }
@@ -331,8 +341,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     })
 
     if (response.status == 200) {
-      this.payable = true;
-      this.completable = false;
+      this.payable = this.readonly = this.completed = true;
 
       this.modalService.showModal('Completion Successful', 'Order was marked as completed for successfully, no further suborder changes will be allowed');
       return;
@@ -352,6 +361,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     })
 
     if (response.status == 200) {
+      this.payed = true;
       this.payable = false;
 
       this.modalService.showModal('Payment Successful', 'Order was payed for successfully');

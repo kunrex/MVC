@@ -8,7 +8,9 @@ import { ModalService } from "../services/modal.service";
   template: ''
 })
 export abstract class Page {
-  protected constructor(protected readonly routes: RouteService, protected readonly audioService: AudioService, protected readonly modalService: ModalService) { }
+  protected constructor(protected readonly routes: RouteService, protected readonly audioService: AudioService, protected readonly modalService: ModalService) {
+    this.audioService.initBackgroundMusic().then();
+  }
 
   public playClickSFX() : Promise<void> {
     return this.audioService.playCLickSFX()
