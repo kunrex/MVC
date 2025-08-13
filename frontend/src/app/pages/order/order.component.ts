@@ -100,8 +100,8 @@ export class OrderComponent extends Page implements AfterViewInit {
     const json = await response.json();
 
     if (response.status == 200) {
-      const jsonTags = json.tags;
-      const jsonMenu = json.menu;
+      const jsonTags = JSON.parse(json.tags);
+      const jsonMenu = JSON.parse(json.menu);
 
       const tagCount = jsonTags.length;
       for(let i = 0; i < tagCount; i++)

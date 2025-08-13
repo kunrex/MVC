@@ -144,11 +144,12 @@ func AddFoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.AddFoodItem(newFoodForm.Name, newFoodForm.Price, newFoodForm.Description, newFoodForm.Vegetarian, newFoodForm.CookTime, path)
+	id, err := models.AddFoodItem(newFoodForm.Name, newFoodForm.Price, newFoodForm.Description, newFoodForm.Vegetarian, newFoodForm.CookTime, path)
 	if err != nil {
 		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(id)
 }

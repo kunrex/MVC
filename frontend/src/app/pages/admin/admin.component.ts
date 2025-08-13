@@ -8,6 +8,7 @@ import { serverAddress } from "../../utils/constants";
 import { RouteService } from "../../services/route.service";
 import { AudioService } from "../../services/audio.service";
 import { ModalService } from "../../services/modal.service";
+import {between} from "../../utils/functions";
 
 class MenuItem {
   public readonly tags: string[] = [];
@@ -29,7 +30,7 @@ class CreateFoodOptions {
   public description: string = '';
 
   public price: number = 0;
-  public vegetarian: boolean = false;
+  public vegetarian: boolean = true;
 
   public timeHours: number = 0;
   public timeMinutes: number = 0;
@@ -101,7 +102,7 @@ export class AdminComponent extends Page implements AfterViewInit {
 
     const json = await response.json();
 
-    const jsonMenu = json.menu;
+    const jsonMenu = JSON.parse(json.menu);
     const jsonMenuLength = jsonMenu.length;
     for (let i = 0, l = jsonMenuLength; i < l; i++) {
       const current = jsonMenu[i];
@@ -118,7 +119,7 @@ export class AdminComponent extends Page implements AfterViewInit {
       this.menu.push(item);
     }
 
-    const jsonTags = json.tags;
+    const jsonTags = JSON.parse(json.tags);
     const jsonTagsLength = jsonTags.length;
     for (let i = 0, l = jsonTagsLength; i < l; i++)
       this.tags.push(jsonTags[i]);
@@ -184,8 +185,8 @@ export class AdminComponent extends Page implements AfterViewInit {
 
   public async createTag() : Promise<void> {
     const value = this.createTagOptions.value;
-    if(value == '') {
-      this.createTagOptions.error = '*Tag is empty';
+    if (!between(value.length, 1, 50)) {
+      this.createTagOptions.error = 'Enter a valid tag (max: 50 characters)';
       return;
     }
 
@@ -202,6 +203,7 @@ export class AdminComponent extends Page implements AfterViewInit {
     if (response.status == 200) {
       this.createTagOptions.value = this.createTagOptions.error = '';
 
+      this.tags.push(value);
       this.modalService.showModal('Creation Successful', 'Tag creation as successful');
       return;
     }
@@ -226,36 +228,63 @@ export class AdminComponent extends Page implements AfterViewInit {
   }
 
   public async addFoodConfirm() {
+    const name = this.createFoodOptions.name;
+    const description = this.createFoodOptions.description;
+
+    const price = this.createFoodOptions.price;
+
+    const hours = this.createFoodOptions.timeHours;
+    const minutes = this.createFoodOptions.timeMinutes;
+    const seconds = this.createFoodOptions.timeSeconds;
+
+    if(!between(name.length, 1, 100) || !between(description.length, 1, 300)) {
+      this.createFoodOptions.error = 'Enter a valid name (max: 100 characters) and description (max: 300 characters)';
+      return;
+    }
+
+    if(price <= 0) {
+      this.createFoodOptions.error = 'Enter a valid price';
+      return;
+    }
+
+    if(!between(hours, 0, 23) || !between(minutes, 0, 59) || !between(seconds, 0, 59) || hours + minutes + seconds == 0) {
+      this.createFoodOptions.error = 'Enter a valid time';
+      return;
+    }
+
     if(!this.createFoodOptions.imageLoaded) {
       this.createFoodOptions.error = "No image loaded";
       return;
     }
 
-    const response = await fetch('/admin/add/food', {
+    const response = await fetch(`${serverAddress}/admin/food/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       credentials: 'include',
       body: JSON.stringify({
-        name: this.createFoodOptions.name,
-        price: this.createFoodOptions.price,
-        description: this.createFoodOptions.description,
+        name: name,
+        price: price,
+        description: description,
 
         veg: this.createFoodOptions.vegetarian,
-        cookTime: `${this.pad(this.createFoodOptions.timeHours)}:${this.pad(this.createFoodOptions.timeMinutes)}:${this.pad(this.createFoodOptions.timeSeconds)}`,
+        cookTime: `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`,
 
         imageURL: this.createFoodOptions.imageURL
       })
     });
 
     if(response.status == 200) {
+      const insertId = parseInt(await response.text());
+      this.menu.push(new MenuItem(insertId, this.createFoodOptions.name));
+
       this.createFoodOptions.vegetarian = true;
       this.createFoodOptions.showImage = this.createFoodOptions.imageLoaded = false;
       this.createFoodOptions.name = this.createFoodOptions.description = this.createFoodOptions.imageURL = '';
       this.createFoodOptions.price = this.createFoodOptions.timeHours = this.createFoodOptions.timeMinutes = this.createFoodOptions.timeSeconds = 0;
 
-      this.modalService.showModal('Creation Successful', 'Item creation as successful');
+      this.modalService.showModal('Creation Successful', 'Item creation was successful');
       return;
     }
 
@@ -282,7 +311,7 @@ export class AdminComponent extends Page implements AfterViewInit {
       return;
     }
 
-    this.modalService.showError((await response.json()).error);
+    this.userPermissionsOptions.error = json.error;
   }
 
   public toggleChef() : void {
@@ -296,8 +325,8 @@ export class AdminComponent extends Page implements AfterViewInit {
   public async confirmUserPermissions() : Promise<void> {
     let auth = 1 | (this.userPermissionsOptions.isChef ? 2 : 1) | (this.userPermissionsOptions.isAdmin ? 4 : 1);
 
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userPermissionsOptions.email}/${auth}`, {
-      method: 'GET',
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userPermissionsOptions.id}/${auth}`, {
+      method: 'PATCH',
       credentials: 'include'
     })
 

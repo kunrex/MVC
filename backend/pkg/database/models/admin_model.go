@@ -64,17 +64,17 @@ func UpdateFoodTags(foodId int64, tags []int64) error {
 	return nil
 }
 
-func AddFoodItem(name string, price uint, description string, vegetarian bool, cookTime string, image string) error {
+func AddFoodItem(name string, price uint, description string, vegetarian bool, cookTime string, image string) (int64, error) {
 	res, err := database.DB.Exec("INSERT INTO Foods (name, price, description, veg, cookTime, image) VALUES (?, ?, ?, ?, ?, ?);", name, price, description, vegetarian, cookTime, image)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	_, err = res.LastInsertId()
+	id, err := res.LastInsertId()
 	if err != nil {
-		return err
+		return 01, err
 	}
 
 	ReloadMenuCache()
-	return err
+	return id, err
 }
