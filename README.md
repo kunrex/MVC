@@ -1,3 +1,3 @@
 # MVC
 
-Navigate to `./backend` for go testing
+Submission to MVC assignment
