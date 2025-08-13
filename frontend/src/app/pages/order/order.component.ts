@@ -37,7 +37,6 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   public orderId: number = 0;
   public authorName: string = '';
-  public readonly: boolean = false;
 
   public payable: boolean = false;
   public completable: boolean = false;
@@ -74,7 +73,6 @@ export class OrderComponent extends Page implements AfterViewInit {
 
       this.orderId = parseInt(orderId);
       this.authorName = params['authorName'];
-      this.readonly = params['readonly'] == 'true';
     })
   }
 
@@ -146,7 +144,6 @@ export class OrderComponent extends Page implements AfterViewInit {
       this.completable = !json.completed;
       this.payable = !json.payed && json.completed;
 
-      this.readonly = !this.completable;
       return;
     }
 

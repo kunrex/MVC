@@ -42,7 +42,7 @@
               <div class="w-auto d-flex flex-row flex-md-column justify-content-evenly align-items-center m-2">
                 <h6>₹{{ item.price }}</h6>
                 <span class="dot" [ngClass]="item.vegetarian ? 'green' : 'red'"></span>
-                <button [disabled]="readonly" (click)="addItem(item.id)" type="button" class="btn btn-primary">Add</button>
+                <button [disabled]="!completable" (click)="addItem(item.id)" type="button" class="btn btn-primary">Add</button>
               </div>
             </div>
           </div>
@@ -69,9 +69,9 @@
               </div>
               <div class="d-flex flex-row flex-sm-column justify-content-evenly align-items-center m-2 ">
                 <div class="d-flex justify-content-center align-items-center">
-                  <i (click)="decrementSuborder(suborder.id)" class="bi bi-dash-lg m-1" [ngClass]="suborder.quantity > 0 && !readonly ? 'icon-button-on' : 'icon-button-off'"></i>
+                  <i (click)="decrementSuborder(suborder.id)" class="bi bi-dash-lg m-1" [ngClass]="suborder.quantity > 0 && completable ? 'icon-button-on' : 'icon-button-off'"></i>
                   <h6 class="m-1" [ngClass]="suborder.quantity > 0 ? 'text-dark' : 'text-danger'">{{ suborder.quantity }}</h6>
-                  <i (click)="incrementSuborder(suborder.id)" class="bi bi-plus-lg m-1" [ngClass]="readonly ? 'icon-button-off' : 'icon-button-on'"></i>
+                  <i (click)="incrementSuborder(suborder.id)" class="bi bi-plus-lg m-1" [ngClass]="!completable ? 'icon-button-off' : 'icon-button-on'"></i>
                 </div>
                 <div>
                   <ng-container *ngIf="suborder.status === ordersProvider; else processingOrDone">
