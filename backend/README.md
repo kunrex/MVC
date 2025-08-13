@@ -2,6 +2,10 @@
 
 Backend for MVC assignment
 
+### localhost SSL certificates
+
+Use `mkcert` to create local SSL certificates for `localhost` and store them in `certificates`
+
 ### Setting up the .env
 
 Rename the `backend/.envexample` file to `backend/.env` and fill in the appropriate values.
