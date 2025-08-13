@@ -1,10 +1,10 @@
 import { Component, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import {serverAddress} from "../../utils";
-import {Page} from "../page";
-import {RouteService} from "../../services/route-service";
-import {AudioService} from "../../services/audio-service";
+import {serverAddress} from "../../utils/constants";
+import {Page} from "../../utils/page";
+import {RouteService} from "../../services/route.service";
+import {AudioService} from "../../services/audio.service";
 
 class MenuItem {
   public readonly tags: string[] = [];

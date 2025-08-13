@@ -4,6 +4,7 @@ import (
 	"MVC/pkg/middleware"
 	"MVC/pkg/utils"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func InitRouter() *mux.Router {
@@ -11,6 +12,8 @@ func InitRouter() *mux.Router {
 
 	router.Use(utils.AddJSONHeaders)
 	router.Use(middleware.CORSMiddleware)
+
+	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
 	initAuthRoutes(router)
 	initUserRoutes(router)

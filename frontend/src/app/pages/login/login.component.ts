@@ -1,10 +1,16 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 
-import { serverAddress } from "../../utils";
-import { RouteService } from "../../services/route-service";
-import { AudioService } from "../../services/audio-service";
+import { Page } from "../../utils/page";
+import { serverAddress } from "../../utils/constants";
 
-import { Page } from "../page";
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
+
+const numbers = /[0-9]+/;
+const symbols = /[$@#&!]+/;
+const smallLetters = /[a-z]+/;
+const capitalLetters = /[A-Z]+/;
 
 @Component({
   selector: 'app-login',
@@ -19,15 +25,13 @@ export class LoginComponent extends Page implements AfterViewInit {
 
   public readonly colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success']
 
-  constructor(routes: RouteService, audio: AudioService) {
-    super(routes, audio);
+  constructor(routes: RouteService, audio: AudioService, modal: ModalService) {
+    super(routes, audio, modal);
   }
 
   public async ngAfterViewInit() : Promise<void> {
-    if (this.routes.isLoggedIn()) {
-      await this.routes.loadDashboard();
-      return;
-    }
+    if (this.routes.isLoggedIn())
+      return this.routes.loadDashboard();
   }
 
   public async signup(e: Event) : Promise<void> {
@@ -109,13 +113,13 @@ export class LoginComponent extends Page implements AfterViewInit {
     const password = target.value;
 
     this.strength = 0;
-    if (password.match(/[a-z]+/))
+    if (numbers.test(password))
       this.strength += 1;
-    if (password.match(/[A-Z]+/))
+    if (symbols.test(password))
       this.strength += 1;
-    if (password.match(/[0-9]+/))
+    if (smallLetters.test(password))
       this.strength += 1;
-    if (password.match(/[$@#&!]+/))
+    if (capitalLetters.test(password))
       this.strength += 1;
     if (password.length >= 8)
       this.strength += 1;

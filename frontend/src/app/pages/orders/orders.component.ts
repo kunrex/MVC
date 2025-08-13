@@ -1,8 +1,8 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { Page } from "../page";
-import {RouteService} from "../../services/route-service";
-import {AudioService} from "../../services/audio-service";
-import {serverAddress} from "../../utils";
+import { Page } from "../../utils/page";
+import {RouteService} from "../../services/route.service";
+import {AudioService} from "../../services/audio.service";
+import {serverAddress} from "../../utils/constants";
 
 class Order {
   constructor(public readonly id: number, public readonly createdOn: string, public readonly authorName: string, public readonly completed: boolean) { }

@@ -1,9 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
-import {Page} from "../page";
+import {Page} from "../../utils/page";
 
-import {RouteService} from "../../services/route-service";
-import {AudioService} from "../../services/audio-service";
-import {serverAddress} from "../../utils";
+import {RouteService} from "../../services/route.service";
+import {AudioService} from "../../services/audio.service";
+import {serverAddress} from "../../utils/constants";
 
 class Suborder {
   constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public readonly code: number = 1) { }

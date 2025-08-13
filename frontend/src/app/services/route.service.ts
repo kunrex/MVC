@@ -1,11 +1,11 @@
 import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
-import {getCookie} from "../utils";
+import {getCookie} from "../utils/constants";
 
 const defaultName = "user"
 const loggedInCookie = "loggedIn"
 
-export const NameKey: string = "name"
+const nameKey: string = "name"
 
 @Injectable()
 export class RouteService {
@@ -25,7 +25,7 @@ export class RouteService {
   }
 
   public getLocalName() : string {
-    const result = localStorage.getItem(NameKey);
+    const result = localStorage.getItem(nameKey);
     return result == null || result == "" ? defaultName : result;
   }
 
@@ -35,12 +35,12 @@ export class RouteService {
 
   public registerLogin(name: string) : void {
     this.loggedIn = true;
-    localStorage.setItem(NameKey, name)
+    localStorage.setItem(nameKey, name)
   }
 
   public registerSignOut() : Promise<void> {
     this.loggedIn = false;
-    localStorage.setItem(NameKey, "")
+    localStorage.setItem(nameKey, "")
 
     return this.loadLogin()
   }

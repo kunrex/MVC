@@ -1,59 +1,30 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 
-import { Modal } from "bootstrap";
+import { Page } from "../../utils/page";
+import { serverAddress } from "../../utils/constants";
 
-import { serverAddress } from "../../utils";
-import { RouteService } from "../../services/route-service";
-import { AudioService } from "../../services/audio-service";
-
-import { LoadablePage } from "../loadablePage";
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent extends LoadablePage implements AfterViewInit {
-  private chef = false;
-  private admin = false;
+export class DashboardComponent extends Page implements AfterViewInit {
+  public loaded: boolean = false;
 
-  @ViewChild("signOut") private readonly signOut!: ElementRef;
+  public isChef: boolean = false;
+  public isAdmin: boolean = false;
 
-  private errorModal : Modal | undefined;
-  @ViewChild("errorText") private readonly errorText!: ElementRef;
-  @ViewChild("error") private readonly errorModalReference!: ElementRef;
-
-  constructor(routes: RouteService, audioService: AudioService) {
-    super(routes, audioService);
+  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService,) {
+    super(routes, audioService, modalService);
   }
-
-  public isChef() : boolean { return this.chef; }
-  public isAdmin() : boolean { return this.admin; }
 
   public async ngAfterViewInit(): Promise<void> {
     if (!this.routes.isLoggedIn())
-    {
-      await this.routes.loadLogin()
-      return
-    }
-
-    const modal = this.errorModalReference.nativeElement
-    this.errorModal = new Modal(modal, {
-      backdrop: 'static',
-      keyboard: false,
-    })
-
-    this.errorModal.hide()
-
-    const signOutButton = this.signOut.nativeElement as HTMLElement
-    signOutButton.onclick = async () => {
-      const response = await fetch(`${serverAddress}/user/signOut`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-
-      await this.routes.registerSignOut()
-    }
+      return this.routes.loadLogin();
 
     const response = await fetch(`${serverAddress}/user/permissions`, {
       method: 'GET',
@@ -63,37 +34,46 @@ export class DashboardComponent extends LoadablePage implements AfterViewInit {
     const json = await response.json();
 
     if (response.status == 200) {
-      this.chef = json.chef
-      this.admin = json.admin
+      this.isChef = json.chef
+      this.isAdmin = json.admin
 
       this.loaded = true
     }
 
-    const text = this.errorText.nativeElement as HTMLElement
-    text.textContent = json.error
+    this.modalService.showError(json.error);
   }
 
-  public async login() : Promise<void> {
-    await this.routes.loadLogin()
+  public async signOut() : Promise<void> {
+    await this.playClickSFX();
+
+    const response = await fetch(`${serverAddress}/user/signOut`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+
+    if(response.status == 200)
+      return this.routes.registerSignOut();
+
+    this.modalService.showError((await response.json()).error);
   }
 
-  public async newOrder() : Promise<void> {
-    await this.routes.loadNewOrder()
+  public newOrder() : Promise<void> {
+    return this.routes.loadNewOrder()
   }
 
-  public async userOrders() : Promise<void> {
-    await this.routes.loadUserOrders()
+  public userOrders() : Promise<void> {
+    return this.routes.loadUserOrders()
   }
 
-  public async incompleteSuborders() : Promise<void> {
-    await this.routes.loadSuborders()
+  public incompleteSuborders() : Promise<void> {
+    return this.routes.loadSuborders()
   }
 
-  public async allOrders() : Promise<void> {
-    await this.routes.loadAllOrders()
+  public allOrders() : Promise<void> {
+    return this.routes.loadAllOrders()
   }
 
-  public async adminOptions() : Promise<void> {
-    await this.routes.loadAdmin()
+  public adminOptions() : Promise<void> {
+    return this.routes.loadAdmin()
   }
 }

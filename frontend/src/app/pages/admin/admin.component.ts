@@ -1,10 +1,10 @@
 import {AfterViewInit, Component} from '@angular/core';
 
-import { Page } from "../page";
+import { Page } from "../../utils/page";
 
-import {RouteService} from "../../services/route-service";
-import {AudioService} from "../../services/audio-service";
-import {between, serverAddress} from "../../utils";
+import {RouteService} from "../../services/route.service";
+import {AudioService} from "../../services/audio.service";
+import {between, serverAddress} from "../../utils/constants";
 
 class MenuItem {
   public readonly tags: string[] = [];
