@@ -10,18 +10,18 @@ import (
 func InitRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.Use(utils.AddJSONHeaders)
 	router.Use(middleware.CORSMiddleware)
+	router.Use(utils.AddJSONHeaders)
 
 	initAuthRoutes(router)
 	initUserRoutes(router)
 
+	initAdminRoutes(router)
+
 	initMenuRoute(router)
+	initSubordersRoutes(router)
 	initSingleOrderRoutes(router)
 	initMultipleOrderRoutes(router)
-	initSubordersRoutes(router)
-
-	initAdminRoutes(router)
 
 	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
