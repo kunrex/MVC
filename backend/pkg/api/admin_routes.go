@@ -2,15 +2,15 @@ package api
 
 import (
 	"MVC/pkg/controllers"
-	"MVC/pkg/utils"
+	"MVC/pkg/middleware"
 	"github.com/gorilla/mux"
 )
 
 func initAdminRoutes(router *mux.Router) {
 	subRouter := router.PathPrefix("/admin").Subrouter()
 
-	subRouter.Use(utils.Authorise)
-	subRouter.Use(utils.AuthoriseAdmin)
+	subRouter.Use(middleware.Authorise)
+	subRouter.Use(middleware.AuthoriseAdmin)
 
 	subRouter.HandleFunc("/food/add", controllers.AddFoodHandler).Methods("POST", "OPTIONS")
 	subRouter.HandleFunc("/food/updateTags", controllers.UpdateFoodTagHandler).Methods("PATCH", "OPTIONS")

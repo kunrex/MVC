@@ -3,10 +3,10 @@ package types
 import "time"
 
 type Order struct {
-	Id         int64     `json:"id"`
-	CreatedOn  time.Time `json:"createdOn"`
-	AuthorName string    `json:"authorName"`
-	Completed  bool      `json:"completed"`
+	Id         int64  `json:"id"`
+	CreatedOn  string `json:"createdOn"`
+	AuthorName string `json:"authorName"`
+	Completed  bool   `json:"completed"`
 }
 
 type Suborder struct {

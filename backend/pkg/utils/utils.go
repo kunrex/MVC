@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"MVC/pkg/database/models"
-	"context"
+	"MVC/pkg/config"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 func Between(value int, min int, max int) bool {
@@ -30,7 +30,7 @@ func WriteFailedResponse(code int, error string, w http.ResponseWriter) {
 
 func GenerateAccessCookie(value string) *http.Cookie {
 	return &http.Cookie{
-		Name:     accessCookie,
+		Name:     AccessCookie,
 		Value:    value,
 		Path:     "/",
 		HttpOnly: true,
@@ -52,62 +52,6 @@ func GenerateLoginCookie(loggedIn bool) *http.Cookie {
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
-}
-
-func Authorise(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accessCookie, accessCookieError := r.Cookie(accessCookie)
-
-		if accessCookieError != nil || accessCookie.Value == "" {
-			WriteFailedResponse(http.StatusUnauthorized, "failed to authorise, please sign up if you dont have an account or log in again if you do", w)
-			return
-		}
-
-		accessId, accessAuthorisation, err := VerifyToken(accessCookie.Value)
-		if err != nil {
-			WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
-			return
-		}
-
-		authorisation, err := models.UserAuthorisation(accessId)
-		if err != nil {
-			WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
-			return
-		}
-
-		if authorisation != accessAuthorisation {
-			WriteFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), UserId, accessId)
-		ctx = context.WithValue(ctx, UserAuthorisation, authorisation)
-		r = r.WithContext(ctx)
-
-		handler.ServeHTTP(w, r)
-	})
-}
-
-func AuthoriseChef(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Context().Value(UserAuthorisation).(int)
-		if (auth & 2) == 2 {
-			handler.ServeHTTP(w, r)
-		} else {
-			WriteFailedResponse(http.StatusUnauthorized, "lacking chef permissions", w)
-		}
-	})
-}
-
-func AuthoriseAdmin(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Context().Value(UserAuthorisation).(int)
-		if (auth & 4) == 4 {
-			handler.ServeHTTP(w, r)
-		} else {
-			WriteFailedResponse(http.StatusUnauthorized, "lacking admin permissions", w)
-		}
-	})
 }
 
 func Chain(handlerFunc func(w http.ResponseWriter, r *http.Request), middleware ...mux.MiddlewareFunc) http.Handler {
@@ -149,4 +93,9 @@ func DownloadImage(url string, imgPath string) error {
 
 	_, err = io.Copy(out, resp.Body)
 	return err
+}
+
+func ToLocalTime(timeString string) string {
+	parsed, _ := time.Parse("2006-01-02 15:04:05", "2025-08-13 16:02:31")
+	return parsed.Add(time.Minute * time.Duration(config.TimeZoneMinutes)).Format("2006-01-02 15:04:05")
 }

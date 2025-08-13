@@ -5,6 +5,8 @@ import (
 	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -32,11 +34,14 @@ func OrderVerificationMiddleware(handler http.Handler) http.Handler {
 			}
 		} else {
 			expectedAuthor, err := models.GetOrderAuthor(convertedId)
+			if errors.Is(err, sql.ErrNoRows) {
+				utils.WriteFailedResponse(http.StatusNotFound, "order not found", w)
+				return
+			}
 			if err != nil {
 				utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 				return
 			}
-
 			if expectedAuthor != vars["authorName"] {
 				utils.WriteFailedResponse(http.StatusBadRequest, "author provided did not match order creator", w)
 				return

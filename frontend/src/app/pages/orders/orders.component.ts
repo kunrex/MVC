@@ -25,20 +25,20 @@ class Order {
 })
 export class OrdersComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;
+  public readonly userOrders: boolean;
 
   public orders: Order[] = []
-  public allowJoin: boolean = false;
 
   constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
+    this.userOrders = this.routes.matchRoute('/orders/user');
   }
 
   public async ngAfterViewInit() : Promise<void> {
     if(!this.routes.isLoggedIn())
       return this.routes.loadLogin();
 
-    this.allowJoin = this.routes.matchRoute('/orders/user');
-    const response = await fetch(this.allowJoin ? `${serverAddress}/orders/user` : `${serverAddress}/orders/all`, {
+    const response = await fetch(this.userOrders ? `${serverAddress}/orders/user` : `${serverAddress}/orders/all`, {
       method: 'GET',
       credentials: 'include',
     });
@@ -70,7 +70,7 @@ export class OrdersComponent extends Page implements AfterViewInit {
   }
 
   public loadOrder(orderId: number, authorName: string) : Promise<void> {
-    return this.routes.loadOrder(orderId, authorName, this.allowJoin);
+    return this.routes.loadOrder(orderId, authorName);
   }
 
   public async fetchOrder(e: Event) : Promise<void> {
@@ -87,7 +87,7 @@ export class OrdersComponent extends Page implements AfterViewInit {
     const author = formData.get('author') as string;
     const id = parseInt(formData.get('id') as string);
 
-    await this.routes.loadOrder(id, author, false);
+    await this.routes.loadOrder(id, author);
   }
 
   public loadDashboard() : Promise<void> {

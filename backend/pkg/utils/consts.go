@@ -1,6 +1,6 @@
 package utils
 
-const accessCookie = "awt"
+const AccessCookie = "awt"
 const loginCookie = "loggedIn"
 
 type ContextKey string

@@ -17,7 +17,7 @@ const routes: Routes = [
     path: 'order',
     children: [
       { path: '', component: OrderComponent },
-      { path: ':id/:authorName/:readonly', component: OrderComponent }
+      { path: ':id/:authorName', component: OrderComponent }
     ]
   },
   {

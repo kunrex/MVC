@@ -60,37 +60,32 @@ export class RouteService {
       });
 
       if (response.status == 200)
-        await this.router.navigate(["/order", parseInt(await response.text()), this.getLocalName(), false]);
+        await this.router.navigate(["/order", parseInt(await response.text()), this.getLocalName()]);
     }
   }
 
-  public async loadOrder(id: number, authorName: string, readonly: boolean) : Promise<void> {
-    if (this.loggedIn) {
-      await this.router.navigate(["/order", id, authorName, readonly]);
-    }
+  public async loadOrder(id: number, authorName: string) : Promise<void> {
+    if (this.loggedIn)
+      await this.router.navigate(["/order", id, authorName]);
   }
 
   public async loadUserOrders() : Promise<void> {
-    if (this.loggedIn) {
+    if (this.loggedIn)
       await this.router.navigate(["/orders/user"]);
-    }
   }
 
   public async loadSuborders() : Promise<void> {
-    if (this.loggedIn) {
+    if (this.loggedIn)
       await this.router.navigate(["/suborders"]);
-    }
   }
 
   public async loadAdmin() : Promise<void> {
-    if (this.loggedIn) {
+    if (this.loggedIn)
       await this.router.navigate(["/admin"]);
-    }
   }
 
   public async loadAllOrders() : Promise<void> {
-    if (this.loggedIn) {
+    if (this.loggedIn)
       await this.router.navigate(["/orders/all"]);
-    }
   }
 }
