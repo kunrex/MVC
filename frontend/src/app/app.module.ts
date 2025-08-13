@@ -14,7 +14,7 @@ import { ModalService } from "./services/modal.service";
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
+    AppRoutingModule
   ],
   providers: [
     AudioService,

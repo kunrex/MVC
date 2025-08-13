@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
@@ -10,7 +12,12 @@ import { ModalService } from "../../services/modal.service";
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class DashboardComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;

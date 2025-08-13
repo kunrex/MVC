@@ -1,6 +1,7 @@
 import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
-import {getCookie} from "../utils/constants";
+
+import { getCookie } from "../utils/cookies";
 
 const defaultName = "user"
 const loggedInCookie = "loggedIn"

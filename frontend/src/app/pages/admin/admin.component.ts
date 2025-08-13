@@ -1,70 +1,96 @@
-import {AfterViewInit, Component} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component } from '@angular/core';
 
 import { Page } from "../../utils/page";
+import { serverAddress } from "../../utils/constants";
 
-import {RouteService} from "../../services/route.service";
-import {AudioService} from "../../services/audio.service";
-import {between, serverAddress} from "../../utils/constants";
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
 
 class MenuItem {
   public readonly tags: string[] = [];
   constructor(public readonly id: number, public readonly name: string) { }
 }
 
+class UpdateTagsOptions {
+  public idValue: string = '';
+  public disableEditing: boolean = true;
+}
+
+class CreateTagOptions {
+  public error: string = '';
+  public value: string = '';
+}
+
+class CreateFoodOptions {
+  public name: string = '';
+  public description: string = '';
+
+  public price: number = 0;
+  public vegetarian: boolean = false;
+
+  public timeHours: number = 0;
+  public timeMinutes: number = 0;
+  public timeSeconds: number = 0;
+
+  public imageURL: string = '';
+
+  public showImage: boolean = false;
+  public imageLoaded: boolean = false;
+
+  public error: string = '';
+}
+
+class UserPermissionsOptions {
+  public id: number = 0;
+  public email: string = '';
+
+  public isChef: boolean = false;
+  public isAdmin: boolean = false;
+  public permissionsLoaded: boolean = false;
+
+  public error: string = '';
+}
+
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.scss']
+  styleUrls: ['./admin.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class AdminComponent extends Page implements AfterViewInit {
-  public tags: string[] = []
-  private selectedTags: string[] = []
+  public readonly tags: string[] = [];
+  private readonly selectedTags: string[] = [];
+
+  public readonly menu: MenuItem[] = [];
+
+  public readonly createTagOptions: CreateTagOptions = new CreateTagOptions();
+  public readonly updateTagOptions: UpdateTagsOptions = new UpdateTagsOptions();
+
+  public readonly createFoodOptions: CreateFoodOptions = new CreateFoodOptions();
+
+  public readonly userPermissionsOptions: UserPermissionsOptions = new UserPermissionsOptions();
+
+  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(routes, audioService, modalService);
+  }
+
+  public async ngAfterViewInit(): Promise<void> {
+    await this.loadTagsMenu();
+  }
 
   public tagTracking(i: number, tag: string) : string {
     return tag;
   }
 
-  public menu: MenuItem[] = []
   public itemTracking(i: number, item: MenuItem) : number {
     return item.id;
-  }
-
-  public disableEditTags: boolean = true;
-  public selectedEditTagsItem: string = '';
-
-  public createTagError: string = '';
-  public createTagValue: string = '';
-
-  public foodName: string = '';
-  public foodDescription: string = '';
-
-  public isVegetarian = true;
-  public foodPrice: number = 0;
-
-  public foodTimeHours: number = 0;
-  public foodTimeMinutes: number = 0;
-  public foodTimeSeconds: number = 0;
-
-  public foodImageURL: string = '';
-  public imageShow: boolean = false;
-  public imageLoaded: boolean = false;
-
-  public addFoodError: string = '';
-
-  public userPermissionsEmail: string = '';
-  public userPermissionsError: string = '';
-
-  public userIsChef = false;
-  public userIsAdmin = false;
-  public userPermissionsId: number = 0;
-  public userShowPermissions: boolean = false;
-
-  constructor(routes: RouteService, audioService: AudioService) {
-    super(routes, audioService);
-  }
-
-  public async ngAfterViewInit(): Promise<void> {
-    await this.loadTagsMenu()
   }
 
   private async loadTagsMenu() : Promise<void> {
@@ -103,7 +129,7 @@ export class AdminComponent extends Page implements AfterViewInit {
   }
 
   public selectEditTagsItem(e: Event) {
-    const parsed = parseInt(this.selectedEditTagsItem)
+    const parsed = parseInt(this.updateTagOptions.idValue)
 
     this.selectedTags.slice(0, this.selectedTags.length);
     const menuCount = this.menu.length;
@@ -119,7 +145,7 @@ export class AdminComponent extends Page implements AfterViewInit {
       }
     }
 
-    this.disableEditTags = false;
+    this.updateTagOptions.disableEditing = false;
   }
 
   public toggleTag(tag: string) : void {
@@ -141,82 +167,67 @@ export class AdminComponent extends Page implements AfterViewInit {
       },
       credentials: 'include',
       body: JSON.stringify({
-        foodId: parseInt(this.selectedEditTagsItem),
+        foodId: parseInt(this.updateTagOptions.idValue),
         tags: this.selectedTags,
       })
     });
 
     if (response.status == 200) {
-      this.selectedEditTagsItem = '';
-      this.disableEditTags = true;
+      this.updateTagOptions.idValue = '';
+      this.updateTagOptions.disableEditing = true;
+
+      return;
     }
 
-    //error modal
+    this.modalService.showError((await response.json()).error);
   }
 
   public async createTag() : Promise<void> {
-    if(this.createTagValue == '') {
-      this.createTagError = '*Tag is empty';
+    const value = this.createTagOptions.value;
+    if(value == '') {
+      this.createTagOptions.error = '*Tag is empty';
       return;
     }
 
-    if(this.tags.indexOf(this.createTagValue) > -1) {
-      this.createTagError = '*Tag already exists';
+    if(this.tags.indexOf(value) > -1) {
+      this.createTagOptions.error = '*Tag already exists';
       return;
     }
 
-    if(!between(this.createTagValue.length, 1, 50)) {
-      this.addFoodError = "*Exceeds max length";
-      return;
-    }
-
-    const response = await fetch(`${serverAddress}/admin/tags/add/${this.createTagValue}`, {
+    const response = await fetch(`${serverAddress}/admin/tags/add/${value}`, {
       method: 'POST',
       credentials: 'include',
     })
 
     if (response.status == 200) {
-      this.createTagValue = this.createTagError = '';
+      this.createTagOptions.value = this.createTagOptions.error = '';
+
+      this.modalService.showModal('Creation Successful', 'Tag creation as successful');
       return;
     }
 
-    //modal error
+    this.modalService.showError((await response.json()).error);
   }
 
   public setVegetarian() : void {
-    this.isVegetarian = true;
+    this.createFoodOptions.vegetarian = true;
     this.playClickSFX().then();
   }
 
   public setNonVegetarian() : void {
-    this.isVegetarian = false;
+    this.createFoodOptions.vegetarian = false;
     this.playClickSFX().then();
   }
 
   public fetchImage() : void {
-    this.imageShow = true;
-    this.imageLoaded = false;
+    this.createFoodOptions.showImage = true;
+    this.createFoodOptions.imageLoaded = false;
     this.playClickSFX().then();
   }
 
   public async addFoodConfirm() {
-    if(this.foodName == '' || this.foodDescription == '') {
-      this.addFoodError = "Please enter a valid name, price and description";
-      return;
-    }
-
-    if(!between(this.foodName.length, 1, 100)) {
-      this.addFoodError = "Maximum length of food name is 100";
-      return;
-    }
-
-    if(!between(this.foodDescription.length, 1, 100)) {
-      this.addFoodError = "Maximum length of food description is 300";
-      return;
-    }
-
-    if(!this.imageLoaded) {
-      this.addFoodError = "No image loaded";
+    if(!this.createFoodOptions.imageLoaded) {
+      this.createFoodOptions.error = "No image loaded";
       return;
     }
 
@@ -227,34 +238,32 @@ export class AdminComponent extends Page implements AfterViewInit {
       },
       credentials: 'include',
       body: JSON.stringify({
-        name: this.foodName,
-        price: this.foodPrice,
-        description: this.foodDescription,
+        name: this.createFoodOptions.name,
+        price: this.createFoodOptions.price,
+        description: this.createFoodOptions.description,
 
-        veg: this.isVegetarian,
-        cookTime: `${this.pad(this.foodTimeHours)}:${this.pad(this.foodTimeMinutes)}:${this.pad(this.foodTimeSeconds)}`,
+        veg: this.createFoodOptions.vegetarian,
+        cookTime: `${this.pad(this.createFoodOptions.timeHours)}:${this.pad(this.createFoodOptions.timeMinutes)}:${this.pad(this.createFoodOptions.timeSeconds)}`,
 
-        imageURL: this.foodImageURL
+        imageURL: this.createFoodOptions.imageURL
       })
     });
 
     if(response.status == 200) {
-      this.foodName = this.foodDescription = this.foodImageURL = '';
-      this.foodPrice = this.foodTimeHours = this.foodTimeMinutes = this.foodTimeSeconds = 0;
+      this.createFoodOptions.vegetarian = true;
+      this.createFoodOptions.showImage = this.createFoodOptions.imageLoaded = false;
+      this.createFoodOptions.name = this.createFoodOptions.description = this.createFoodOptions.imageURL = '';
+      this.createFoodOptions.price = this.createFoodOptions.timeHours = this.createFoodOptions.timeMinutes = this.createFoodOptions.timeSeconds = 0;
 
-      this.imageShow = this.imageLoaded = false;
-      this.isVegetarian = true;
+      this.modalService.showModal('Creation Successful', 'Item creation as successful');
+      return;
     }
 
-    //error modal
+    this.modalService.showError((await response.json()).error);
   }
 
   public async loadUserPermissions() : Promise<void> {
-    if(this.userPermissionsEmail == '') {
-      this.userPermissionsError = 'No email provided'
-    }
-
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/get/${this.userPermissionsEmail}`, {
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/get/${this.userPermissionsOptions.email}`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -262,36 +271,32 @@ export class AdminComponent extends Page implements AfterViewInit {
     const json = await response.json();
 
     if(response.status == 200) {
-      this.userShowPermissions = true;
+      this.userPermissionsOptions.permissionsLoaded = true;
 
-      this.userPermissionsId = json.id;
+      this.userPermissionsOptions.id = json.id;
       const auth = json.authorisation;
 
-      this.userIsChef = (auth & 2) == 2;
-      this.userIsAdmin = (auth & 4) == 4;
+      this.userPermissionsOptions.isChef = (auth & 2) == 2;
+      this.userPermissionsOptions.isAdmin = (auth & 4) == 4;
 
       return;
     }
 
-    this.userPermissionsError = json.error;
+    this.modalService.showError((await response.json()).error);
   }
 
   public toggleChef() : void {
-    this.userIsChef = !this.userIsChef;
+    this.userPermissionsOptions.isChef = !this.userPermissionsOptions.isChef;
   }
 
-  public toggleAdmin() : void {
-    this.userIsAdmin = true;
+  public setAdmin() : void {
+    this.userPermissionsOptions.isAdmin = true;
   }
 
   public async confirmUserPermissions() : Promise<void> {
-    let auth = 1;
-    if (this.userIsChef)
-      auth &= 2;
-    if (this.userIsAdmin)
-      auth &= 4;
+    let auth = 1 | (this.userPermissionsOptions.isChef ? 2 : 1) | (this.userPermissionsOptions.isAdmin ? 4 : 1);
 
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userPermissionsId}/${auth}`, {
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userPermissionsOptions.email}/${auth}`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -299,18 +304,20 @@ export class AdminComponent extends Page implements AfterViewInit {
     if(response.status == 200) {
       this.clearUserPermissions();
 
+      this.modalService.showModal('Update Successful', 'User permissions updated successfully');
       return;
     }
 
-    //error modal
+    this.modalService.showError((await response.json()).error);
   }
 
   public clearUserPermissions() : void {
-    this.userPermissionsId = 0;
-    this.userIsChef = this.userIsAdmin = false;
+    this.userPermissionsOptions.id = 0;
+    this.userPermissionsOptions.email = '';
 
-    this.userPermissionsEmail = '';
-    this.userShowPermissions = false;
+    this.userPermissionsOptions.isChef = this.userPermissionsOptions.isAdmin = this.userPermissionsOptions.permissionsLoaded = false;
+
+    this.userPermissionsOptions.error = '';
   }
 
   public loadDashboard() : Promise<void> {

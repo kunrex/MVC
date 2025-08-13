@@ -50,7 +50,7 @@
                 <div class="accordion-body w-100 d-flex flex-column">
                   <div class="w-100 d-flex flex-column mb-3">
                     <label for="editTagItems" class="mb-2">Choose an Item:</label>
-                    <select [(ngModel)]="selectedEditTagsItem" name="items" id="editTagItems" class="p-2">
+                    <select [(ngModel)]="updateTagOptions.idValue" name="items" id="editTagItems" class="p-2">
                       <option value="" selected disabled>Select an option</option>
                       <option *ngFor="let item of menu; index as i; trackBy: itemTracking" (change)="selectEditTagsItem($event)" value="{{ item.id }}"> {{ item.name }} </option>
                     </select>
@@ -62,7 +62,7 @@
                   </div>
                   <div class="w-100 overflow-x-scroll no-wrap mb-3 p-2">
                     <ng-container *ngIf="tags.length > 0; else noTagsEdit">
-                      <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="disableEditTags" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
+                      <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="updateTagOptions.disableEditing" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
                     </ng-container>
                     <ng-template #noTagsEdit>
                       <div class="w-100 text-center text-dark-emphasis p5">
@@ -71,7 +71,7 @@
                     </ng-template>
                   </div>
                   <div class="w-100 text-center">
-                    <button [disabled]="disableEditTags" (click)="confirmEditTagChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
+                    <button [disabled]="updateTagOptions.disableEditing" (click)="confirmEditTagChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
                   </div>
                 </div>
               </div>
@@ -86,8 +86,8 @@
                 <div class="accordion-body w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
                   <div class="w-100 w-md-75">
                     <label for="createTagInput" class="form-label">New Tag</label>
-                    <span class="text-danger fs-6">{{ createTagError }}</span>
-                    <input [(ngModel)]="createTagValue" type="text" name="tag" class="form-control" id="createTagInput" placeholder="Enter New Tag" maxlength="50">
+                    <span class="text-danger fs-6">{{ createTagOptions.error }}</span>
+                    <input [(ngModel)]="createTagOptions.value" type="text" name="tag" class="form-control" id="createTagInput" placeholder="Enter New Tag" maxlength="50">
                   </div>
                   <div class="w-100 w-md-25 text-center">
                     <button (click)="createTag()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
@@ -105,44 +105,44 @@
                 <div class="accordion-body w-100">
                   <div class="mb-3 w-100">
                     <label for="addFoodName" class="form-label">Name</label>
-                    <input [(ngModel)]="foodName" type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" maxlength="100">
+                    <input [(ngModel)]="createFoodOptions.name" type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" minlength="1" maxlength="100">
                   </div>
                   <div class="mb-3 w-100">
                     <label for="addFoodDescription" class="form-label">Enter Description</label>
-                    <input [(ngModel)]="foodDescription" type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" maxlength="300">
+                    <input [(ngModel)]="createFoodOptions.description" type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" minlength="1" maxlength="300">
                   </div>
                   <div class="mb-3 w-100">
                     <label for="addFoodPrice" class="form-label">Enter Price</label>
-                    <input [(ngModel)]="foodPrice" type="number" name="price" class="form-control" id="addFoodPrice" min="0" step="1" placeholder="Enter Price">
+                    <input [(ngModel)]="createFoodOptions.price" type="number" name="price" class="form-control" id="addFoodPrice" min="0" step="1" placeholder="Enter Price">
                   </div>
                   <div class="mb-3 w-100 d-flex justify-content-evenly">
-                    <button (click)="setVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="isVegetarian ? 'text-success-emphasis text-bg-success' : 'text-success'">Vegetarian</button>
-                    <button (click)="setNonVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="isVegetarian ? 'text-danger' : 'text-danger-emphasis text-bg-danger'">Non Vegetarian</button>
+                    <button (click)="setVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="createFoodOptions.vegetarian ? 'text-success-emphasis text-bg-success' : 'text-success'">Vegetarian</button>
+                    <button (click)="setNonVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="createFoodOptions.vegetarian ? 'text-danger' : 'text-danger-emphasis text-bg-danger'">Non Vegetarian</button>
                   </div>
                   <div class="mb-3 w-100">
                     <label>Cooking Duration</label>
                     <div class="d-flex justify-content-evenly">
-                      <input [(ngModel)]="foodTimeHours" type="number" class="form-control ms-1 me-1" name="hours" min="0" max="23" step="1" placeholder="hh">
-                      <input [(ngModel)]="foodTimeMinutes" type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm">
-                      <input [(ngModel)]="foodTimeSeconds" type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss">
+                      <input [(ngModel)]="createFoodOptions.timeHours" type="number" class="form-control ms-1 me-1" name="hours" min="0" max="23" step="1" placeholder="hh">
+                      <input [(ngModel)]="createFoodOptions.timeMinutes" type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm">
+                      <input [(ngModel)]="createFoodOptions.timeSeconds" type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss">
                     </div>
                   </div>
                   <div class="mb-3 w-100 d-flex flex-column flex-md-row justify-content-evenly">
                     <div class="w-100 w-md-75">
                       <label for="addFoodImageURL" class="form-label">Image Source</label>
-                      <input [[ngModel]]="foodImageURL" type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL">
+                      <input [(ngModel)]="createFoodOptions.imageURL" type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL">
                     </div>
                     <div class="w-100 w-md-25 text-center">
                       <button (click)="fetchImage()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill m-3">Fetch</button>
                     </div>
                   </div>
-                  <ng-container *ngIf="imageShow">
+                  <ng-container *ngIf="createFoodOptions.showImage">
                     <div class="mb-3 w-100 form-control d-flex flex-column p-2">
-                      <img src="{{foodImageURL}}" (load)="imageLoaded = true" class="w-100 h-auto">
+                      <img src="{{ createFoodOptions.imageURL }}" (load)="createFoodOptions.imageLoaded = true" class="w-100 h-auto">
                     </div>
                   </ng-container>
                   <div class="mb-3 w-100 d-flex justify-content-center align-items-end text-danger overflow-x-scroll no-wrap p-2">
-                    {{ addFoodError }}
+                    {{ createFoodOptions.error }}
                   </div>
                   <div class="mb-3 w-100 text-center">
                     <button (click)="addFoodConfirm()" class="btn btn-primary btn-xl rounded-pill">Confirm</button>
@@ -158,16 +158,16 @@
               </h2>
               <div id="collapseFive" class="accordion-collapse collapse w-100" aria-labelledby="userPermissions" data-bs-parent="#accordionAdd">
                 <div class="accordion-body w-100 overflow-x-scroll no-wrap">
-                  <ng-container *ngIf="!userShowPermissions; else showPermissions">
+                  <ng-container *ngIf="!userPermissionsOptions.permissionsLoaded; else showPermissions">
                     <div class="w-100 scroll">
                       <form class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center mb-3">
                         <div class="w-100 w-md-75 my-2 mx-5">
                           <label for="email" class="form-label">User Email</label>
-                          <input [(ngModel)]="userPermissionsEmail" type="email" name="email" class="form-control" id="email" placeholder="Enter User Email">
+                          <input [(ngModel)]="userPermissionsOptions.email" type="email" name="email" class="form-control" id="email" placeholder="Enter User Email" minlength="1" maxlength="255">
                         </div>
                         <button type="submit" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Fetch User</button>
                       </form>
-                      <div class="w-100 text-center m-2"> {{ userPermissionsError }} </div>
+                      <div class="w-100 text-center m-2"> {{ userPermissionsOptions.error }} </div>
                       <div class="w-100 text-center">
                         <button (click)="loadUserPermissions()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-xl rounded-pill">Cancel</button>
                       </div>
@@ -176,12 +176,12 @@
                   <ng-template #showPermissions>
                     <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-end p-3">
                       <div class="w-100 w-md-50 w-md-50 d-flex flex-column justify-content-evenly align-items-lg-baseline overflow-x-scroll no-wrap my-2 p-3">
-                        <h5> {{ userPermissionsEmail }} </h5>
+                        <h5> {{ userPermissionsOptions.email }} </h5>
                       </div>
                       <div class="w-100 w-md-50 d-flex justify-content-evenly overflow-x-scroll no-wrap my-2 p-3">
                         <span class="p-2 rounded-2 text-center text-dark-emphasis text-bg-dark fw-bold ms-1 me-1">Customer</span>
-                        <button onclick="toggleChef()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userIsChef ? 'text-warning-emphasis text-bg-warning' : 'text-warning'">Chef</button>
-                        <button onclick="toggleAdmin()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userIsAdmin ? 'text-success-emphasis text-bg-success' : 'text-success'">Admin</button>
+                        <button onclick="toggleChef()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userPermissionsOptions.isChef ? 'text-warning-emphasis text-bg-warning' : 'text-warning'">Chef</button>
+                        <button onclick="setAdmin()" class="btn p-2 fw-bold ms-1 me-1" [ngClass]="userPermissionsOptions.isAdmin ? 'text-success-emphasis text-bg-success' : 'text-success'">Admin</button>
                       </div>
                     </div>
                     <div class="w-100 d-flex flex-column flex-sm-row justify-content-evenly align-items-center">

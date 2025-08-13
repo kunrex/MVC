@@ -1,9 +1,13 @@
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
-import {Page} from "../../utils/page";
 
-import {RouteService} from "../../services/route.service";
-import {AudioService} from "../../services/audio.service";
-import {serverAddress} from "../../utils/constants";
+import { Page } from "../../utils/page";
+import { completed, ordered, processing, serverAddress } from "../../utils/constants";
+
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
 
 class Suborder {
   constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public readonly code: number = 1) { }
@@ -12,17 +16,24 @@ class Suborder {
 @Component({
   selector: 'app-suborders',
   templateUrl: './suborders.component.html',
-  styleUrls: ['./suborders.component.scss']
+  styleUrls: ['./suborders.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class SubordersComponent extends Page implements AfterViewInit {
+  public loaded: boolean = false;
+
   public suborders: Suborder[] = [];
 
-  public readonly ordered = 'ordered';
-  public readonly completed = 'completed';
-  public readonly processing = 'processing';
+  public readonly orderedProvider = ordered;
+  public readonly completedProvider = completed;
+  public readonly processingProvider = processing;
 
-  constructor(routes: RouteService, audioService: AudioService) {
-    super(routes, audioService);
+  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(routes, audioService, modalService);
   }
 
   public async ngAfterViewInit(): Promise<void> {
@@ -36,9 +47,9 @@ export class SubordersComponent extends Page implements AfterViewInit {
       credentials: 'include',
     });
 
-    if (response.status == 200) {
-      const json = await response.json();
+    const json = await response.json();
 
+    if (response.status == 200) {
       const jsonLength = json.length;
       for(let i = 0; i < jsonLength; i++) {
         const current = json[i]
@@ -52,13 +63,14 @@ export class SubordersComponent extends Page implements AfterViewInit {
         ));
       }
 
+      this.loaded = true;
       return;
     }
 
-    //error modal
+    this.modalService.showError(json.error)
   }
 
-  public suborderTracking(index: number, suborder: Suborder) : number {
+  public suborderTracking(i: number, suborder: Suborder) : number {
     return suborder.id;
   }
 
@@ -67,9 +79,8 @@ export class SubordersComponent extends Page implements AfterViewInit {
     for(let i = 0; i < count; i++) {
       const current = this.suborders[i];
 
-      if(current.id == suborderId)
-      {
-        current.status = this.processing;
+      if(current.id == suborderId) {
+        current.status = this.processingProvider;
         break;
       }
     }
@@ -80,9 +91,8 @@ export class SubordersComponent extends Page implements AfterViewInit {
     for(let i = 0; i < count; i++) {
       const current = this.suborders[i];
 
-      if(current.id == suborderId)
-      {
-        current.status = this.completed;
+      if(current.id == suborderId) {
+        current.status = this.completedProvider;
         break;
       }
     }
@@ -100,10 +110,7 @@ export class SubordersComponent extends Page implements AfterViewInit {
     }
 
     if(changes.length == 0)
-    {
-      await this.routes.loadDashboard()
-      return;
-    }
+      return this.routes.loadDashboard();
 
     const response = await fetch(`${serverAddress}/suborders/incomplete/update`, {
       method: 'PATCH',
@@ -114,12 +121,10 @@ export class SubordersComponent extends Page implements AfterViewInit {
       body: JSON.stringify(changes)
     });
 
-    if (response.status == 200) {
-      await this.routes.loadDashboard();
-      return;
-    }
+    if (response.status == 200)
+      return this.routes.loadDashboard();
 
-    //error modal
+    this.modalService.showError((await response.json()).error)
   }
 
   public loadDashboard() : Promise<void> {

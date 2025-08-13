@@ -1,10 +1,14 @@
-import { Component, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { Component, AfterViewInit } from '@angular/core';
 
-import {serverAddress} from "../../utils/constants";
-import {Page} from "../../utils/page";
-import {RouteService} from "../../services/route.service";
-import {AudioService} from "../../services/audio.service";
+import { Page } from "../../utils/page";
+import { ordered, processing, serverAddress } from "../../utils/constants";
+
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
 
 class MenuItem {
   public readonly tags: string[] = [];
@@ -22,8 +26,15 @@ const naturalNumber = /^[1-9][0-9]*$/
   selector: 'app-order',
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class OrderComponent extends Page implements AfterViewInit {
+  public loaded: boolean = false;
+
   public orderId: number = 0;
   public authorName: string = '';
   public readonly: boolean = false;
@@ -31,16 +42,16 @@ export class OrderComponent extends Page implements AfterViewInit {
   public payable: boolean = false;
   public completable: boolean = false;
 
-  public readonly tags: string[] = [];
   public selectedTag: string = "";
+  public readonly tags: string[] = [];
 
   private readonly menuItems: MenuItem[] = []
   public readonly displayedItems: MenuItem[] = [];
 
   public suborders: Suborder[] = []
 
-  public readonly ordered = 'ordered'
-  public readonly processing = 'processing'
+  public readonly ordersProvider = ordered;
+  public readonly processingProvider = processing;
   public readonly serverAddressProvider = serverAddress;
 
   public tip: number = 0;
@@ -51,13 +62,14 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   private maxSuborderId: number = 0;
 
-  constructor(private readonly route: ActivatedRoute, routes: RouteService, audioService: AudioService,) {
-    super(routes, audioService);
+  constructor(private readonly route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(routes, audioService, modalService);
 
     route.params.subscribe(params => {
       const orderId = params['id'];
       if (!naturalNumber.test(orderId)) {
-        //error modal
+        this.modalService.showError('invalid order id');
+        return;
       }
 
       this.orderId = parseInt(orderId);
@@ -66,14 +78,28 @@ export class OrderComponent extends Page implements AfterViewInit {
     })
   }
 
+  public async ngAfterViewInit(): Promise<void> {
+    if (!this.routes.isLoggedIn()) {
+      await this.routes.loadLogin();
+      return;
+    }
+
+    await this.loadTagsMenu();
+    await this.loadOrderDetails();
+    await this.loadSuborders();
+
+    this.loaded = true;
+  }
+
   private async loadTagsMenu() : Promise<void> {
     const response = await fetch(`${serverAddress}/menu`, {
       method: 'GET',
       credentials: 'include',
     });
 
+    const json = await response.json();
+
     if (response.status == 200) {
-      const json = await response.json();
       const jsonTags = json.tags;
       const jsonMenu = json.menu;
 
@@ -107,7 +133,7 @@ export class OrderComponent extends Page implements AfterViewInit {
       return;
     }
 
-    //error modal
+    this.modalService.showError(json.error);
   }
 
   private async loadOrderDetails() : Promise<void> {
@@ -116,12 +142,16 @@ export class OrderComponent extends Page implements AfterViewInit {
       credentials: 'include',
     });
 
-    if(response.status == 200) {
-      const json = await response.json();
+    const json = await response.json();
 
+    if(response.status == 200) {
       this.payable = !json.payed;
       this.completable = !json.completed
+
+      return;
     }
+
+    this.modalService.showError(json.error);
   }
 
   private async loadSuborders() : Promise<void> {
@@ -130,14 +160,14 @@ export class OrderComponent extends Page implements AfterViewInit {
       credentials: 'include',
     });
 
-    if(response.status == 200) {
-      const json = await response.json();
+    const json = await response.json();
 
+    if(response.status == 200) {
       const suborderCount = json.length;
       for(let i = 0; i < suborderCount; i++) {
         const current = json[i]
 
-        this.suborders.push(new Suborder(
+        const suborder = new Suborder(
           current.id,
           current.authorName,
           current.foodId,
@@ -146,22 +176,17 @@ export class OrderComponent extends Page implements AfterViewInit {
           current.status,
           current.quantity,
           current.instructions,
-        ));
+        )
+
+        this.suborders.push(suborder);
+        this.subtotal += suborder.foodPrice * suborder.quantity;
       }
-    }
 
-    //error modal
-  }
-
-  public async ngAfterViewInit(): Promise<void> {
-    if (!this.routes.isLoggedIn()) {
-      await this.routes.loadLogin();
+      this.calculateTotal();
       return;
     }
 
-    await this.loadTagsMenu();
-    await this.loadOrderDetails();
-    await this.loadSuborders();
+    this.modalService.showError(json.error);
   }
 
   public tagTracking(i: number, tag: string) {
@@ -222,7 +247,7 @@ export class OrderComponent extends Page implements AfterViewInit {
       menuItem.id,
       menuItem.name,
       menuItem.price,
-      'ordered',
+      ordered,
       1,
       ""
     ));
@@ -275,10 +300,8 @@ export class OrderComponent extends Page implements AfterViewInit {
         changes.push(current)
     }
 
-    if (changes.length == 0) {
-      await this.routes.loadDashboard();
-      return;
-    }
+    if (changes.length == 0)
+      return this.routes.loadDashboard();
 
     const response = await fetch(`${serverAddress}/suborders/update/${this.orderId}/${this.authorName}`, {
       method: 'PATCH',
@@ -289,12 +312,10 @@ export class OrderComponent extends Page implements AfterViewInit {
       body: JSON.stringify(changes)
     });
 
-    if (response.status == 200) {
-      await this.routes.loadDashboard();
-      return;
-    }
+    if (response.status == 200)
+      return this.routes.loadDashboard();
 
-    //error modal
+    this.modalService.showError((await response.json()).error);
   }
 
   public async completeOrder() : Promise<void> {
@@ -307,10 +328,11 @@ export class OrderComponent extends Page implements AfterViewInit {
       this.payable = true;
       this.completable = false;
 
+      this.modalService.showModal('Completion Successful', 'Order was marked as completed for successfully, no further suborder changes will be allowed');
       return;
     }
 
-    //error modal
+    this.modalService.showError((await response.json()).error);
   }
 
   public async completeOrderPayment() : Promise<void> {
@@ -326,8 +348,11 @@ export class OrderComponent extends Page implements AfterViewInit {
     if (response.status == 200) {
       this.payable = false;
 
+      this.modalService.showModal('Payment Successful', 'Order was payed for successfully');
       return;
     }
+
+    this.modalService.showError((await response.json()).error);
   }
 
   public setTip(tip: number) {

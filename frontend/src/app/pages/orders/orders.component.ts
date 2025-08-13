@@ -1,8 +1,13 @@
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
+
 import { Page } from "../../utils/page";
-import {RouteService} from "../../services/route.service";
-import {AudioService} from "../../services/audio.service";
-import {serverAddress} from "../../utils/constants";
+import { serverAddress } from "../../utils/constants";
+
+import { RouteService } from "../../services/route.service";
+import { AudioService } from "../../services/audio.service";
+import { ModalService } from "../../services/modal.service";
 
 class Order {
   constructor(public readonly id: number, public readonly createdOn: string, public readonly authorName: string, public readonly completed: boolean) { }
@@ -11,18 +16,21 @@ class Order {
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.scss']
+  styleUrls: ['./orders.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class OrdersComponent extends Page implements AfterViewInit {
-  public readonly: boolean = true;
-
-  constructor(routes: RouteService, audioService: AudioService) {
-    super(routes, audioService);
-  }
+  public loaded: boolean = false;
 
   public orders: Order[] = []
-  public orderTracking(i: number, order: Order) : number {
-    return order.id;
+  public allowJoin: boolean = true;
+
+  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(routes, audioService, modalService);
   }
 
   public async ngAfterViewInit() : Promise<void> {
@@ -31,11 +39,40 @@ export class OrdersComponent extends Page implements AfterViewInit {
       return;
     }
 
-    this.readonly = this.routes.matchRoute('orders/all');
+    this.allowJoin = this.routes.matchRoute('orders/all');
+    const response = await fetch(this.allowJoin ? `${serverAddress}/orders/all` : `${serverAddress}/orders/user`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const json = await response.json();
+
+    if(response.status == 200) {
+      const jsonLength = json.length;
+      for(let i = 0; i < jsonLength; i++) {
+        const current = json[i]
+
+        this.orders.push(new Order(
+          current.id,
+          current.createdOn,
+          current.authorName,
+          current.completed,
+        ));
+      }
+
+      this.loaded = true;
+      return;
+    }
+
+    this.modalService.showError(json.error);
+  }
+
+  public orderTracking(i: number, order: Order) : number {
+    return order.id;
   }
 
   public loadOrder(orderId: number, authorName: string) : Promise<void> {
-    return this.routes.loadOrder(orderId, authorName, this.readonly);
+    return this.routes.loadOrder(orderId, authorName, this.allowJoin);
   }
 
   public async fetchOrder(e: Event) : Promise<void> {

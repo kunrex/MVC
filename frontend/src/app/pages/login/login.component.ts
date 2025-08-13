@@ -1,3 +1,6 @@
+
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
@@ -15,15 +18,20 @@ const capitalLetters = /[A-Z]+/;
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CommonModule
+  ]
 })
 export class LoginComponent extends Page implements AfterViewInit {
-  public error: string = "";
-
   public strength: number = 0;
   public strengthMessage: string = "";
 
-  public readonly colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success']
+  public readonly colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success'];
+
+  public loginError: string = "";
 
   constructor(routes: RouteService, audio: AudioService, modal: ModalService) {
     super(routes, audio, modal);
@@ -70,7 +78,7 @@ export class LoginComponent extends Page implements AfterViewInit {
       return
     }
 
-    this.error = (await response.json()).error;
+    this.loginError = (await response.json()).error;
   }
 
   public async login(e: Event) : Promise<void> {
@@ -105,7 +113,7 @@ export class LoginComponent extends Page implements AfterViewInit {
       return
     }
 
-    this.error = (await response.json()).error;
+    this.loginError = (await response.json()).error;
   }
 
   public checkPasswordStrength(e: Event) : void {

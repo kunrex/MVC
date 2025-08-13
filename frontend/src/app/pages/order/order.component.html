@@ -11,17 +11,18 @@
   </div>
 </nav>
 <div class="vw-100 vh-100 d-flex flex-column flex-xl-row justify-content-evenly align-items-center p-5">
-  <div class="card w-100 w-xl-50 m-4 parent-card">
-    <div class="card-body h-100 d-flex flex-column justify-content-start">
-      <h3>Menu</h3>
-      <hr>
-      <div id="tags-parent" class="overflow-x-scroll h-auto w-100 no-wrap p-2">
-        <button (click)="filter('')" type="button" [ngClass]="selectedTag == '' ? 'btn btn-primary' : 'btn btn-secondary'">All</button>
-        <button (click)="filter(item)" *ngFor="let item of tags; index as i; trackBy: tagTracking" type="button" [ngClass]="selectedTag == item ? 'btn btn-primary' : 'btn btn-secondary'">
-          {{ capitalise(item) }}
-        </button>
-      </div>
-      <div class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll form-control no-wrap p-3">
+  <ng-container *ngIf="loaded; else loaded">
+    <div class="card w-100 w-xl-50 m-4 parent-card">
+      <div class="card-body h-100 d-flex flex-column justify-content-start">
+        <h3>Menu</h3>
+        <hr>
+        <div id="tags-parent" class="overflow-x-scroll h-auto w-100 no-wrap p-2">
+          <button (click)="filter('')" type="button" [ngClass]="selectedTag == '' ? 'btn btn-primary' : 'btn btn-secondary'">All</button>
+          <button (click)="filter(item)" *ngFor="let item of tags; index as i; trackBy: tagTracking" type="button" [ngClass]="selectedTag == item ? 'btn btn-primary' : 'btn btn-secondary'">
+            {{ capitalise(item) }}
+          </button>
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll form-control no-wrap p-3">
           <div *ngFor="let item of displayedItems; index as i; trackBy: menuItemsTracking" class="card w-100 menu-card mt-3 mb-3">
             <div class="w-100 d-flex flex-column flex-md-row">
               <div class="w-auto">
@@ -45,83 +46,87 @@
               </div>
             </div>
           </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div id="order_card_parent" class="card w-100 w-xl-50 m-4 parent-card">
-    <div class="card-body h-100 d-flex flex-column justify-content-start">
-      <h3>Order Details</h3>
-      <hr>
-      <div id="orders-parent" class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll h-100 form-control no-wrap p-3">
-        <div *ngFor="let suborder of suborders; index as i; trackBy: subordersTracking" class="card w-100 mt-3 mb-3">
-          <div class="w-100 d-flex flex-column flex-sm-row justify-content-evenly">
-            <div class="card-body w-100 d-flex flex-column justify-content-evenly align-items-baseline">
-              <div class="w-100 overflow-x-scroll no-wrap">
-                <h3 class="card-title m-0">{{ suborder.foodName }}</h3>
-              </div>
-              <div class="w-100 p-0 d-flex justify-content-evenly align-items-center">
-                <div class="mt-3 w-25 overflow-x-scroll no-wrap">
-                  <p class="card-text">Added by: {{ suborder.authorName }}</p>
+    <div id="order_card_parent" class="card w-100 w-xl-50 m-4 parent-card">
+      <div class="card-body h-100 d-flex flex-column justify-content-start">
+        <h3>Order Details</h3>
+        <hr>
+        <div id="orders-parent" class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll h-100 form-control no-wrap p-3">
+          <div *ngFor="let suborder of suborders; index as i; trackBy: subordersTracking" class="card w-100 mt-3 mb-3">
+            <div class="w-100 d-flex flex-column flex-sm-row justify-content-evenly">
+              <div class="card-body w-100 d-flex flex-column justify-content-evenly align-items-baseline">
+                <div class="w-100 overflow-x-scroll no-wrap">
+                  <h3 class="card-title m-0">{{ suborder.foodName }}</h3>
                 </div>
-                <input type="text" name="instructions" class="ms-3 w-75 form-control" placeholder="{{formatInstructions( suborder.instructions )}}" maxlength="300">
+                <div class="w-100 p-0 d-flex justify-content-evenly align-items-center">
+                  <div class="mt-3 w-25 overflow-x-scroll no-wrap">
+                    <p class="card-text">Added by: {{ suborder.authorName }}</p>
+                  </div>
+                  <input type="text" name="instructions" class="ms-3 w-75 form-control" placeholder="{{formatInstructions( suborder.instructions )}}" maxlength="300">
+                </div>
               </div>
-            </div>
-            <div class="d-flex flex-row flex-sm-column justify-content-evenly align-items-center m-2 ">
-              <div class="d-flex justify-content-center align-items-center">
-                <i (click)="incrementSuborder(suborder.id)" class="bi bi-dash-lg m-1"></i>
-                <h6 class="m-1" [ngClass]="suborder.quantity > 0 ? 'text-dark' : 'text-danger'">{{ suborder.quantity }}</h6>
-                <i (click)="decrementSuborder(suborder.id)" class="bi bi-plus-lg m-1" [ngClass]="suborder.quantity > 0 ? 'icon-button-on' : 'icon-button-off'"></i>
-              </div>
-              <div>
-                <ng-container *ngIf="suborder.status === ordered; else processingOrDone">
-                  <i class="bi bi-list-ul fs-4 text-dark"></i>
-                </ng-container>
-                <ng-template #processingOrDone>
-                  <ng-container *ngIf="suborder.status === processing; else done">
-                    <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+              <div class="d-flex flex-row flex-sm-column justify-content-evenly align-items-center m-2 ">
+                <div class="d-flex justify-content-center align-items-center">
+                  <i (click)="incrementSuborder(suborder.id)" class="bi bi-dash-lg m-1"></i>
+                  <h6 class="m-1" [ngClass]="suborder.quantity > 0 ? 'text-dark' : 'text-danger'">{{ suborder.quantity }}</h6>
+                  <i (click)="decrementSuborder(suborder.id)" class="bi bi-plus-lg m-1" [ngClass]="suborder.quantity > 0 ? 'icon-button-on' : 'icon-button-off'"></i>
+                </div>
+                <div>
+                  <ng-container *ngIf="suborder.status === ordersProvider; else processingOrDone">
+                    <i class="bi bi-list-ul fs-4 text-dark"></i>
                   </ng-container>
-                </ng-template>
-                <ng-template #done>
-                  <i class="bi bi-clipboard2-check-fill fs-4 text-success"></i>
-                </ng-template>
+                  <ng-template #processingOrDone>
+                    <ng-container *ngIf="suborder.status === processingProvider; else done">
+                      <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+                    </ng-container>
+                  </ng-template>
+                  <ng-template #done>
+                    <i class="bi bi-clipboard2-check-fill fs-4 text-success"></i>
+                  </ng-template>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
-        <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-start p-2">
-          <h3>Subtotal</h3>
+        <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+          <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-start p-2">
+            <h3>Subtotal</h3>
+          </div>
+          <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-end p-2">
+            <h4> {{ subtotal }} </h4>
+          </div>
         </div>
-        <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-end p-2">
-          <h4> {{ subtotal }} </h4>
+        <div class="text-center w-100 p-0">
+          <hr>
+          <h5>
+            Tip (Optional)
+          </h5>
         </div>
-      </div>
-      <div class="text-center w-100 p-0">
-        <hr>
-        <h5>
-          Tip (Optional)
-        </h5>
-      </div>
-      <div class="d-flex justify-content-evenly align-items-center w-100 overflow-x-scroll no-wrap p-3 mb-2">
-        <button onclick="setTip(0)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 0 ? 'solid thin black' : '' }">NONE</button>
-        <button onclick="setTip(10)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 10 ? 'solid thin black' : '' }">₹10</button>
-        <button onclick="setTip(50)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 50 ? 'solid thin black' : '' }">₹50</button>
-        <button onclick="setTip(100)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 100 ? 'solid thin black' : '' }">₹100</button>
-      </div>
-      <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
-        <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-start p-2">
-          <h3>Total</h3>
+        <div class="d-flex justify-content-evenly align-items-center w-100 overflow-x-scroll no-wrap p-3 mb-2">
+          <button onclick="setTip(0)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 0 ? 'solid thin black' : '' }">NONE</button>
+          <button onclick="setTip(10)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 10 ? 'solid thin black' : '' }">₹10</button>
+          <button onclick="setTip(50)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 50 ? 'solid thin black' : '' }">₹50</button>
+          <button onclick="setTip(100)" class="btn btn-secondary btn-sm rounded-pill text-light-emphasis fw-bold ms-4 mt-4" [ngStyle]="{ border: tip == 100 ? 'solid thin black' : '' }">₹100</button>
         </div>
-        <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-end p-2">
-          <h4> {{ total }} (Applied Discount %: {{ discount }})</h4>
+        <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+          <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-start p-2">
+            <h3>Total</h3>
+          </div>
+          <div class="w-100 w-md-50 overflow-x-scroll no-wrap d-flex justify-content-center justify-content-md-end p-2">
+            <h4> {{ total }} (Applied Discount %: {{ discount }})</h4>
+          </div>
         </div>
-      </div>
-      <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
-        <button (click)="confirmChanges()" id="confirm" class="btn btn-primary btn-xl rounded-pill m-2">Confirm</button>
-        <button [disabled]="completable" (click)="completeOrder()"  id="complete" class="btn btn-primary btn-xl rounded-pill m-2">Complete</button>
-        <button [disabled]="payable" (click)="completeOrderPayment()" id="pay" class="btn btn-primary btn-xl rounded-pill m-2">Pay</button>
+        <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
+          <button (click)="confirmChanges()" id="confirm" class="btn btn-primary btn-xl rounded-pill m-2">Confirm</button>
+          <button [disabled]="completable" (click)="completeOrder()"  id="complete" class="btn btn-primary btn-xl rounded-pill m-2">Complete</button>
+          <button [disabled]="payable" (click)="completeOrderPayment()" id="pay" class="btn btn-primary btn-xl rounded-pill m-2">Pay</button>
+        </div>
       </div>
     </div>
-  </div>
+  </ng-container>
+  <ng-template #loaded>
+    <div class="loading"></div>
+  </ng-template>
 </div>
