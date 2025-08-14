@@ -1,0 +1,41 @@
+<form (submit)="addFoodConfirm($event)">
+  <div class="mb-3 w-100">
+    <label for="addFoodName" class="form-label">Name</label>
+    <input type="text" name="name" class="form-control" id="addFoodName" placeholder="Enter name" minlength="1" maxlength="100" required>
+  </div>
+  <div class="mb-3 w-100">
+    <label for="addFoodDescription" class="form-label">Enter Description</label>
+    <input type="text" name="description" class="form-control" id="addFoodDescription" placeholder="Enter Description" minlength="1" maxlength="300" required>
+  </div>
+  <div class="mb-3 w-100">
+    <label for="addFoodPrice" class="form-label">Enter Price</label>
+    <input type="number" name="price" class="form-control" id="addFoodPrice" min="0" step="1" placeholder="Enter Price" required>
+  </div>
+  <div class="mb-3 w-100 d-flex justify-content-evenly">
+    <button (click)="setVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="vegetarian ? 'text-success-emphasis text-bg-success' : 'text-success'">Vegetarian</button>
+    <button (click)="setNonVegetarian()" class="btn fw-bold ms-1 me-1" [ngClass]="vegetarian ? 'text-danger' : 'text-danger-emphasis text-bg-danger'">Non Vegetarian</button>
+  </div>
+  <div class="mb-3 w-100">
+    <label>Cooking Duration</label>
+    <div class="d-flex justify-content-evenly">
+      <input type="number" class="form-control ms-1 me-1" name="hours" min="0" max="23" step="1" placeholder="hh" required>
+      <input type="number" class="form-control ms-1 me-1" name="minutes" min="0" max="59" step="1" placeholder="mm" required>
+      <input type="number" class="form-control ms-1 me-1" name="seconds" min="0" max="59" step="1" placeholder="ss" required>
+    </div>
+  </div>
+  <div class="mb-3 w-100 d-flex flex-column flex-md-row justify-content-evenly">
+    <div class="w-100">
+      <label for="addFoodImageURL" class="form-label">Image Source</label>
+      <input [(ngModel)]="imageURL" type="url" name="image" class="form-control" id="addFoodImageURL" placeholder="Enter URL" required>
+    </div>
+  </div>
+  <div class="mb-3 w-100 form-control d-flex flex-column p-2">
+    <img src="{{ imageURL }}" (load)="imageLoaded = true" class="w-100 h-auto">
+  </div>
+  <div class="mb-3 w-100 d-flex justify-content-center align-items-end text-danger overflow-x-scroll no-wrap p-2">
+    {{ addFoodError }}
+  </div>
+  <div class="mb-3 w-100 text-center">
+    <button type="submit" class="btn btn-primary btn-xl rounded-pill">Confirm</button>
+  </div>
+</form>

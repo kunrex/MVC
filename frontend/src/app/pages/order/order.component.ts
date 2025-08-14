@@ -6,9 +6,9 @@ import { Component, AfterViewInit } from '@angular/core';
 import { Page } from "../../utils/page";
 import { ordered, processing, serverAddress } from "../../utils/constants";
 
-import { RouteService } from "../../services/route.service";
-import { AudioService } from "../../services/audio.service";
-import { ModalService } from "../../services/modal.service";
+import { RouteService } from "../../services/route-service";
+import { AudioService } from "../../services/audio-service";
+import { ModalService } from "../../services/modal-service";
 
 class MenuItem {
   public readonly tags: string[] = [];

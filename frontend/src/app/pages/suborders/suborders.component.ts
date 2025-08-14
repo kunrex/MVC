@@ -5,9 +5,9 @@ import { Component, AfterViewInit } from '@angular/core';
 import { Page } from "../../utils/page";
 import { completed, ordered, processing, serverAddress } from "../../utils/constants";
 
-import { RouteService } from "../../services/route.service";
-import { AudioService } from "../../services/audio.service";
-import { ModalService } from "../../services/modal.service";
+import { RouteService } from "../../services/route-service";
+import { AudioService } from "../../services/audio-service";
+import { ModalService } from "../../services/modal-service";
 
 class Suborder {
   constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public code: number = 1) { }

@@ -1,0 +1,10 @@
+<form (submit)="createTag($event)" class="w-100">
+  <div class="w-100">
+    <label for="createTagInput" class="form-label">New Tag</label>
+    <span class="text-danger fs-6">{{ createTagError }}</span>
+    <input type="text" name="tag" class="form-control" maxlength="50" id="createTagInput" placeholder="Enter New Tag" required>
+  </div>
+  <div class="text-center p-3">
+    <button type="submit" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
+  </div>
+</form>

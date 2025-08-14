@@ -139,12 +139,12 @@ func AddSuborders(suborders []types.Suborder, orderId int64, userId int64) error
 	args := make([]interface{}, len(suborders)*6)
 	placeholders := make([]string, len(suborders))
 	for i, suborder := range suborders {
-		args[i] = suborder.FoodId
-		args[i+1] = orderId
-		args[i+2] = userId
-		args[i+3] = suborder.Quantity
-		args[i+4] = suborder.Instructions
-		args[i+5] = suborder.Status
+		args[i*6] = suborder.FoodId
+		args[i*6+1] = orderId
+		args[i*6+2] = userId
+		args[i*6+3] = suborder.Quantity
+		args[i*6+4] = suborder.Instructions
+		args[i*6+5] = suborder.Status
 		placeholders[i] = "(?, ?, ?, ?, ?, ?)"
 	}
 

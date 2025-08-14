@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
-import { RouteService } from "../services/route.service";
-import { AudioService } from "../services/audio.service";
-import { ModalService } from "../services/modal.service";
+import { RouteService } from "../services/route-service";
+import { AudioService } from "../services/audio-service";
+import { ModalService } from "../services/modal-service";
 
 @Component({
   template: ''
@@ -13,6 +13,6 @@ export abstract class Page {
   }
 
   public playClickSFX() : Promise<void> {
-    return this.audioService.playCLickSFX()
+    return this.audioService.playClickSFX()
   }
 }

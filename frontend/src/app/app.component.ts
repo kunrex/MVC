@@ -2,9 +2,9 @@ import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { Modal } from 'bootstrap';
 
-import { RouteService } from "./services/route.service";
-import { AudioService } from "./services/audio.service";
-import { ModalOptions, ModalService } from "./services/modal.service";
+import { RouteService } from "./services/route-service";
+import { AudioService } from "./services/audio-service";
+import { ModalOptions, ModalService } from "./services/modal-service";
 
 @Component({
   selector: 'app-root',
@@ -40,7 +40,7 @@ export class AppComponent implements AfterViewInit {
         if(options.loadLogin)
           await this.routes.loadLogin();
 
-        this.audioService.playCLickSFX().then();
+        this.audioService.playClickSFX().then();
       });
 
       modal.show();

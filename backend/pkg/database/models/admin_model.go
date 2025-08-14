@@ -48,12 +48,13 @@ func UpdateFoodTags(foodId int64, tags []int64) error {
 	placeholders := make([]string, len(tags))
 	values := make([]interface{}, len(tags)*2)
 	for i, tag := range tags {
-		values[i] = foodId
-		values[i+1] = tag
+		values[i*2] = foodId
+		values[i*2+1] = tag
 		placeholders[i] = "(?, ?)"
 	}
 
 	query := fmt.Sprintf("INSERT INTO FoodTagRelations (foodID, tagID) VALUES %v;", strings.Join(placeholders, ","))
+
 	_, err = database.DB.Exec(query, values...)
 
 	if err != nil {

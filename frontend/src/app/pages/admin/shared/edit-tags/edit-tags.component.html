@@ -1,0 +1,25 @@
+<div class="w-100 d-flex flex-column mb-3">
+  <label for="editTagItems" class="mb-2">Choose an Item:</label>
+  <select [(ngModel)]="selectedIdValue" (change)="selectItem($event)" name="items" id="editTagItems" class="p-2">
+    <option value="" selected disabled>Select an option</option>
+    <option *ngFor="let item of menu; index as i; trackBy: itemTracking" value="{{ item.id }}"> {{ item.name }} </option>
+  </select>
+</div>
+<div class="w-100 text-center mb-3">
+  <h5>
+    Tags
+  </h5>
+</div>
+<div class="w-100 overflow-x-scroll no-wrap mb-3 p-2">
+  <ng-container *ngIf="tags.length > 0; else noTagsEdit">
+    <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="itemNone" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
+  </ng-container>
+  <ng-template #noTagsEdit>
+    <div class="w-100 text-center text-dark-emphasis p5">
+      <h4>No Tags</h4>
+    </div>
+  </ng-template>
+</div>
+<div class="w-100 text-center">
+  <button [disabled]="itemNone" (click)="confirmChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
+</div>
