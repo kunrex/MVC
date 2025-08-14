@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 
+import { serverAddress } from "../../../../utils/constants";
+import { AudioService } from "../../../../services/audio-service";
+import { ModalService } from "../../../../services/modal-service";
+
 import { MenuItem } from "../../types/menu-item";
-import {AudioService} from "../../../../services/audio-service";
-import {ModalService} from "../../../../services/modal-service";
-import {serverAddress} from "../../../../utils/constants";
 
 @Component({
   selector: 'admin-edit-tags',
