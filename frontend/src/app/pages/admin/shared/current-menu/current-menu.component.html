@@ -1,0 +1,36 @@
+<div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center overflow-y-scroll no-wrap form-control p-3">
+  <div class="w-100 scroll">
+    <ng-container *ngIf="menu.length > 0; else noItems">
+      <div *ngFor="let item of menu; index as i; trackBy: menuItemsTracking" class="card w-100 menu-card mt-3 mb-3">
+        <div class="w-100 d-flex flex-column flex-md-row">
+          <div class="w-auto">
+            <img src="{{serverAddressProvider}}/{{ item.imageUrl }}" class="menu-card-img" alt="Img">
+          </div>
+          <div class="card-body menu-card-body">
+            <div class="overflow-x-scroll no-wrap m-0 p-0">
+              <h3 class="card-title">{{ item.name }}</h3>
+            </div>
+            <div class="overflow-x-scroll no-wrap">
+              <p class="card-text"> <strong>Time:</strong> {{ timeStampFunctionProvider(item.cookTime) }} </p>
+            </div>
+            <div class="overflow-x-scroll no-wrap">
+              <p class="card-text"> <strong>Description:</strong> {{ item.description }} </p>
+            </div>
+            <div class="w-100 d-flex justify-content-start g-2 overflow-x-auto no-wrap">
+              <span *ngFor="let tag of item.tags; index as i; trackBy: tagTracking" class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1"> {{ tag }} </span>
+            </div>
+          </div>
+          <div class="w-auto d-flex flex-row flex-md-column justify-content-evenly align-items-center m-2">
+            <h6>₹{{ item.price }}</h6>
+            <span class="dot" [ngClass]="item.vegetarian ? 'green' : 'red'"></span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noItems>
+      <div class="w-100 text-center text-dark-emphasis p-5">
+        <h4>No Items</h4>
+      </div>
+    </ng-template>
+  </div>
+</div>
