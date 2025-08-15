@@ -1,0 +1,24 @@
+<form (submit)="signup($event)" >
+  <div class="mb-3">
+    <label for="sign-name" class="form-label">Name</label>
+    <input type="text" name="name" minlength="1" maxlength="100" class="form-control" id="sign-name" placeholder="Enter name" required>
+  </div>
+  <div class="mb-3">
+    <label for="sign-email" class="form-label">Email Address</label>
+    <input type="email" name="email" minlength="1" maxlength="255" class="form-control" id="sign-email" placeholder="Enter email" required>
+  </div>
+  <div class="mb-3">
+    <label for="sign-pwd" class="form-label">Password</label>
+    <div class="progress m-2">
+      <div id="strength" class="progress-bar" [ngClass]="colours[strength - 1]" [ngStyle]="{ width: strength * 20 + '%' }"></div>
+    </div>
+    <input (keyup)="checkPasswordStrength($event)" type="password" name="password" minlength="1" maxlength="72" class="form-control" id="sign-pwd" placeholder="Password" required>
+  </div>
+  <div class="mb-3 w-100 overflow-x-scroll no-wrap">
+    <span [ngClass]="strength < 5 ? 'text-danger' : 'text-success'"> {{ strengthMessage }} </span>
+  </div>
+  <div class="mb-3 text-center text-danger"> {{ signupError }} </div>
+  <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
+    <button type="submit" class="btn btn-primary btn-xl rounded-pill">Sign Up</button>
+  </div>
+</form>

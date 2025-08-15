@@ -1,0 +1,14 @@
+<form (submit)="login($event)">
+  <div class="mb-3">
+    <label for="long-email" class="form-label">Email Address</label>
+    <input type="email" name="email" class="form-control" id="long-email" placeholder="Enter email" required>
+  </div>
+  <div class="mb-3">
+    <label for="login-pwd" class="form-label">Password</label>
+    <input type="password" name="password" class="form-control" id="login-pwd" placeholder="Password" required>
+  </div>
+  <div class="mb-3 text-center text-danger"> {{ loginError }} </div>
+  <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 gap-md-5">
+    <button type="submit" class="btn btn-primary btn-xl rounded-pill">Log In</button>
+  </div>
+</form>
