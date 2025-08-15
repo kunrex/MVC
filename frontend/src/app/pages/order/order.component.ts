@@ -9,6 +9,7 @@ import { ordered, processing, serverAddress } from "../../utils/constants";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
+import {timeStampPrettyPrint} from "../../utils/functions";
 
 class MenuItem {
   public readonly tags: string[] = [];
@@ -63,6 +64,8 @@ export class OrderComponent extends Page implements AfterViewInit {
   public subtotal: number = 0;
 
   private maxSuborderId: number = 0;
+
+  public readonly timeStampFunctionProvider: (timestamp: string) => string = timeStampPrettyPrint;
 
   constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
@@ -209,20 +212,6 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   public formatInstructions(instructions: string) : string {
     return instructions == '' ? 'No instructions' : instructions;
-  }
-
-  public timeStampPrettyPrint(timestamp: string) : string {
-    const times = timestamp.split(':').map((x: string) => parseInt(x));
-
-    const stamps: string[] = []
-    if(times[0] > 0)
-      stamps.push(`${times[0]} hours`)
-    if(times[1] > 0)
-      stamps.push(`${times[1]} minutes`)
-    if(times[2] > 0)
-      stamps.push(`${times[2]} seconds`)
-
-    return stamps.join(',');
   }
 
   public filter(tag: string) : void {

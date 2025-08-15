@@ -61,6 +61,8 @@ export class AddFoodComponent {
       return;
     }
 
+    const time = `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
+
     const response = await fetch(`${serverAddress}/admin/food/add`, {
       method: 'POST',
       headers: {
@@ -73,7 +75,7 @@ export class AddFoodComponent {
         description: description,
 
         vegetarian: this.vegetarian,
-        cookTime: `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`,
+        cookTime: time,
 
         imageURL: this.imageURL
       })
@@ -86,7 +88,7 @@ export class AddFoodComponent {
 
     const insertId = parseInt(await response.text());
 
-    this.menu.push(new MenuItem(insertId, name));
+    this.menu.push(new MenuItem(insertId, name, price, description, time, this.imageURL, this.vegetarian));
 
     target.reset();
     this.vegetarian = true;

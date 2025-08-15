@@ -50,7 +50,12 @@ export class AdminComponent extends Page implements AfterViewInit {
 
       const item = new MenuItem(
         current.id,
-        current.name
+        current.name,
+        current.price,
+        current.description,
+        current.cookTime,
+        current.imageURL,
+        current.vegetarian
       );
 
       if(current.tags != '') {
