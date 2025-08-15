@@ -44,3 +44,10 @@ type FoodCache struct {
 	ImageURL    string `json:"imageURL"`
 	Tags        string `json:"tags"`
 }
+
+type UserAuthorisation struct {
+	Id			  int64  `json:"id"`
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	Authorisation uint   `json:"authorisation"`
+}

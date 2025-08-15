@@ -7,6 +7,7 @@ import { EditTagsComponent } from './edit-tags/edit-tags.component';
 import { CreateTagComponent } from './create-tag/create-tag.component';
 import { CurrentTagsComponent } from "./current-tags/current-tags.component";
 import { UserPermissionsComponent } from './user-permissions/user-permissions.component';
+import {SharedOrdersModuleModule} from "../../orders/shared/shared-orders-module.module";
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { UserPermissionsComponent } from './user-permissions/user-permissions.co
   ],
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    SharedOrdersModuleModule
   ],
   exports: [
     AddFoodComponent,

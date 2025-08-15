@@ -15,21 +15,15 @@ import (
 
 var timeRegex, _ = regexp.Compile("^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
 
-func GetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userEmail := vars["userEmail"]
-
-	id, authorisation, err := models.GetUserIdAuthorisationEmail(userEmail)
+func GetAllAuthorisationsHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := models.GetAllUserAuthorisations()
 	if err != nil {
-		utils.WriteFailedResponse(http.StatusBadRequest, "no such user exists", w)
+		utils.WriteFailedResponse(http.StatusBadRequest, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]int64{
-		"id":            id,
-		"authorisation": int64(authorisation),
-	})
+	_ = json.NewEncoder(w).Encode(users)
 }
 
 func SetUserAuthorisationHandler(w http.ResponseWriter, r *http.Request) {

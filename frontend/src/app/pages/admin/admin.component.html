@@ -11,81 +11,55 @@
 </nav>
 <header class="masthead text-black align-content-center h-100">
   <div class="masthead-content">
-    <div class="main container d-flex flex-column justify-content-center align-items-center bg-white rounded-5 p-5">
+    <div class="container d-flex flex-column justify-content-center align-items-center bg-white rounded-5 p-5">
       <div class="text-center w-100">
         <h1>
-          Add New Items and Tags
+          Administrative Options
         </h1>
         <hr class="w-100">
       </div>
-      <div class="flex-grow-1 overflow-y-scroll no-wrap p-3 mb-3 w-100">
-        <div class="w-100 scroll">
-          <div class="accordion w-100" id="accordionAdd">
-            <div class="accordion-item w-100">
-              <h2 class="accordion-header w-100" id="allTags">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                  Current Tags
-                </button>
-              </h2>
-              <div id="collapseOne" class="accordion-collapse collapse w-100" aria-labelledby="allTags" data-bs-parent="#accordionAdd">
-                <div class="accordion-body w-100 overflow-x-scroll no-wrap">
-                  <admin-current-tags [tags]="tags"></admin-current-tags>
-                </div>
-              </div>
-            </div>
-            <div class="accordion-item w-100">
-              <h2 class="accordion-header w-100" id="allItems">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                  Edit Food Tags
-                </button>
-              </h2>
-              <div id="collapseTwo" class="accordion-collapse collapse w-100" aria-labelledby="allItems" data-bs-parent="#accordionAdd">
-                <div class="accordion-body w-100 d-flex flex-column">
-                  <admin-edit-tags [tags]="tags" [menu]="menu"></admin-edit-tags>
-                </div>
-              </div>
-            </div>
-            <div class="accordion-item w-100">
-              <h2 class="accordion-header w-100" id="newTag">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                  Create a New Tag
-                </button>
-              </h2>
-              <div id="collapseThree" class="accordion-collapse collapse w-100"  aria-labelledby="newTag" data-bs-parent="#accordionAdd">
-                <div class="accordion-body w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
-                  <admin-create-tag [tags]="tags" class="w-100"></admin-create-tag>
-                </div>
-              </div>
-            </div>
-            <div class="accordion-item w-100">
-              <h2 class="accordion-header w-100" id="newItem">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                  Add a New Food Item
-                </button>
-              </h2>
-              <div id="collapseFour" class="accordion-collapse collapse w-100" aria-labelledby="newItem" data-bs-parent="#accordionAdd">
-                <div class="accordion-body w-100">
-                  <admin-add-food [menu]="menu"></admin-add-food>
-                </div>
-              </div>
-            </div>
-            <div class="accordion-item w-100">
-              <h2 class="accordion-header w-100" id="userPermissions">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                  Update User Permissions
-                </button>
-              </h2>
-              <div id="collapseFive" class="accordion-collapse collapse w-100" aria-labelledby="userPermissions" data-bs-parent="#accordionAdd">
-                <div class="accordion-body w-100 overflow-x-scroll no-wrap">
-                  <admin-user-permissions></admin-user-permissions>
-                </div>
-              </div>
-            </div>
-          </div>
+      <ul class="nav nav-tabs" id="admin-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="current-tags-btn" data-bs-toggle="tab" data-bs-target="#current-tags" type="button" role="tab" aria-controls="home" aria-selected="true">Current Tags</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="menu-btn" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab" aria-controls="contact" aria-selected="false">Menu</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="create-tags-btn" data-bs-toggle="tab" data-bs-target="#create-tag" type="button" role="tab" aria-controls="profile" aria-selected="false">Create Tag</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="edit-tags-btn" data-bs-toggle="tab" data-bs-target="#edit-tags" type="button" role="tab" aria-controls="contact" aria-selected="false">Edit Food Item Tags</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="add-food-item-btn" data-bs-toggle="tab" data-bs-target="#add-food" type="button" role="tab" aria-controls="contact" aria-selected="false">Add Food Item</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="user-permissions-btn" data-bs-toggle="tab" data-bs-target="#user-permissions" type="button" role="tab" aria-controls="contact" aria-selected="false">Update User Permissions</button>
+        </li>
+      </ul>
+      <div class="container-lg tab-content p-5">
+        <div class="tab-pane fade show active" id="current-tags" role="tabpanel" aria-labelledby="home-tab">
+          <admin-current-tags [tags]="tags"></admin-current-tags>
+        </div>
+        <div class="tab-pane fade" id="menu" role="tabpanel" aria-labelledby="profile-tab">
+         cool
+        </div>
+        <div class="tab-pane fade" id="edit-tags" role="tabpanel" aria-labelledby="contact-tab">
+          <admin-edit-tags [tags]="tags" [menu]="menu"></admin-edit-tags>
+        </div>
+        <div class="tab-pane fade" id="create-tag" role="tabpanel" aria-labelledby="contact-tab">
+          <admin-create-tag [tags]="tags" class="w-100"></admin-create-tag>
+        </div>
+        <div class="tab-pane fade" id="add-food" role="tabpanel" aria-labelledby="contact-tab">
+          <admin-add-food [menu]="menu"></admin-add-food>
+        </div>
+        <div class="tab-pane fade" id="user-permissions" role="tabpanel" aria-labelledby="contact-tab">
+          <admin-user-permissions></admin-user-permissions>
         </div>
       </div>
       <div class="w-100 text-center">
-        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill">Return</button>
+        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill">Back</button>
       </div>
     </div>
   </div>

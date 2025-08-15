@@ -1,96 +1,99 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 
 import { serverAddress } from "../../../../utils/constants";
 
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
 
+class UserAuthorisation {
+  constructor(public readonly id: number, public readonly name: string, public readonly email: string, public authorisation: number) { }
+}
+
 @Component({
   selector: 'admin-user-permissions',
   templateUrl: './user-permissions.component.html',
   styleUrls: ['./user-permissions.component.scss']
 })
-export class UserPermissionsComponent {
-  public userNone: boolean = true;
-  public permissionsError: string = '';
-
-  public userEmail: string = '';
-  public isChef: boolean = false;
-  public isAdmin: boolean = false;
-
-  private userId: number = 0;
+export class UserPermissionsComponent implements AfterViewInit {
+  public readonly users: UserAuthorisation[] = [];
 
   constructor(private readonly audioService: AudioService, private readonly modalService: ModalService) { }
 
-  public async loadUser(e: Event) : Promise<void> {
-    e.preventDefault();
-    const target = e.target as HTMLFormElement;
-
-    await this.audioService.playClickSFX();
-
-    if (!target.checkValidity()) {
-      target.reportValidity();
-      return;
-    }
-
-    const formData = new FormData(target);
-    this.userEmail = formData.get('email') as string;
-
-    await this.audioService.playClickSFX();
-
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/get/${this.userEmail}`, {
+  public async ngAfterViewInit(): Promise<void> {
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/get`, {
       method: 'GET',
       credentials: 'include'
-    })
+    });
 
     const json = await response.json();
+
     if(response.status != 200) {
-      this.permissionsError = json.error;
+      this.modalService.showError(json.error);
       return;
     }
 
-    this.userNone = false;
+    const count = json.length;
+    for (let i = 0; i < count; i++) {
+      const current = json[i];
 
-    this.userId = json.id;
-    const auth = json.authorisation;
-
-    this.isChef = (auth & 2) == 2;
-    this.isAdmin = (auth & 4) == 4;
+      this.users.push(new UserAuthorisation(
+        current.id,
+        current.name,
+        current.email,
+        current.authorisation
+      ));
+    }
   }
 
-  public toggleChef() : void {
-    this.isChef = !this.isChef;
+  public userTracking(i: number, user: UserAuthorisation) : number {
+    return user.id;
+  }
+
+  public toggleChef(id: number) : void {
+    const count = this.users.length;
+    for (let i = 0; i < count; i++) {
+      const current = this.users[i];
+
+      if(current.id == id) {
+        current.authorisation = current.authorisation ^ 2;
+        this.setUserAuthorisation(current).then();
+        break;
+      }
+    }
+
     this.audioService.playClickSFX().then()
   }
 
-  public setAdmin() : void {
-    this.isAdmin = true;
+  public setAdmin(id: number) : void {
+    const count = this.users.length;
+    for (let i = 0; i < count; i++) {
+      const current = this.users[i];
+
+      if(current.id == id) {
+        current.authorisation = current.authorisation | 4;
+        this.setUserAuthorisation(current).then();
+        break;
+      }
+    }
+
     this.audioService.playClickSFX().then();
   }
 
-  public async confirmChanges() : Promise<void> {
-    await this.audioService.playClickSFX();
-
-    let auth = 1 | (this.isChef ? 2 : 1) | (this.isAdmin ? 4 : 1);
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${this.userId}/${auth}`, {
-      method: 'PATCH',
-      credentials: 'include'
-    })
-
-    if(response.status != 200) {
-      this.modalService.showError((await response.json()).error);
-      return;
-    }
-
-    this.cancelChanges();
-    this.modalService.showModal('Update Successful', 'User permissions updated successfully');
+  public isChef(authorisation: number): boolean {
+    return (authorisation & 2) == 2;
   }
 
-  public cancelChanges() : void {
-    this.userId = 0;
-    this.isChef = this.isAdmin = false;
-    this.userEmail = this.permissionsError = '';
+  public isAdmin(authorisation: number): boolean {
+    return (authorisation & 4) == 4;
+  }
 
-    this.userNone = true;
+  private async setUserAuthorisation(user: UserAuthorisation) : Promise<void> {
+    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${user.id}/${user.authorisation}`, {
+      method: 'PATCH',
+      credentials: 'include'
+    });
+
+    if(response.status != 200)
+      this.modalService.showError((await response.json()).error);
   }
 }

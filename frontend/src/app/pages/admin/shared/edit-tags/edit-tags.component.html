@@ -12,7 +12,9 @@
 </div>
 <div class="w-100 overflow-x-scroll no-wrap mb-3 p-2">
   <ng-container *ngIf="tags.length > 0; else noTagsEdit">
-    <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="itemNone" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
+    <div class="w-100 d-flex justify-content-center g-2 overflow-x-auto no-wrap">
+      <button *ngFor="let tag of tags; index as i; trackBy: tagTracking" [disabled]="itemNone" (click)="toggleTag(tag)" class="btn fw-bold ms-1 me-1" [ngClass]="checkTagSelected(tag) ? 'text-warning-emphasis text-bg-warning' : 'text-warning'"> {{ tag }} </button>
+    </div>
   </ng-container>
   <ng-template #noTagsEdit>
     <div class="w-100 text-center text-dark-emphasis p5">
@@ -21,5 +23,5 @@
   </ng-template>
 </div>
 <div class="w-100 text-center">
-  <button [disabled]="itemNone" (click)="confirmChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Confirm</button>
+  <button [disabled]="itemNone" (click)="confirmChanges()" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill">Confirm</button>
 </div>

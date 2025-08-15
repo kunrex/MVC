@@ -17,6 +17,6 @@ func initAdminRoutes(router *mux.Router) {
 
 	subRouter.HandleFunc("/tags/add/{tag}", controllers.AddTagHandler).Methods("POST")
 
-	subRouter.HandleFunc("/user/authorisation/get/{userEmail}", controllers.GetUserAuthorisationHandler).Methods("GET")
+	subRouter.HandleFunc("/user/authorisation/get", controllers.GetAllAuthorisationsHandler).Methods("GET")
 	subRouter.HandleFunc("/user/authorisation/set/{userId}/{authorisation}", controllers.SetUserAuthorisationHandler).Methods("PATCH, OPTIONS")
 }

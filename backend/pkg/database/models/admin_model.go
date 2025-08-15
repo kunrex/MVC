@@ -2,16 +2,28 @@ package models
 
 import (
 	"MVC/pkg/database"
+	"MVC/pkg/types"
 	"fmt"
 	"strings"
 )
 
-func GetUserIdAuthorisationEmail(userEmail string) (int64, int, error) {
-	var id int64
-	var authorisation int
-	err := database.DB.QueryRow("SELECT id, auth FROM Users WHERE email = ?;", userEmail).Scan(&id, &authorisation)
+func GetAllUserAuthorisations() ([]types.UserAuthorisation, error) {
+	rows, err := database.DB.Query("SELECT id, name, email, auth FROM Users;")
+	if err != nil { return nil, err }
 
-	return id, authorisation, err
+	users := make([]types.UserAuthorisation, 0)
+	for rows.Next() {
+		var user types.UserAuthorisation
+		_ = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Email,
+			&user.Authorisation)
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func SetUserAuthorisation(userId int64, authorisation int) (bool, error) {
