@@ -9,9 +9,8 @@ import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
-class Suborder {
-  constructor(public readonly id: number, public readonly foodName: string, public readonly quantity: number, public readonly instructions: string, public status: string, public code: number = 1) { }
-}
+import { Suborder } from "./types/suborder";
+import { SharedSubordersModuleModule } from "./shared/shared-suborders-module.module";
 
 @Component({
   selector: 'app-suborders',
@@ -20,17 +19,18 @@ class Suborder {
   standalone: true,
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    SharedSubordersModuleModule
   ]
 })
 export class SubordersComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;
 
-  public suborders: Suborder[] = [];
+  public readonly orderIds: number[] = [];
+  public readonly displayedOrderIds: number[] = [];
 
-  public readonly orderedProvider = ordered;
-  public readonly completedProvider = completed;
-  public readonly processingProvider = processing;
+  public readonly suborders: Suborder[] = [];
+  public readonly displayedSuborders: Suborder[] = [];
 
   constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
@@ -54,13 +54,22 @@ export class SubordersComponent extends Page implements AfterViewInit {
       for(let i = 0; i < jsonLength; i++) {
         const current = json[i]
 
-        this.suborders.push(new Suborder(
+        const suborder = new Suborder(
           current.id,
+          current.orderId,
           current.foodName,
           current.quantity,
           current.instructions,
           current.status
-        ));
+        )
+
+        this.suborders.push(suborder);
+        this.displayedSuborders.push(suborder);
+
+        if(this.orderIds.indexOf(current.orderId) < 0) {
+          this.orderIds.push(current.orderId);
+          this.displayedOrderIds.push(current.orderId);
+        }
       }
 
       this.loaded = true;
@@ -70,37 +79,23 @@ export class SubordersComponent extends Page implements AfterViewInit {
     this.modalService.showError(json.error)
   }
 
-  public suborderTracking(i: number, suborder: Suborder) : number {
-    return suborder.id;
+  public orderIdTracking(i: number, orderId: number) : number {
+    return orderId;
   }
 
-  public markProcessing(suborderId: number) : void {
-    const count = this.suborders.length;
-    for(let i = 0; i < count; i++) {
+  public toggleOrder(orderId: number) : void {
+    const index = this.displayedOrderIds.indexOf(orderId);
+    if(index > -1)
+      this.displayedOrderIds.splice(index, 1);
+    else
+      this.displayedOrderIds.push(orderId);
+
+    this.displayedSuborders.splice(0, this.displayedSuborders.length);
+    for(let i = 0; i < this.suborders.length; i++) {
       const current = this.suborders[i];
 
-      if(current.id == suborderId) {
-        current.status = this.processingProvider;
-        current.code = 0;
-
-        this.playClickSFX().then();
-        break;
-      }
-    }
-  }
-
-  public markCompleted(suborderId: number) : void {
-    const count = this.suborders.length;
-    for(let i = 0; i < count; i++) {
-      const current = this.suborders[i];
-
-      if(current.id == suborderId) {
-        current.status = this.completedProvider;
-        current.code = 0;
-
-        this.playClickSFX().then();
-        break;
-      }
+      if(this.displayedOrderIds.indexOf(current.orderId) > -1)
+        this.displayedSuborders.push(current);
     }
   }
 
@@ -129,10 +124,8 @@ export class SubordersComponent extends Page implements AfterViewInit {
 
     await this.playClickSFX();
 
-    if (response.status == 200)
-      return this.routes.loadDashboard();
-
-    this.modalService.showError((await response.json()).error)
+    if (response.status != 200)
+      this.modalService.showError((await response.json()).error)
   }
 
   public async loadDashboard() : Promise<void> {

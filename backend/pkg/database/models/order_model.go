@@ -154,7 +154,7 @@ func AddSuborders(suborders []types.Suborder, orderId int64, userId int64) error
 }
 
 func GetIncompleteSuborders() ([]types.SuborderExtra, error) {
-	rows, err := database.DB.Query(`SELECT Foods.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status FROM Suborders
+	rows, err := database.DB.Query(`SELECT Foods.name, Suborders.id, Suborders.quantity, Suborders.instructions, Suborders.status, Suborders.orderId FROM Suborders
 												INNER JOIN Foods ON Suborders.foodId = Foods.id
 												WHERE Suborders.status != ?;`, "completed")
 
@@ -170,7 +170,8 @@ func GetIncompleteSuborders() ([]types.SuborderExtra, error) {
 			&suborder.Id,
 			&suborder.Quantity,
 			&suborder.Instructions,
-			&suborder.Status)
+			&suborder.Status,
+			&suborder.OrderId)
 
 		suborders = append(suborders, suborder)
 	}

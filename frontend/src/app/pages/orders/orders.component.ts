@@ -26,10 +26,11 @@ import { SharedOrdersModuleModule } from "./shared/shared-orders-module.module";
 })
 export class OrdersComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;
+
   public readonly userOrders: boolean;
 
-  public displayedOrders: Order[] = [];
   private readonly allOrders: Order[] = [];
+  public readonly displayedOrders: Order[] = [];
 
   public showPaid: boolean = true;
   public showOrdered: boolean = true;

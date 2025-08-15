@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 import { serverAddress } from "../../../../utils/constants";
+
 import { RouteService } from "../../../../services/route-service";
 import { AudioService } from "../../../../services/audio-service";
-import { ModalService } from "../../../../services/modal-service";
 
 @Component({
   selector: 'login-login',
