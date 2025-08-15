@@ -177,7 +177,7 @@ export class OrderComponent extends Page implements AfterViewInit {
           current.foodPrice,
           current.status,
           current.quantity,
-          current.imageURL,
+          current.instructions,
         )
 
         this.suborders.push(suborder);
@@ -208,7 +208,21 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public formatInstructions(instructions: string) : string {
-    return instructions === '' ? 'No instructions' : instructions;
+    return instructions == '' ? 'No instructions' : instructions;
+  }
+
+  public timeStampPrettyPrint(timestamp: string) : string {
+    const times = timestamp.split(':').map((x: string) => parseInt(x));
+
+    const stamps: string[] = []
+    if(times[0] > 0)
+      stamps.push(`${times[0]} hours`)
+    if(times[1] > 0)
+      stamps.push(`${times[1]} minutes`)
+    if(times[2] > 0)
+      stamps.push(`${times[2]} seconds`)
+
+    return stamps.join(',');
   }
 
   public filter(tag: string) : void {

@@ -117,6 +117,8 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 		case element.Code == 1 && element.Quantity > 0:
 			additions = append(additions, element.Suborder)
 			break
+		case element.Code == 1 && element.Quantity == 0:
+			break
 		default:
 			utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 			return

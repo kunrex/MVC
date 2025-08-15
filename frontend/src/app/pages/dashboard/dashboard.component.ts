@@ -9,6 +9,8 @@ import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
+import { DashboardSharedModuleModule } from "./shared/dashboard-shared-module.module";
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -16,7 +18,8 @@ import { ModalService } from "../../services/modal-service";
   standalone: true,
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    DashboardSharedModuleModule
   ]
 })
 export class DashboardComponent extends Page implements AfterViewInit {
@@ -68,30 +71,14 @@ export class DashboardComponent extends Page implements AfterViewInit {
     this.modalService.showError((await response.json()).error);
   }
 
-  public async newOrder() : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadNewOrder();
-  }
 
-  public async userOrders() : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadUserOrders();
-  }
 
   public async incompleteSuborders() : Promise<void> {
     await this.playClickSFX();
     return this.routes.loadSuborders();
   }
 
-  public async allOrders() : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadAllOrders();
-  }
 
-  public async adminOptions() : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadAdmin();
-  }
 
   public async navigateCustomer() : Promise<void> {
     await this.playClickSFX();
