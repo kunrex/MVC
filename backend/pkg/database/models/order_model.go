@@ -238,7 +238,7 @@ func PayOrder(orderId int64, subtotal float32, tip int, discount int, total floa
 }
 
 func GetAllOrders() ([]types.Order, error) {
-	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn FROM Orders
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn, Orders.payedBy IS NOT NULL FROM Orders
                                                  INNER JOIN Users ON Users.id = Orders.createdBy;`)
 
 	if err != nil {
@@ -252,7 +252,8 @@ func GetAllOrders() ([]types.Order, error) {
 			&order.AuthorName,
 			&order.Id,
 			&order.Completed,
-			&order.CreatedOn)
+			&order.CreatedOn,
+			&order.Paid)
 
 		order.CreatedOn = utils.ToLocalTime(order.CreatedOn)
 		orders = append(orders, order)
@@ -262,7 +263,7 @@ func GetAllOrders() ([]types.Order, error) {
 }
 
 func GetUserOrders(userId int64) ([]types.Order, error) {
-	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn FROM Orders
+	rows, err := database.DB.Query(`SELECT Users.name, Orders.id, Orders.completed, Orders.createdOn, Orders.payedBy IS NOT NULL FROM Orders
                                             INNER JOIN OrderRelations ON OrderRelations.orderId = Orders.Id 
     										INNER JOIN Users ON Users.id = Orders.createdBy
                                             WHERE OrderRelations.userId = ?;`, userId)
@@ -277,7 +278,8 @@ func GetUserOrders(userId int64) ([]types.Order, error) {
 			&order.AuthorName,
 			&order.Id,
 			&order.Completed,
-			&order.CreatedOn)
+			&order.CreatedOn,
+			&order.Paid)
 
 		order.CreatedOn = utils.ToLocalTime(order.CreatedOn)
 		orders = append(orders, order)

@@ -1,0 +1,23 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { OrdersDisplayComponent } from './orders-display.component';
+
+describe('OrdersDisplayComponent', () => {
+  let component: OrdersDisplayComponent;
+  let fixture: ComponentFixture<OrdersDisplayComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ OrdersDisplayComponent ]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(OrdersDisplayComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

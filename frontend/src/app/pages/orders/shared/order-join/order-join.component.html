@@ -1,0 +1,15 @@
+<div class="text-center w-100">
+  <h2>Join an Order</h2>
+  <hr>
+</div>
+<form (submit)="fetchOrder($event)" class="d-flex flex-column flex-md-row justify-content-evenly align-items-center mb-3">
+  <div class="mb-3 mb-md-0">
+    <label for="id" class="form-label">Order ID</label>
+    <input type="number" name="id" class="form-control" id="id" min="1" placeholder="Enter Order ID" required>
+  </div>
+  <div class="mb-3 mb-md-0">
+    <label for="author" class="form-label">Order Author</label>
+    <input type="text" name="author" class="form-control" id="author" placeholder="Enter Order Author Name" required>
+  </div>
+  <button type="submit" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Join Order</button>
+</form>

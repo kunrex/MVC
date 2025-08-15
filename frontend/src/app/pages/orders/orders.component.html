@@ -16,43 +16,15 @@
         <h2> {{ userOrders ? 'Your Orders' : 'All Orders'}} </h2>
         <hr>
       </div>
+      <div class="w-100 d-flex justify-content-evenly overflow-x-auto no-wrap p-3">
+        <button (click)="toggleOrdered()" class="btn p-2 rounded-2 text-center fw-bold ms-1 me-1" [ngClass]="showOrdered ? 'text-warning-emphasis text-bg-warning' : 'text-warning'">Ordered</button>
+        <button (click)="toggleCompleted()" class="btn p-2 rounded-2 text-center fw-bold ms-1 me-1" [ngClass]="showCompleted ? 'text-success-emphasis text-bg-success' : 'text-success'">Completed</button>
+        <button (click)="togglePaid()" class="btn p-2 rounded-2 text-center fw-bold ms-1 me-1" [ngClass]="showPaid ? 'text-dark-emphasis text-bg-dark' : 'text-dark'">Paid</button>
+      </div>
       <div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center overflow-y-scroll no-wrap form-control p-3 mb-3">
         <div class="w-100 scroll">
           <ng-container *ngIf="loaded; else loading">
-            <ng-container *ngIf="orders.length > 0; else noOrders">
-              <div *ngFor="let order of orders; index as i; trackBy: orderTracking" class="card w-100 mt-3 mb-3 d-flex flex-column justify-content-evenly align-items-baseline">
-                <div class="card-body w-100">
-                  <div class="w-100 p-0 d-flex flex-column flex-md-row justify-content-evenly">
-                    <div class="w-100 w-md-50 overflow-x-scroll no-wrap m-2">
-                      <h3 class="card-title m-0"> Order ID: {{ order.id }} </h3>
-                    </div>
-                    <div class="w-100 w-md-50 overflow-x-scroll no-wrap text-end p-2 m-2">
-                      <h6 class="card-title m-0"> Created On: <strong> {{ order.createdOn }} </strong> By <strong> {{ order.authorName }} </strong></h6>
-                    </div>
-                  </div>
-                  <div class="w-100 p-0 d-flex justify-content-evenly">
-                    <div class="w-50 d-flex flex-column flex-md-row justify-content-evenly overflow-x-scroll no-wrap p-2">
-                      <ng-container *ngIf="order.completed; else notCompleted">
-                        <span class="p-2 rounded-2 text-center text-warning fw-bold ms-1 me-1">Ordered</span>
-                        <span class="p-2 rounded-2 text-center text-success-emphasis text-bg-success fw-bold ms-1 me-1">Completed</span>
-                      </ng-container>
-                      <ng-template #notCompleted>
-                        <span class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1">Ordered</span>
-                        <span class="p-2 rounded-2 text-center text-success fw-bold ms-1 me-1">Completed</span>
-                      </ng-template>
-                    </div>
-                    <div class="w-50 text-end">
-                      <button (click)="loadOrder(order.id, order.authorName)" class="btn text-primary-emphasis text-bg-primary fw-bold ms-1 me-1">Show</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-            <ng-template #noOrders>
-              <div class="w-100 text-center text-dark-emphasis p5">
-                <h3>No Orders</h3>
-              </div>
-            </ng-template>
+            <orders-orders-display [orders]="displayedOrders"></orders-orders-display>
           </ng-container>
           <ng-template #loading>
             <div class="loading"></div>
@@ -60,24 +32,10 @@
         </div>
       </div>
       <ng-container *ngIf="userOrders">
-        <div class="text-center w-100">
-          <h2>Join an Order</h2>
-          <hr>
-        </div>
-        <form (submit)="fetchOrder($event)" class="d-flex flex-column flex-md-row justify-content-evenly align-items-center mb-3">
-          <div class="mb-3 mb-md-0">
-            <label for="id" class="form-label">Order ID</label>
-            <input type="number" name="id" class="form-control" id="id" min="1" placeholder="Enter Order ID" required>
-          </div>
-          <div class="mb-3 mb-md-0">
-            <label for="author" class="form-label">Order Author</label>
-            <input type="text" name="author" class="form-control" id="author" placeholder="Enter Order Author Name" required>
-          </div>
-          <button type="submit" class="btn btn-primary text-primary-emphasis text-bg-primary btn-lg rounded-pill me-4 mt-4">Join Order</button>
-        </form>
+        <orders-order-join></orders-order-join>
       </ng-container>
       <div class="w-100 text-center">
-        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill m-2">Return</button>
+        <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill m-2">Back</button>
       </div>
     </div>
   </div>

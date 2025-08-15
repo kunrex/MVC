@@ -9,9 +9,9 @@ import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
-class Order {
-  constructor(public readonly id: number, public readonly createdOn: string, public readonly authorName: string, public readonly completed: boolean) { }
-}
+import { Order } from "./types/order";
+import { SharedOrdersModuleModule } from "./shared/shared-orders-module.module";
+
 
 @Component({
   selector: 'app-orders',
@@ -20,14 +20,20 @@ class Order {
   standalone: true,
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    SharedOrdersModuleModule
   ]
 })
 export class OrdersComponent extends Page implements AfterViewInit {
   public loaded: boolean = false;
   public readonly userOrders: boolean;
 
-  public orders: Order[] = []
+  public displayedOrders: Order[] = [];
+  private readonly allOrders: Order[] = [];
+
+  public showPaid: boolean = true;
+  public showOrdered: boolean = true;
+  public showCompleted: boolean = true;
 
   constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
@@ -48,14 +54,17 @@ export class OrdersComponent extends Page implements AfterViewInit {
     if(response.status == 200) {
       const jsonLength = json.length;
       for(let i = 0; i < jsonLength; i++) {
-        const current = json[i]
-
-        this.orders.push(new Order(
+        const current = json[i];
+        const order = new Order(
           current.id,
           current.createdOn,
           current.authorName,
           current.completed,
-        ));
+          current.paid
+        );
+
+        this.allOrders.push(order);
+        this.displayedOrders.push(order);
       }
 
       this.loaded = true;
@@ -65,33 +74,34 @@ export class OrdersComponent extends Page implements AfterViewInit {
     this.modalService.showError(json.error);
   }
 
-  public orderTracking(i: number, order: Order) : number {
-    return order.id;
+  public togglePaid() : void {
+    this.showPaid = !this.showPaid;
+    this.renderOrders();
   }
 
-  public async loadOrder(orderId: number, authorName: string) : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadOrder(orderId, authorName);
+  public toggleOrdered() : void {
+    this.showOrdered = !this.showOrdered;
+    this.renderOrders();
   }
 
-  public async fetchOrder(e: Event) : Promise<void> {
-    e.preventDefault();
-    const target = e.target as HTMLFormElement;
+  public toggleCompleted() : void {
+    this.showCompleted = !this.showCompleted;
+    this.renderOrders();
+  }
 
-    await this.playClickSFX();
+  private renderOrders() : void {
+    this.displayedOrders.splice(0, this.displayedOrders.length);
 
-    if (!target.checkValidity()) {
-      target.reportValidity();
-      return;
+    const count = this.allOrders.length;
+    for (let i = 0; i < count; i++)
+    {
+      const current = this.allOrders[i];
+
+      if((this.showOrdered || this.showCompleted) && current.paid == this.showPaid)
+        this.displayedOrders.push(current);
     }
-
-    const formData = new FormData(target);
-
-    const author = formData.get('author') as string;
-    const id = parseInt(formData.get('id') as string);
-
-    await this.routes.loadOrder(id, author);
   }
+
 
   public async loadDashboard() : Promise<void> {
     await this.playClickSFX();

@@ -7,6 +7,7 @@ type Order struct {
 	CreatedOn  string `json:"createdOn"`
 	AuthorName string `json:"authorName"`
 	Completed  bool   `json:"completed"`
+	Paid       bool   `json:"paid"`
 }
 
 type Suborder struct {
