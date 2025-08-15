@@ -1,3 +1,15 @@
+<div class="m-4">
+  <ng-container *ngIf="tags.length > 0; else noTags">
+    <div class="w-100 d-flex justify-content-center g-2 overflow-x-auto no-wrap">
+      <span *ngFor="let tag of tags; index as i; trackBy: tagTracking" class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1"> {{ tag }} </span>
+    </div>
+  </ng-container>
+  <ng-template #noTags>
+    <div class="w-100 text-center text-dark-emphasis p-5">
+      <h4>No Tags</h4>
+    </div>
+  </ng-template>
+</div>
 <div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center overflow-y-scroll no-wrap form-control p-3">
   <div class="w-100 scroll">
     <ng-container *ngIf="menu.length > 0; else noItems">
@@ -20,7 +32,7 @@
               <span *ngFor="let tag of item.tags; index as i; trackBy: tagTracking" class="p-2 rounded-2 text-center text-warning-emphasis text-bg-warning fw-bold ms-1 me-1"> {{ tag }} </span>
             </div>
           </div>
-          <div class="w-auto d-flex flex-row flex-md-column justify-content-evenly align-items-center m-2">
+          <div class="w-auto d-flex flex-row flex-md-column justify-content-evenly align-items-center m-4">
             <h6>₹{{ item.price }}</h6>
             <span class="dot" [ngClass]="item.vegetarian ? 'green' : 'red'"></span>
           </div>

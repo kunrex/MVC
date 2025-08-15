@@ -11,10 +11,11 @@ import { MenuItem } from "../../types/menu-item";
   styleUrls: ['./current-menu.component.scss']
 })
 export class CurrentMenuComponent {
+  @Input() public tags: string[] = [];
+  @Input() public menu: MenuItem[] = [];
+
   public readonly serverAddressProvider = serverAddress;
   public readonly timeStampFunctionProvider: (timestamp: string) => string = timeStampPrettyPrint;
-
-  @Input() public menu: MenuItem[] = [];
 
   public menuItemsTracking(i: number, item: MenuItem) {
     return item.id

@@ -5,30 +5,25 @@ import { CommonModule } from '@angular/common';
 import { AddFoodComponent } from './add-food/add-food.component';
 import { EditTagsComponent } from './edit-tags/edit-tags.component';
 import { CreateTagComponent } from './create-tag/create-tag.component';
-import { CurrentTagsComponent } from "./current-tags/current-tags.component";
-import { UserPermissionsComponent } from './user-permissions/user-permissions.component';
-import {SharedOrdersModuleModule} from "../../orders/shared/shared-orders-module.module";
 import { CurrentMenuComponent } from './current-menu/current-menu.component';
+import { UserPermissionsComponent } from './user-permissions/user-permissions.component';
 
 @NgModule({
   declarations: [
     AddFoodComponent,
     EditTagsComponent,
     CreateTagComponent,
-    CurrentTagsComponent,
     CurrentMenuComponent,
     UserPermissionsComponent,
   ],
   imports: [
     FormsModule,
     CommonModule,
-    SharedOrdersModuleModule
   ],
   exports: [
     AddFoodComponent,
     EditTagsComponent,
     CreateTagComponent,
-    CurrentTagsComponent,
     CurrentMenuComponent,
     UserPermissionsComponent
   ]

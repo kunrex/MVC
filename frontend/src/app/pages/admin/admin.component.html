@@ -20,30 +20,24 @@
       </div>
       <ul class="nav nav-tabs" id="admin-tabs" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="current-tags-btn" data-bs-toggle="tab" data-bs-target="#current-tags" type="button" role="tab" aria-controls="home" aria-selected="true">Current Tags</button>
+          <button class="nav-link active" id="menu-btn" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab" aria-controls="menu" aria-selected="true">Menu</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="menu-btn" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab" aria-controls="contact" aria-selected="false">Menu</button>
+          <button class="nav-link" id="create-tags-btn" data-bs-toggle="tab" data-bs-target="#create-tag" type="button" role="tab" aria-controls="create-tag" aria-selected="false">Create Tag</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="create-tags-btn" data-bs-toggle="tab" data-bs-target="#create-tag" type="button" role="tab" aria-controls="profile" aria-selected="false">Create Tag</button>
+          <button class="nav-link" id="edit-tags-btn" data-bs-toggle="tab" data-bs-target="#edit-tags" type="button" role="tab" aria-controls="create-tags" aria-selected="false">Edit Food Item Tags</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="edit-tags-btn" data-bs-toggle="tab" data-bs-target="#edit-tags" type="button" role="tab" aria-controls="contact" aria-selected="false">Edit Food Item Tags</button>
+          <button class="nav-link" id="add-food-item-btn" data-bs-toggle="tab" data-bs-target="#add-food" type="button" role="tab" aria-controls="add-food" aria-selected="false">Add Food Item</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="add-food-item-btn" data-bs-toggle="tab" data-bs-target="#add-food" type="button" role="tab" aria-controls="contact" aria-selected="false">Add Food Item</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="user-permissions-btn" data-bs-toggle="tab" data-bs-target="#user-permissions" type="button" role="tab" aria-controls="contact" aria-selected="false">Update User Permissions</button>
+          <button class="nav-link" id="user-permissions-btn" data-bs-toggle="tab" data-bs-target="#user-permissions" type="button" role="tab" aria-controls="user-permissions" aria-selected="false">Update User Permissions</button>
         </li>
       </ul>
-      <div class="container-lg tab-content p-5">
-        <div class="tab-pane fade show active" id="current-tags" role="tabpanel" aria-labelledby="home-tab">
-          <admin-current-tags [tags]="tags"></admin-current-tags>
-        </div>
-        <div class="tab-pane fade" id="menu" role="tabpanel" aria-labelledby="profile-tab">
-          <admin-current-menu [menu]="menu"></admin-current-menu>
+      <div class="container-lg tab-content p-2">
+        <div class="tab-pane fade show active" id="menu" role="tabpanel" aria-labelledby="profile-tab">
+          <admin-current-menu [tags]="tags" [menu]="menu"></admin-current-menu>
         </div>
         <div class="tab-pane fade" id="edit-tags" role="tabpanel" aria-labelledby="contact-tab">
           <admin-edit-tags [tags]="tags" [menu]="menu"></admin-edit-tags>
