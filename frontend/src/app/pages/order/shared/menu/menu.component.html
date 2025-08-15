@@ -1,0 +1,35 @@
+<h3>Menu</h3>
+<hr>
+<div id="tags-parent" class="overflow-x-scroll h-auto w-100 no-wrap p-2">
+  <button (click)="filter('')" type="button" class="m-2" [ngClass]="selectedTag == '' ? 'btn btn-primary' : 'btn btn-secondary'">All</button>
+  <button (click)="filter(item)" *ngFor="let item of tags; index as i; trackBy: tagTracking" type="button" class="m-2" [ngClass]="selectedTag == item ? 'btn btn-primary' : 'btn btn-secondary'">
+    {{ capitalise(item) }}
+  </button>
+</div>
+<div class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll form-control no-wrap p-3">
+  <div class="w-100 scroll">
+    <div *ngFor="let item of displayedItems; index as i; trackBy: menuItemsTracking" class="card w-100 menu-card mt-3 mb-3">
+      <div class="w-100 d-flex flex-column flex-md-row">
+        <div class="w-auto">
+          <img src="{{serverAddressProvider}}/{{ item.imageUrl }}" class="menu-card-img" alt="Img">
+        </div>
+        <div class="card-body menu-card-body">
+          <div class="overflow-x-scroll no-wrap m-0 p-0">
+            <h3 class="card-title">{{ item.name }}</h3>
+          </div>
+          <div class="overflow-x-scroll no-wrap">
+            <p class="card-text"> <strong>Time:</strong> {{ timeStampFunctionProvider(item.cookTime) }} </p>
+          </div>
+          <div class="overflow-x-scroll no-wrap">
+            <p class="card-text"> <strong>Description:</strong> {{ item.description }} </p>
+          </div>
+        </div>
+        <div class="w-auto d-flex flex-row flex-md-column justify-content-evenly align-items-center m-2">
+          <h6>₹{{ item.price }}</h6>
+          <span class="dot" [ngClass]="item.vegetarian ? 'green' : 'red'"></span>
+          <button [disabled]="readonly" (click)="onAdd.emit(item.id)" type="button" class="btn btn-primary">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

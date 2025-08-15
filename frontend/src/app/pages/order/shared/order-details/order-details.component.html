@@ -1,0 +1,41 @@
+<h3>Order Details</h3>
+<hr>
+<div id="orders-parent" class="d-flex flex-column justify-content-start align-items-center overflow-y-scroll h-100 form-control no-wrap p-3">
+  <div class="w-100 scroll">
+    <div *ngFor="let suborder of suborders; index as i; trackBy: subordersTracking" class="card w-100 mt-3 mb-3">
+      <div class="w-100 d-flex flex-column flex-sm-row justify-content-evenly">
+        <div class="card-body w-100 d-flex flex-column justify-content-evenly align-items-baseline">
+          <div class="w-100 overflow-x-scroll no-wrap">
+            <h3 class="card-title m-0">{{ suborder.foodName }}</h3>
+          </div>
+          <div class="w-100 p-0 d-flex justify-content-evenly align-items-center mt-2">
+            <div class="w-25 overflow-x-scroll no-wrap">
+              <p class="card-text">Added by: {{ suborder.authorName }}</p>
+            </div>
+            <input type="text" name="instructions" class="ms-3 w-75 form-control" placeholder="{{formatInstructions( suborder.instructions )}}" maxlength="300">
+          </div>
+        </div>
+        <div class="d-flex flex-row flex-sm-column justify-content-evenly align-items-center m-2 ">
+          <div class="d-flex justify-content-center align-items-center">
+            <i (click)="onDecrement.emit(suborder.id)" class="bi bi-dash-lg m-1" [ngClass]="suborder.quantity > 0 && !this.readonly ? 'icon-button-on' : 'icon-button-off'"></i>
+            <h6 class="m-1" [ngClass]="suborder.quantity > 0 ? 'text-dark' : 'text-danger'">{{ suborder.quantity }}</h6>
+            <i (click)="onIncrement.emit(suborder.id)" class="bi bi-plus-lg m-1" [ngClass]="this.readonly ? 'icon-button-off' : 'icon-button-on'"></i>
+          </div>
+          <div>
+            <ng-container *ngIf="suborder.status === ordersProvider; else processingOrDone">
+              <i class="bi bi-list-ul fs-4 text-dark"></i>
+            </ng-container>
+            <ng-template #processingOrDone>
+              <ng-container *ngIf="suborder.status === processingProvider; else done">
+                <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+              </ng-container>
+            </ng-template>
+            <ng-template #done>
+              <i class="bi bi-clipboard2-check-fill fs-4 text-success"></i>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,25 +1,21 @@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { ordered, processing, serverAddress } from "../../utils/constants";
+import { ordered, serverAddress } from "../../utils/constants";
 
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 import {timeStampPrettyPrint} from "../../utils/functions";
+import {MenuItem} from "./types/menu-item";
+import {Suborder} from "./types/suborder";
+import {SharedOrderModuleModule} from "./shared/shared-order-module.module";
+import {MenuComponent} from "./shared/menu/menu.component";
 
-class MenuItem {
-  public readonly tags: string[] = [];
 
-  constructor(public readonly id: number, public readonly name: string, public readonly price: number, public readonly description: string, public readonly cookTime: string, public readonly imageUrl: string, public readonly vegetarian: boolean) { }
-}
-
-class Suborder {
-  constructor(public readonly id: number, public readonly authorName: string, public readonly foodId: number, public readonly foodName: string, public readonly foodPrice: number, public readonly status: string, public quantity: number, public instructions: string, public code: number = 2) { }
-}
 
 const naturalNumber = /^[1-9][0-9]*$/
 
@@ -30,7 +26,8 @@ const naturalNumber = /^[1-9][0-9]*$/
   standalone: true,
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    SharedOrderModuleModule
   ]
 })
 export class OrderComponent extends Page implements AfterViewInit {
@@ -45,17 +42,9 @@ export class OrderComponent extends Page implements AfterViewInit {
   public payable: boolean = false;
   public readonly: boolean = false;
 
-  public selectedTag: string = "";
   public readonly tags: string[] = [];
-
-  private readonly menuItems: MenuItem[] = [];
-  public readonly displayedItems: MenuItem[] = [];
-
-  public suborders: Suborder[] = [];
-
-  public readonly ordersProvider = ordered;
-  public readonly processingProvider = processing;
-  public readonly serverAddressProvider = serverAddress;
+  public readonly menu: MenuItem[] = [];
+  public readonly suborders: Suborder[] = [];
 
   public tip: number = 0;
   public discount: number = 0;
@@ -65,7 +54,7 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   private maxSuborderId: number = 0;
 
-  public readonly timeStampFunctionProvider: (timestamp: string) => string = timeStampPrettyPrint;
+  @ViewChild(MenuComponent) private readonly menuComponent!: MenuComponent;
 
   constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(routes, audioService, modalService);
@@ -128,10 +117,10 @@ export class OrderComponent extends Page implements AfterViewInit {
         for(let i = 0; i < itemTags.length; i++)
           item.tags.push(itemTags[i]);
 
-        this.menuItems.push(item);
-        this.displayedItems.push(Object.assign({}, item));
+        this.menu.push(item);
       }
 
+      this.menuComponent.loadItems();
       return;
     }
 
@@ -187,56 +176,13 @@ export class OrderComponent extends Page implements AfterViewInit {
         this.subtotal += suborder.foodPrice * suborder.quantity;
       }
 
-      this.calculateTotal();
       return;
     }
 
     this.modalService.showError(json.error);
   }
 
-  public tagTracking(i: number, tag: string) {
-    return tag
-  }
-
-  public menuItemsTracking(i: number, item: MenuItem) {
-    return item.id
-  }
-
-  public subordersTracking(i: number, suborder: Suborder) {
-    return suborder.id
-  }
-
-  public capitalise(tag: string) {
-    return tag.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-  }
-
-  public formatInstructions(instructions: string) : string {
-    return instructions == '' ? 'No instructions' : instructions;
-  }
-
-  public filter(tag: string) : void {
-    this.displayedItems.splice(0, this.displayedItems.length);
-    const menuCount = this.menuItems.length;
-
-    if(tag == '') {
-      for(let i = 0; i < menuCount; i++) {
-        const current = this.menuItems[i];
-        this.displayedItems.push(new MenuItem(current.id, current.name, current.price, current.description, current.cookTime, current.imageUrl, current.vegetarian));
-      }
-    } else {
-      for(let i = 0; i < menuCount; i++) {
-        const current = this.menuItems[i];
-
-        if (current.tags.indexOf(tag) > -1)
-          this.displayedItems.push(new MenuItem(current.id, current.name, current.price, current.description, current.cookTime, current.imageUrl, current.vegetarian));
-      }
-    }
-
-    this.selectedTag = tag;
-    this.playClickSFX().then()
-  }
-
-  public addItem(itemId: number) : void{
+  public addItem(itemId: number) : void {
     const suborderCount = this.suborders.length;
     for (let i = 0; i < suborderCount; i++)
       if (this.suborders[i].foodId == itemId && this.suborders[i].status == 'ordered') {
@@ -245,10 +191,10 @@ export class OrderComponent extends Page implements AfterViewInit {
       }
 
     let menuItem : MenuItem | undefined = undefined;
-    const menuCount = this.menuItems.length;
+    const menuCount = this.menu.length;
     for(let i = 0; i < menuCount; i++)
-      if(this.menuItems[i].id == itemId) {
-        menuItem = this.menuItems[i]
+      if(this.menu[i].id == itemId) {
+        menuItem = this.menu[i]
         break
       }
 
@@ -268,7 +214,6 @@ export class OrderComponent extends Page implements AfterViewInit {
     ));
 
     this.subtotal += menuItem.price;
-    this.calculateTotal();
 
     this.completed = this.payed = false;
     this.playClickSFX().then();
@@ -286,7 +231,6 @@ export class OrderComponent extends Page implements AfterViewInit {
         suborder.quantity++;
         this.subtotal += suborder.foodPrice;
 
-        this.calculateTotal();
         this.playClickSFX().then();
         break;
       }
@@ -305,7 +249,6 @@ export class OrderComponent extends Page implements AfterViewInit {
         suborder.quantity--;
         this.subtotal -= suborder.foodPrice;
 
-        this.calculateTotal();
         this.playClickSFX().then();
         break;
       }
@@ -382,14 +325,5 @@ export class OrderComponent extends Page implements AfterViewInit {
     }
 
     this.modalService.showError((await response.json()).error);
-  }
-
-  public setTip(tip: number) {
-    this.tip = tip;
-    this.calculateTotal();
-  }
-
-  private calculateTotal() {
-    this.total = this.subtotal * (100 - this.discount) / 100 + this.tip
   }
 }
