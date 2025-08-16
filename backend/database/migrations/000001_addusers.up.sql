@@ -7,4 +7,3 @@ CREATE TABLE Users (
                        pwdHash CHAR(60) NOT NULL,
 
                        auth TINYINT UNSIGNED NOT NULL
-);
