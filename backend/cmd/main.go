@@ -57,8 +57,7 @@ func createQuitSignal() chan os.Signal {
 func main() {
 	configuration := config.InitConfig()
 	if configuration == nil {
-		log.Fatal("failed to load config")
-		return
+		log.Fatal("failed to load configuration file")
 	}
 
 	ok := loadUtils(configuration)

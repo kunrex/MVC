@@ -38,7 +38,7 @@ func InitConfig() *types.Config {
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("error loading .env file: %v", err.Error())
-		return nil
+		log.Println("falling back to .evn variables")
 	}
 
 	if !readInt("APP_PORT", &config.AppPort) ||

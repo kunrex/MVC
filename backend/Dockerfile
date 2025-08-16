@@ -12,7 +12,10 @@ FROM scratch
 
 WORKDIR /app
 
+COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/database ./database
+COPY --from=builder /app/certificates ./certificates
+
 COPY --from=builder /main .
 
 CMD ["/app/main"]
