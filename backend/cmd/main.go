@@ -49,7 +49,7 @@ func loadUtils(configuration *types.Config) bool {
 
 func serverInit(config *types.Config, server *http.Server) {
 	log.Printf("starting server on %s\n", server.Addr)
-	if err := server.ListenAndServeTLS(config.LocalhostCertificate, config.LocalhostCertificateKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("server error: %v", err)
 	}
 }
