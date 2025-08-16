@@ -1,0 +1,49 @@
+services:
+  mvc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: MVContainer
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      APP_PORT: 3000
+
+      DB_HOST: db
+      DB_NAME: MVC
+      DB_USER: root
+      DB_PASSWORD: root
+
+      SALT_ROUNDS: 10
+
+      JWT_SECRET: yoink
+
+      DB_MAX_IDLE_CONNECTIONS: 5
+      DB_MAX_OPEN_CONNECTIONS: 25
+
+      TIMEZONE_DIFFERENCE_MINUTES: 330
+
+      LOCAL_PEM: certificates/localhost.pem
+      LOCAL_PEM_KEY: certificates/localhost-key.pem
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:latest
+    container_name: MVCql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mysql_data:
+    driver: local
