@@ -26,6 +26,8 @@ services:
 
       LOCAL_PEM: certificates/localhost.pem
       LOCAL_PEM_KEY: certificates/localhost-key.pem
+
+      DOCKER: true
     depends_on:
       db:
         condition: service_healthy

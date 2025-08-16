@@ -12,4 +12,5 @@ type Config struct {
 	MaxDbOpenConnections    int
 	LocalhostCertificate    string
 	LocalhostCertificateKey string
+	IsContainerInstance     bool
 }

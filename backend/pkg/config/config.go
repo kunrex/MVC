@@ -10,7 +10,7 @@ import (
 
 var TimeZoneMinutes int
 
-func readString(envVariable string, address *string) bool {
+func ReadString(envVariable string, address *string) bool {
 	temp := os.Getenv(envVariable)
 	if temp == "" {
 		log.Printf("%v is empty", envVariable)
@@ -43,18 +43,19 @@ func InitConfig() *types.Config {
 
 	if !readInt("APP_PORT", &config.AppPort) ||
 		!readInt("SALT_ROUNDS", &config.SaltRounds) ||
-		!readString("DB_HOST", &config.DBHost) ||
-		!readString("DB_USER", &config.DBUser) ||
-		!readString("DB_NAME", &config.DBName) ||
-		!readString("JWT_SECRET", &config.JWTSecret) ||
-		!readString("DB_PASSWORD", &config.DBPassword) ||
+		!ReadString("DB_HOST", &config.DBHost) ||
+		!ReadString("DB_USER", &config.DBUser) ||
+		!ReadString("DB_NAME", &config.DBName) ||
+		!ReadString("JWT_SECRET", &config.JWTSecret) ||
+		!ReadString("DB_PASSWORD", &config.DBPassword) ||
 		!readInt("TIMEZONE_DIFFERENCE_MINUTES", &TimeZoneMinutes) ||
 		!readInt("DB_MAX_IDLE_CONNECTIONS", &config.MaxDbIdleConnections) ||
 		!readInt("DB_MAX_OPEN_CONNECTIONS", &config.MaxDbOpenConnections) ||
-		!readString("LOCAL_PEM", &config.LocalhostCertificate) ||
-		!readString("LOCAL_PEM_KEY", &config.LocalhostCertificateKey) {
+		!ReadString("LOCAL_PEM", &config.LocalhostCertificate) ||
+		!ReadString("LOCAL_PEM_KEY", &config.LocalhostCertificateKey) {
 		return nil
 	}
 
+	config.IsContainerInstance = os.Getenv("DOCKER") == "true"
 	return &config
 }

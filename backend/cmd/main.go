@@ -26,7 +26,14 @@ func loadUtils(configuration *types.Config) bool {
 	utils.InitHashing(configuration)
 	log.Printf("bycrypt initialised")
 
-	db := database.InitDB(configuration)
+	if configuration.IsContainerInstance {
+		err := database.InitDatabase(configuration)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	db := database.ConnectDatabase(configuration)
 	if db != nil {
 		log.Printf("database initualisation failed: %v", db.Error())
 		return false
