@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 
-@Injectable()
+@Injectable({
+  providedIn: "root"
+})
 export class AudioService {
   private readonly clickSFX: HTMLAudioElement;
   private readonly backgroundMusic: HTMLAudioElement;

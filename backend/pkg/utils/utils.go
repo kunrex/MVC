@@ -28,32 +28,6 @@ func WriteFailedResponse(code int, error string, w http.ResponseWriter) {
 	})
 }
 
-func GenerateAccessCookie(value string) *http.Cookie {
-	return &http.Cookie{
-		Name:     AccessCookie,
-		Value:    value,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	}
-}
-
-func GenerateLoginCookie(loggedIn bool) *http.Cookie {
-	value := ""
-	if loggedIn {
-		value = "true"
-	}
-
-	return &http.Cookie{
-		Name:     loginCookie,
-		Value:    value,
-		Path:     "/",
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	}
-}
-
 func Chain(handlerFunc func(w http.ResponseWriter, r *http.Request), middleware ...mux.MiddlewareFunc) http.Handler {
 	handler := http.Handler(http.HandlerFunc(handlerFunc))
 

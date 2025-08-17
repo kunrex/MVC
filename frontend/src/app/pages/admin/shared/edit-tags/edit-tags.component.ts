@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
 
@@ -22,7 +21,7 @@ export class EditTagsComponent {
   private selectedId: number = 0;
   private readonly selectedTags: string[] = []
 
-  constructor(private readonly audioService: AudioService, private readonly modalService: ModalService) { }
+  constructor(private readonly authService: AuthService, private readonly audioService: AudioService, private readonly modalService: ModalService) { }
 
   public tagTracking(i: number, tag: string) : string {
     return tag;
@@ -71,16 +70,9 @@ export class EditTagsComponent {
   public async confirmChanges() : Promise<void> {
     await this.audioService.playClickSFX();
 
-    const response = await fetch(`${serverAddress}/admin/food/updateTags`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        foodId: this.selectedId,
-        tags: this.selectedTags,
-      })
+    const response = await this.authService.fetchAuthorization('PATCH', 'admin/food/updateTags', {
+      foodId: this.selectedId,
+      tags: this.selectedTags,
     });
 
     if (response.status != 200) {

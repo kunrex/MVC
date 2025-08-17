@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { RouteService } from "../../../../services/route-service";
 import { AudioService } from "../../../../services/audio-service";
 
@@ -23,7 +22,7 @@ export class SignupComponent {
 
   public readonly colours = ['bg-danger', 'bg-danger', 'bg-warning', 'bg-success', 'bg-success'];
 
-  constructor(private readonly routes: RouteService, private readonly audioService: AudioService) { }
+  constructor(private readonly auth: AuthService, private readonly routes: RouteService, private readonly audioService: AudioService) { }
 
   public async signup(e: Event) : Promise<void> {
     e.preventDefault();
@@ -47,23 +46,17 @@ export class SignupComponent {
     params.set('email', formData.get('email') as string);
     params.set('password', formData.get('password') as string);
 
-    const response = await fetch(`${serverAddress}/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      credentials: 'include',
-      body: params.toString()
-    });
+    const response = await this.auth.fetchForm('POST', 'auth', params);
+    const json = await response.json();
 
     if (response.status == 200) {
-      this.routes.registerLogin(name);
-
+      this.auth.registerLogin(json.awt, name, false, false);
       await this.routes.loadDashboard();
+
       return
     }
 
-    this.signupError = (await response.json()).error;
+    this.signupError = json.error;
   }
 
   public checkPasswordStrength(e: Event) : void {

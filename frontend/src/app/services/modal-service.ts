@@ -5,7 +5,9 @@ export class ModalOptions {
   constructor(public readonly title: string, public readonly message: string, public readonly loadLogin: boolean) { }
 }
 
-@Injectable()
+@Injectable({
+  providedIn: "root"
+})
 export class ModalService {
   private readonly appEventSubject = new Subject<string>();
 

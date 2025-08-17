@@ -1,7 +1,3 @@
-export function between(value: number, min: number, max: number) {
-  return value >= min && value <= max;
-}
-
 export function timeStampPrettyPrint(timestamp: string) : string {
   const times = timestamp.split(':').map((x: string) => parseInt(x));
 

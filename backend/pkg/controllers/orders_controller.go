@@ -27,9 +27,9 @@ func NewOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetTagMenuCacheHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"tags": models.TagCacheString,
-		"menu": models.MenuCacheString,
+	_ = json.NewEncoder(w).Encode(types.MenuTagCacheResponse{
+		Tags: models.TagCacheString,
+		Menu: models.MenuCacheString,
 	})
 }
 
@@ -43,9 +43,9 @@ func GetOrderDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]bool{
-		"payed":     payed,
-		"completed": completed,
+	_ = json.NewEncoder(w).Encode(types.OrderDetailsResponse{
+		Payed:     payed,
+		Completed: completed,
 	})
 }
 
@@ -153,9 +153,9 @@ func CompleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
-	var tip int
+	var payment types.PayOrderForm
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&tip); err != nil {
+	if err := decoder.Decode(&payment); err != nil {
 		utils.WriteFailedResponse(http.StatusBadRequest, "invalid request body format", w)
 		return
 	}
@@ -170,9 +170,9 @@ func PayOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	discount := utils.CalculateDiscount(subtotal)
-	total := subtotal*float32(discount)*0.01 + float32(tip)
+	total := subtotal*float32(discount)*0.01 + float32(payment.Tip)
 
-	paymentRegistered, err := models.PayOrder(orderId, subtotal, tip, discount, total, userId)
+	paymentRegistered, err := models.PayOrder(orderId, subtotal, payment.Tip, discount, total, userId)
 	if err != nil {
 		utils.WriteFailedResponse(http.StatusInternalServerError, fmt.Sprintf("SQL Error: %v", err.Error()), w)
 		return

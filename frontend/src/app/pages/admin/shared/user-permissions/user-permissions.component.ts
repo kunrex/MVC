@@ -1,7 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
 
@@ -17,14 +16,10 @@ class UserAuthorisation {
 export class UserPermissionsComponent implements AfterViewInit {
   public readonly users: UserAuthorisation[] = [];
 
-  constructor(private readonly audioService: AudioService, private readonly modalService: ModalService) { }
+  constructor(private auth: AuthService, private readonly audioService: AudioService, private readonly modalService: ModalService) { }
 
   public async ngAfterViewInit(): Promise<void> {
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/get`, {
-      method: 'GET',
-      credentials: 'include'
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', 'admin/user/authorisation/get', null);
     const json = await response.json();
 
     if(response.status != 200) {
@@ -88,10 +83,7 @@ export class UserPermissionsComponent implements AfterViewInit {
   }
 
   private async setUserAuthorisation(user: UserAuthorisation) : Promise<void> {
-    const response = await fetch(`${serverAddress}/admin/user/authorisation/set/${user.id}/${user.authorisation}`, {
-      method: 'PATCH',
-      credentials: 'include'
-    });
+    const response = await this.auth.fetchAuthorization('PATCH', `admin/user/authorisation/set/${user.id}/${user.authorisation}`, null);
 
     if(response.status != 200)
       this.modalService.showError((await response.json()).error);

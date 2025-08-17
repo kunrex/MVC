@@ -4,18 +4,17 @@ import { ActivatedRoute } from '@angular/router';
 import { Component, AfterViewInit, ViewChild } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { ordered, serverAddress } from "../../utils/constants";
+import { ordered } from "../../utils/constants";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
-import {timeStampPrettyPrint} from "../../utils/functions";
-import {MenuItem} from "./types/menu-item";
-import {Suborder} from "./types/suborder";
-import {SharedOrderModuleModule} from "./shared/shared-order-module.module";
-import {MenuComponent} from "./shared/menu/menu.component";
 
-
+import { MenuItem } from "./types/menu-item";
+import { Suborder } from "./types/suborder";
+import { MenuComponent } from "./shared/menu/menu.component";
+import { SharedOrderModuleModule } from "./shared/shared-order-module.module";
 
 const naturalNumber = /^[1-9][0-9]*$/
 
@@ -56,8 +55,8 @@ export class OrderComponent extends Page implements AfterViewInit {
 
   @ViewChild(MenuComponent) private readonly menuComponent!: MenuComponent;
 
-  constructor(route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
-    super(routes, audioService, modalService);
+  constructor(auth: AuthService, route: ActivatedRoute, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(auth, routes, audioService, modalService);
 
     route.params.subscribe(params => {
       const orderId = params['id'];
@@ -72,7 +71,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if (!this.routes.isLoggedIn())
+    if (!this.auth.isLoggedIn())
       return this.routes.loadLogin();
 
     await this.loadTagsMenu();
@@ -83,11 +82,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   private async loadTagsMenu() : Promise<void> {
-    const response = await fetch(`${serverAddress}/menu`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', 'menu', null);
     const json = await response.json();
 
     if (response.status == 200) {
@@ -128,11 +123,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   private async loadOrderDetails() : Promise<void> {
-    const response = await fetch(`${serverAddress}/order/${this.orderId}/${this.authorName}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', `order/${this.orderId}/${this.authorName}`, null);
     const json = await response.json();
 
     if(response.status == 200) {
@@ -149,11 +140,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   }
 
   private async loadSuborders() : Promise<void> {
-    const response = await fetch(`${serverAddress}/suborders/${this.orderId}/${this.authorName}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', `suborders/${this.orderId}/${this.authorName}`, null);
     const json = await response.json();
 
     if(response.status == 200) {
@@ -203,7 +190,7 @@ export class OrderComponent extends Page implements AfterViewInit {
 
     this.suborders.push(new Suborder(
       this.maxSuborderId++,
-      this.routes.getLocalName(),
+      this.auth.getName(),
       menuItem.id,
       menuItem.name,
       menuItem.price,
@@ -271,14 +258,7 @@ export class OrderComponent extends Page implements AfterViewInit {
     if (changes.length == 0)
       return this.routes.loadDashboard();
 
-    const response = await fetch(`${serverAddress}/suborders/update/${this.orderId}/${this.authorName}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(changes)
-    });
+    const response = await this.auth.fetchAuthorization('PATCH', `suborders/update/${this.orderId}/${this.authorName}`, changes);
 
     if (response.status == 200)
       return this.routes.loadDashboard();
@@ -289,10 +269,7 @@ export class OrderComponent extends Page implements AfterViewInit {
   public async completeOrder() : Promise<void> {
     await this.playClickSFX();
 
-    const response = await fetch(`${serverAddress}/order/complete/${this.orderId}/${this.authorName}`, {
-      method: 'POST',
-      credentials: 'include',
-    })
+    const response = await this.auth.fetchAuthorization('POST', `order/complete/${this.orderId}/${this.authorName}`, null);
 
     if (response.status == 200) {
       this.payable = this.readonly = this.completed = true;
@@ -307,14 +284,9 @@ export class OrderComponent extends Page implements AfterViewInit {
   public async completeOrderPayment() : Promise<void> {
     await this.playClickSFX();
 
-    const response = await fetch(`${serverAddress}/order/pay/${this.orderId}/${this.authorName}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: this.tip.toString()
-    })
+    const response = await this.auth.fetchAuthorization('POST', `order/pay/${this.orderId}/${this.authorName}`, {
+      'tip': this.tip
+    });
 
     if (response.status == 200) {
       this.payed = true;

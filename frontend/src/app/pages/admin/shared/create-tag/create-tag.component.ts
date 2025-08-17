@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
 
@@ -15,7 +14,7 @@ export class CreateTagComponent {
 
   public createTagError: string = '';
 
-  constructor(private readonly audioService: AudioService, private readonly modalService: ModalService) { }
+  constructor(private readonly auth: AuthService, private readonly audioService: AudioService, private readonly modalService: ModalService) { }
 
   public async createTag(e: Event) : Promise<void> {
     e.preventDefault();
@@ -36,10 +35,7 @@ export class CreateTagComponent {
       return;
     }
 
-    const response = await fetch(`${serverAddress}/admin/tags/add/${tag}`, {
-      method: 'POST',
-      credentials: 'include',
-    })
+    const response = await this.auth.fetchAuthorization('POST', `admin/tags/add/${tag}`, null);
 
     if(response.status != 200)
       this.modalService.showError((await response.json()).error);

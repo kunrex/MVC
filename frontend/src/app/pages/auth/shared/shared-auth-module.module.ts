@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { LoginComponent } from './login/login.component';
+
 import { SignupComponent } from './signup/signup.component';
+import {LoginComponent} from "./login/login.component";
 
 @NgModule({
   declarations: [
@@ -17,4 +18,4 @@ import { SignupComponent } from './signup/signup.component';
     SignupComponent
   ],
 })
-export class SharedLoginModuleModule { }
+export class SharedAuthModuleModule { }

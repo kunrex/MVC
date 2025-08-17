@@ -18,3 +18,7 @@ type SuborderUpdateForm struct {
 	Code int `json:"code"`
 	SuborderExtra
 }
+
+type PayOrderForm struct {
+	Tip int `json:"tip"`
+}

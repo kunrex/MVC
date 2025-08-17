@@ -3,15 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { serverAddress } from "../../utils/constants";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
 import { Order } from "./types/order";
 import { SharedOrdersModuleModule } from "./shared/shared-orders-module.module";
-
 
 @Component({
   selector: 'app-orders',
@@ -36,20 +35,20 @@ export class OrdersComponent extends Page implements AfterViewInit {
   public showOrdered: boolean = true;
   public showCompleted: boolean = true;
 
-  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
-    super(routes, audioService, modalService);
+  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(auth, routes, audioService, modalService);
     this.userOrders = this.routes.matchRoute('/orders/user');
   }
 
   public async ngAfterViewInit() : Promise<void> {
-    if(!this.routes.isLoggedIn())
+    if(!this.auth.isLoggedIn())
       return this.routes.loadLogin();
+    if(!this.userOrders && !this.auth.isAdmin()) {
+      this.modalService.showError('you are not authorised to view this page')
+      return;
+    }
 
-    const response = await fetch(this.userOrders ? `${serverAddress}/orders/user` : `${serverAddress}/orders/all`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', this.userOrders ? 'orders/user' : 'orders/all', null);
     const json = await response.json();
 
     if(response.status == 200) {

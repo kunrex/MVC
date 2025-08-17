@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { completed, ordered, processing, serverAddress } from "../../utils/constants";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
@@ -32,20 +32,20 @@ export class SubordersComponent extends Page implements AfterViewInit {
   public readonly suborders: Suborder[] = [];
   public readonly displayedSuborders: Suborder[] = [];
 
-  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
-    super(routes, audioService, modalService);
+  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(auth, routes, audioService, modalService);
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if(!this.routes.isLoggedIn()) {
-      await this.routes.loadLogin();
-      return ;
+    if(!this.auth.isLoggedIn())
+      return this.routes.loadLogin();
+
+    if(!this.auth.isChef()) {
+      this.modalService.showError('you are not authorised to view this page')
+      return;
     }
 
-    const response = await fetch(`${serverAddress}/suborders/incomplete`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await this.auth.fetchAuthorization('GET', 'suborders/incomplete', null);
 
     const json = await response.json();
 
@@ -113,15 +113,7 @@ export class SubordersComponent extends Page implements AfterViewInit {
     if(changes.length == 0)
       return this.routes.loadDashboard();
 
-    const response = await fetch(`${serverAddress}/suborders/incomplete/update`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(changes)
-    });
-
+    const response = await this.auth.fetchAuthorization('PATCH', 'suborders/incomplete/update', changes)
     await this.playClickSFX();
 
     if (response.status != 200)

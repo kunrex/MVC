@@ -11,6 +11,7 @@ import { ModalService } from "../../services/modal-service";
 
 import { MenuItem } from "./types/menu-item";
 import { AdminSharedModuleModule } from "./shared/admin-shared-module.module";
+import {AuthService} from "../../services/auth-service";
 
 @Component({
   selector: 'app-admin',
@@ -27,20 +28,24 @@ export class AdminComponent extends Page implements AfterViewInit {
   public readonly tags: string[] = [];
   public readonly menu: MenuItem[] = [];
 
-  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService) {
-    super(routes, audioService, modalService);
+  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService) {
+    super(auth, routes, audioService, modalService);
   }
 
   public async ngAfterViewInit(): Promise<void> {
+    if(!this.auth.isLoggedIn())
+      return this.routes.loadLogin();
+
+    if(!this.auth.isAdmin()) {
+      this.modalService.showError('you are not authorised to view this page')
+      return;
+    }
+
     await this.loadTagsMenu();
   }
 
   private async loadTagsMenu() : Promise<void> {
-    const response = await fetch(`${serverAddress}/menu`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
+    const response = await this.auth.fetchAuthorization('GET', 'menu', null)
     const json = await response.json();
 
     const jsonMenu = JSON.parse(json.menu);

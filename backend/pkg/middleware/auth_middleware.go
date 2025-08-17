@@ -5,18 +5,20 @@ import (
 	"MVC/pkg/utils"
 	"context"
 	"net/http"
+	"strings"
 )
 
 func Authorise(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accessCookie, accessCookieError := r.Cookie(utils.AccessCookie)
-
-		if accessCookieError != nil || accessCookie.Value == "" {
-			utils.WriteFailedResponse(http.StatusUnauthorized, "failed to authorise, please sign up if you dont have an account or log in again if you do", w)
+		authHeader := r.Header.Get("Authorization")
+		if !strings.HasPrefix(authHeader, utils.HeaderPrefix) {
+			utils.WriteFailedResponse(http.StatusBadRequest, "failed to authorise, please provider authorization token as: `Authorization: Bearer {Token}`", w)
 			return
 		}
 
-		accessId, accessAuthorisation, err := utils.VerifyToken(accessCookie.Value)
+		accessToken := strings.TrimPrefix(authHeader, utils.HeaderPrefix)
+
+		accessId, accessAuthorisation, err := utils.VerifyToken(accessToken)
 		if err != nil {
 			utils.WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
 			return

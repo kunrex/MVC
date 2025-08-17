@@ -1,34 +1,34 @@
-
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
-import { SharedLoginModuleModule } from "./shared/shared-login-module.module";
+import { SharedAuthModuleModule } from "./shared/shared-auth-module.module";
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  templateUrl: './auth.component.html',
+  styleUrls: ['./auth.component.scss'],
   standalone: true,
   imports: [
     FormsModule,
     CommonModule,
-    SharedLoginModuleModule
+    SharedAuthModuleModule
   ]
 })
-export class LoginComponent extends Page implements AfterViewInit {
-  constructor(routes: RouteService, audio: AudioService, modal: ModalService) {
-    super(routes, audio, modal);
+export class AuthComponent extends Page implements AfterViewInit {
+  constructor(auth: AuthService, routes: RouteService, audio: AudioService, modal: ModalService) {
+    super(auth, routes, audio, modal);
   }
 
   public async ngAfterViewInit() : Promise<void> {
-    if (this.routes.isLoggedIn())
+    if (this.auth.isLoggedIn())
       return this.routes.loadDashboard();
   }
 }

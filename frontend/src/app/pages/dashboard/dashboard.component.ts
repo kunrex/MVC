@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { serverAddress } from "../../utils/constants";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
@@ -23,8 +23,6 @@ import { DashboardSharedModuleModule } from "./shared/dashboard-shared-module.mo
   ]
 })
 export class DashboardComponent extends Page implements AfterViewInit {
-  public loaded: boolean = false;
-
   public isChef: boolean = false;
   public isAdmin: boolean = false;
 
@@ -32,53 +30,22 @@ export class DashboardComponent extends Page implements AfterViewInit {
   @ViewChild('admin') private readonly adminReference!: ElementRef;
   @ViewChild('customer') private readonly customerReference!: ElementRef;
 
-  constructor(routes: RouteService, audioService: AudioService, modalService: ModalService,) {
-    super(routes, audioService, modalService);
+  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService,) {
+    super(auth, routes, audioService, modalService);
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if (!this.routes.isLoggedIn())
+    if (!this.auth.isLoggedIn())
       return this.routes.loadLogin();
 
-    const response = await fetch(`${serverAddress}/user/permissions`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    const json = await response.json();
-
-    if (response.status == 200) {
-      this.isChef = json.chef
-      this.isAdmin = json.admin
-
-      this.loaded = true
-
-      return;
-    }
-
-    this.modalService.showError(json.error);
+    this.isChef = this.auth.isChef()
+    this.isAdmin =  this.auth.isAdmin()
   }
 
-  public async signOut() : Promise<void> {
-    const response = await fetch(`${serverAddress}/user/signout`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if(response.status == 200)
-      return this.routes.registerSignOut();
-
-    this.modalService.showError((await response.json()).error);
+  public signOut() : Promise<void> {
+    this.auth.registerSignOut();
+    return this.routes.loadLogin();
   }
-
-
-
-  public async incompleteSuborders() : Promise<void> {
-    await this.playClickSFX();
-    return this.routes.loadSuborders();
-  }
-
-
 
   public async navigateCustomer() : Promise<void> {
     await this.playClickSFX();

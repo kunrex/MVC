@@ -1,7 +1,6 @@
 package utils
 
-const AccessCookie = "awt"
-const loginCookie = "loggedIn"
+const HeaderPrefix = "Bearer "
 
 type ContextKey string
 
@@ -10,6 +9,6 @@ const UserAuthorisation ContextKey = "auth"
 
 const MaxLength = 72
 
-const AllowedHTTPHeaders = "Content-Type"
-const AllowedHTTPOrigins = "https://localhost:4200"
+const AllowedHTTPOrigins = "*"
 const AllowedHTTPMethods = "GET, POST, OPTIONS, PATCH"
+const AllowedHTTPHeaders = "Content-Type, Authorization"

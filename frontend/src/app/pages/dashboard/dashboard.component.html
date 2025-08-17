@@ -4,39 +4,32 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto g-3">
-        <ng-container *ngIf="loaded">
-          <li class="nav-item text-center"><a (click)="navigateCustomer()" class="nav-link">Customer</a></li>
-          <ng-container *ngIf="isChef">
-            <li class="nav-item text-center"><a (click)="navigateChef()" class="nav-link">Chef</a></li>
-          </ng-container>
-          <ng-container *ngIf="isAdmin">
-            <li class="nav-item text-center"><a (click)="navigateAdmin()" class="nav-link">Admin</a></li>
-          </ng-container>
-          <li class="nav-item text-bg-danger text-center"><a (click)="signOut()" class="nav-link text-white">Sign Out</a></li>
+        <li class="nav-item text-center"><a (click)="navigateCustomer()" class="nav-link">Customer</a></li>
+        <ng-container *ngIf="isChef">
+          <li class="nav-item text-center"><a (click)="navigateChef()" class="nav-link">Chef</a></li>
         </ng-container>
+        <ng-container *ngIf="isAdmin">
+          <li class="nav-item text-center"><a (click)="navigateAdmin()" class="nav-link">Admin</a></li>
+        </ng-container>
+        <li class="nav-item text-bg-danger text-center"><a (click)="signOut()" class="nav-link text-white">Sign Out</a></li>
       </ul>
     </div>
   </div>
 </nav>
 <div class="d-flex flex-column justify-content-center bg-white align-content-center mt-6 p-5">
-  <ng-container *ngIf="loaded; else loading">
-    <div #customer>
-      <dashboard-customer-options></dashboard-customer-options>
+  <div #customer>
+    <dashboard-customer-options></dashboard-customer-options>
+  </div>
+  <ng-container *ngIf="isChef">
+    <div #chef>
+      <dashboard-chef-options></dashboard-chef-options>
     </div>
-    <ng-container *ngIf="isChef">
-      <div #chef>
-        <dashboard-chef-options></dashboard-chef-options>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="isAdmin">
-      <div #admin>
-        <dashboard-admin-options></dashboard-admin-options>
-      </div>
-    </ng-container>
   </ng-container>
-  <ng-template #loading>
-    <div class="loading"></div>
-  </ng-template>
+  <ng-container *ngIf="isAdmin">
+    <div #admin>
+      <dashboard-admin-options></dashboard-admin-options>
+    </div>
+  </ng-container>
 </div>
 
 

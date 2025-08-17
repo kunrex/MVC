@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"MVC/pkg/database/models"
+	"MVC/pkg/types"
 	"MVC/pkg/utils"
 	"database/sql"
 	"encoding/json"
@@ -77,10 +78,10 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, utils.GenerateLoginCookie(true))
-	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
-
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(types.SignUpResponse{
+		AWT: accessToken,
+	})
 }
 
 func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,11 +117,17 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, utils.GenerateLoginCookie(true))
-	http.SetCookie(w, utils.GenerateAccessCookie(accessToken))
-
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(userName)
+	_ = json.NewEncoder(w).Encode(types.LoginResponse{
+		SignUpResponse: types.SignUpResponse{
+			AWT: accessToken,
+		},
+		UserDetailsResponse: types.UserDetailsResponse{
+			Name:  userName,
+			Chef:  (authorisation & 2) == 2,
+			Admin: (authorisation & 4) == 4,
+		},
+	})
 }
 
 func AuthoriseUserHandler(w http.ResponseWriter, r *http.Request) {

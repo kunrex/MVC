@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
 
@@ -22,7 +21,7 @@ export class AddFoodComponent {
 
   public addFoodError: string = '';
 
-  constructor(private readonly audioService: AudioService, private readonly modalService: ModalService) { }
+  constructor(private readonly auth: AuthService, private readonly audioService: AudioService, private readonly modalService: ModalService) { }
 
   public setVegetarian() : void {
     this.vegetarian = true;
@@ -63,22 +62,15 @@ export class AddFoodComponent {
 
     const time = `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
 
-    const response = await fetch(`${serverAddress}/admin/food/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        name: name,
-        price: price,
-        description: description,
+    const response = await this.auth.fetchAuthorization('POST', 'admin/food/add', {
+      name: name,
+      price: price,
+      description: description,
 
-        vegetarian: this.vegetarian,
-        cookTime: time,
+      vegetarian: this.vegetarian,
+      cookTime: time,
 
-        imageURL: this.imageURL
-      })
+      imageURL: this.imageURL
     });
 
     if(response.status != 200) {

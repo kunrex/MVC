@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-
+import { AuthService } from "../../../../services/auth-service";
 import { RouteService } from "../../../../services/route-service";
 import { AudioService } from "../../../../services/audio-service";
 
@@ -13,7 +12,7 @@ import { AudioService } from "../../../../services/audio-service";
 export class LoginComponent {
   public loginError: string = '';
 
-  constructor(private readonly routes: RouteService, private readonly audioService: AudioService) { }
+  constructor(private readonly authService: AuthService, private readonly routes: RouteService, private readonly audioService: AudioService) { }
 
   public async login(e: Event) : Promise<void> {
     e.preventDefault();
@@ -33,22 +32,16 @@ export class LoginComponent {
     params.set("email", formData.get('email') as string);
     params.set("password", formData.get('password') as string);
 
-    const response = await fetch(`${serverAddress}/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      credentials: 'include',
-      body: params.toString()
-    });
+    const response = await this.authService.fetchForm('POST', 'auth', params);
+    const json = await response.json();
 
     if (response.status == 200) {
-      this.routes.registerLogin(await response.text());
-
+      this.authService.registerLogin(json.awt, json.name, json.chef, json.admin);
       await this.routes.loadDashboard();
+
       return
     }
 
-    this.loginError = (await response.json()).error;
+    this.loginError = json.error;
   }
 }
