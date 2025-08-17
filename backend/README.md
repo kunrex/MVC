@@ -2,13 +2,9 @@
 
 Backend for MVC assignment
 
-### localhost SSL certificates
+Fill in appropriate values in `MVC/backend/config.json`. Set `containerInstance` to true if running on a docker container or any other container runtime.
 
-Use `mkcert` to create local SSL certificates for `localhost` and store them in `certificates`
-
-### Setting up the .env
-
-Rename the `backend/.env.sample` file to `backend/.env` and fill in the appropriate values.
+Remember to change the port in `MVC/backend/Dockerfile` if changing `appPort` in `MVC/backend/config.json`
 
 Makefile commands (run from `MVC/backend`)
 1. `make migrate-up`: migrate up

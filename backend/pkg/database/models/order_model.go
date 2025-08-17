@@ -3,7 +3,6 @@ package models
 import (
 	"MVC/pkg/database"
 	"MVC/pkg/types"
-	"MVC/pkg/utils"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -256,7 +255,6 @@ func GetAllOrders() ([]types.Order, error) {
 			&order.CreatedOn,
 			&order.Paid)
 
-		order.CreatedOn = utils.ToLocalTime(order.CreatedOn)
 		orders = append(orders, order)
 	}
 
@@ -282,7 +280,6 @@ func GetUserOrders(userId int64) ([]types.Order, error) {
 			&order.CreatedOn,
 			&order.Paid)
 
-		order.CreatedOn = utils.ToLocalTime(order.CreatedOn)
 		orders = append(orders, order)
 	}
 

@@ -76,11 +76,7 @@
             }
           },
           "defaultConfiguration": "development",
-          "options": {
-            "ssl": true,
-            "sslCert": "./certificates/localhost.pem",
-            "sslKey": "./certificates/localhost-key.pem"
-          }
+          "options": { }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

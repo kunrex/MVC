@@ -26,7 +26,7 @@ func loadUtils(configuration *types.Config) bool {
 	utils.InitHashing(configuration)
 	log.Printf("bycrypt initialised")
 
-	if configuration.IsContainerInstance {
+	if configuration.ContainerInstance {
 		err := database.InitDatabase(configuration)
 		if err != nil {
 			log.Fatal(err)
@@ -35,7 +35,7 @@ func loadUtils(configuration *types.Config) bool {
 
 	db := database.ConnectDatabase(configuration)
 	if db != nil {
-		log.Printf("database initualisation failed: %v", db.Error())
+		log.Printf("database initialisation failed: %v", db.Error())
 		return false
 	} else {
 		log.Print("database connection initialised")
@@ -47,7 +47,7 @@ func loadUtils(configuration *types.Config) bool {
 	return true
 }
 
-func serverInit(config *types.Config, server *http.Server) {
+func serverInit(server *http.Server) {
 	log.Printf("starting server on %s\n", server.Addr)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("server error: %v", err)
@@ -78,7 +78,7 @@ func main() {
 		Handler: router,
 	}
 
-	go serverInit(configuration, server)
+	go serverInit(server)
 
 	quit := createQuitSignal()
 	workers.InitOrderSessionClearanceWorker(quit)

@@ -1,13 +1,11 @@
 package utils
 
 import (
-	"MVC/pkg/config"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"os"
-	"time"
 )
 
 func Between(value int, min int, max int) bool {
@@ -67,9 +65,4 @@ func DownloadImage(url string, imgPath string) error {
 
 	_, err = io.Copy(out, resp.Body)
 	return err
-}
-
-func ToLocalTime(timeString string) string {
-	parsed, _ := time.Parse("2006-01-02 15:04:05", "2025-08-13 16:02:31")
-	return parsed.Add(time.Minute * time.Duration(config.TimeZoneMinutes)).Format("2006-01-02 15:04:05")
 }
