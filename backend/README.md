@@ -2,7 +2,7 @@
 
 Backend for MVC assignment
 
-Fill in appropriate values in `MVC/backend/config.json`. Set `containerInstance` to true if running on a docker container or any other container runtime.
+Fill in appropriate values in `MVC/backend/.config.json`. Set `containerInstance` to true if running on a docker container or any other container runtime.
 
 Remember to change the port in `MVC/backend/Dockerfile` if changing `appPort` in `MVC/backend/config.json`
 

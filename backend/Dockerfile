@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/database ./database
-COPY --from=builder /app/config.json ./config.json
+COPY --from=builder /app/.config.json ./.config.json
 
 COPY --from=builder /main .
 
