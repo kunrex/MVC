@@ -64,7 +64,7 @@ func ConnectDatabase(config *types.Config) error {
 
 	DB.SetMaxOpenConns(config.DBMaxOpenConnections)
 	DB.SetMaxIdleConns(config.DBMaxIdleConnections)
-	DB.SetConnMaxLifetime(5 * time.Minute)
+	DB.SetConnMaxLifetime(time.Duration(config.DBMaxConnectionLifetime) * time.Minute)
 
 	return nil
 }
