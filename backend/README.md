@@ -1,13 +1,27 @@
 # MVC Backend
 
-Backend for MVC assignment
+### Setup
 
-Fill in appropriate values in `MVC/backend/.config.json`. Set `containerInstance` to true if running on a docker container or any other container runtime.
+Run `setup.sh` and fill in the appropriate values. 
 
-Remember to change the port in `MVC/backend/Dockerfile` if changing `appPort` in `MVC/backend/config.json`
+### Running (without Docker)
 
-Makefile commands (run from `MVC/backend`)
-1. `make migrate-up`: migrate up
-2. `make migrate-down`: migrate down
-3. `make run`: run the application
-4. `make build`: build the application
+From `MVC/backend`
+
+1. Initialise `migrations`
+```shell
+make migrate-up
+```
+
+2. Running 
+```shell
+make run
+```
+
+### Running (with Docker)
+
+From `MVC/backend`
+
+```shell
+docker compose up
+```
