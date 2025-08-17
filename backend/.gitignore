@@ -4,3 +4,5 @@ assets/*
 !assets/.gitkeep
 
 .DS_Store
+
+.config.json
