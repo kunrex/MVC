@@ -8,5 +8,5 @@ import (
 )
 
 func initUserRoutes(router *mux.Router) {
-	router.Handle("/user", utils.Chain(controllers.GetUserDetailsHandler, middleware.Authorise)).Methods("GET")
+	router.Handle("/user", utils.Chain(controllers.GetUserDetailsHandler, middleware.Authorise)).Methods("GET", "OPTIONS")
 }

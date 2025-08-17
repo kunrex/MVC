@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 
-import { months } from "../../../../utils/constants";
-
 import { AudioService } from "../../../../services/audio-service";
 import { RouteService } from "../../../../services/route-service";
 
 import { Order } from "../../types/order";
+
+const months = [ "January", "February", "March", "April", "May", "June",  "July", "August", "September", "October", "November", "December" ];
 
 @Component({
   selector: 'orders-orders-display',

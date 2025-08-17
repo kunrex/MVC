@@ -24,6 +24,10 @@ type MenuTagCacheResponse struct {
 	Menu string `json:"menu"`
 }
 
+type OrderCreateResponse struct {
+	Id int64 `json:"id"`
+}
+
 type OrderDetailsResponse struct {
 	Payed     bool `json:"payed"`
 	Completed bool `json:"completed"`

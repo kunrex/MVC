@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
 import { Page } from "../../utils/page";
+import { toLocalTime } from "../../utils/functions";
 
 import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
@@ -55,9 +56,10 @@ export class OrdersComponent extends Page implements AfterViewInit {
       const jsonLength = json.length;
       for(let i = 0; i < jsonLength; i++) {
         const current = json[i];
+
         const order = new Order(
           current.id,
-          current.createdOn,
+          toLocalTime(current.createdOn),
           current.authorName,
           current.completed,
           current.paid
@@ -101,7 +103,6 @@ export class OrdersComponent extends Page implements AfterViewInit {
         this.displayedOrders.push(current);
     }
   }
-
 
   public async loadDashboard() : Promise<void> {
     await this.playClickSFX();

@@ -30,16 +30,16 @@ export class DashboardComponent extends Page implements AfterViewInit {
   @ViewChild('admin') private readonly adminReference!: ElementRef;
   @ViewChild('customer') private readonly customerReference!: ElementRef;
 
-  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService,) {
+  constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(auth, routes, audioService, modalService);
+
+    this.isChef = this.auth.isChef();
+    this.isAdmin =  this.auth.isAdmin();
   }
 
   public async ngAfterViewInit(): Promise<void> {
     if (!this.auth.isLoggedIn())
       return this.routes.loadLogin();
-
-    this.isChef = this.auth.isChef()
-    this.isAdmin =  this.auth.isAdmin()
   }
 
   public signOut() : Promise<void> {

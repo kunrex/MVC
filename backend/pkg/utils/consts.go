@@ -9,6 +9,6 @@ const UserAuthorisation ContextKey = "auth"
 
 const MaxLength = 72
 
-const AllowedHTTPOrigins = "*"
+const AllowedHTTPOrigins = "http://localhost:4200"
 const AllowedHTTPMethods = "GET, POST, OPTIONS, PATCH"
 const AllowedHTTPHeaders = "Content-Type, Authorization"

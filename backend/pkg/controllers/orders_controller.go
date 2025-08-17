@@ -22,7 +22,9 @@ func NewOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(id)
+	_ = json.NewEncoder(w).Encode(types.OrderCreateResponse{
+		Id: id,
+	})
 }
 
 func GetTagMenuCacheHandler(w http.ResponseWriter, r *http.Request) {

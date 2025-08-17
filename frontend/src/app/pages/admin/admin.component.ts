@@ -3,15 +3,14 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component } from '@angular/core';
 
 import { Page } from "../../utils/page";
-import { serverAddress } from "../../utils/constants";
 
+import { AuthService } from "../../services/auth-service";
 import { RouteService } from "../../services/route-service";
 import { AudioService } from "../../services/audio-service";
 import { ModalService } from "../../services/modal-service";
 
 import { MenuItem } from "./types/menu-item";
 import { AdminSharedModuleModule } from "./shared/admin-shared-module.module";
-import {AuthService} from "../../services/auth-service";
 
 @Component({
   selector: 'app-admin',

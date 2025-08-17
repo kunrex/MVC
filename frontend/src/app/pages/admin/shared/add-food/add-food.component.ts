@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 
+import { pad } from "../../../../utils/functions";
+
 import { AuthService } from "../../../../services/auth-service";
 import { AudioService } from "../../../../services/audio-service";
 import { ModalService } from "../../../../services/modal-service";
@@ -60,7 +62,7 @@ export class AddFoodComponent {
       return;
     }
 
-    const time = `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
+    const time = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
     const response = await this.auth.fetchAuthorization('POST', 'admin/food/add', {
       name: name,
@@ -88,9 +90,5 @@ export class AddFoodComponent {
     this.imageURL = this.addFoodError = '';
 
     this.modalService.showModal('Creation Successful', 'Item creation was successful');
-  }
-
-  private pad(n: number): string {
-    return String(n).padStart(2, '0');
   }
 }

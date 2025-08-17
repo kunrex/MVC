@@ -19,9 +19,6 @@ export class AuthService {
   constructor(private readonly modalService: ModalService) {
     const token = localStorage.getItem(authKey);
     this.loggedIn = !!token;
-
-    if(this.loggedIn)
-      this.fetchUserDetails().then()
   }
 
   public isLoggedIn() : boolean { return this.loggedIn; }
@@ -29,6 +26,21 @@ export class AuthService {
   public getName() : string { return this.name; }
   public isChef() : boolean { return this.chef; }
   public isAdmin() : boolean { return this.admin; }
+
+  public async fetchUserDetails() : Promise<void> {
+    const response = await this.fetchAuthorization('GET', 'user', null);
+    const json = await response.json();
+
+    if(response.status == 200) {
+      this.name = json.name;
+      this.chef = json.chef;
+      this.admin = json.admin;
+
+      return;
+    }
+
+    this.modalService.showError(json.error);
+  }
 
   public registerLogin(token: string, name: string, chef: boolean, admin: boolean) : void {
     if(this.loggedIn)
@@ -70,7 +82,7 @@ export class AuthService {
 
   public async fetchAuthorization(method: string, path: string, jsonBody: any | null) : Promise<Response> {
     const headers: Record<string, string> = {
-      "Authorization": `Bearer: ${localStorage.getItem(authKey)}`
+      'Authorization': `Bearer ${localStorage.getItem(authKey)}`
     }
 
     const request: RequestInit = {
@@ -84,20 +96,5 @@ export class AuthService {
     }
 
     return await fetch(`${serverAddress}/${path}`, request);
-  }
-
-  private async fetchUserDetails() : Promise<void> {
-    const response = await this.fetchAuthorization('GET', 'user', null);
-    const json = await response.json();
-
-    if(response.status == 200) {
-      this.name = json.name;
-      this.chef = json.chef;
-      this.admin = json.admin;
-
-      return;
-    }
-
-    this.modalService.showError(json.error);
   }
 }
