@@ -214,7 +214,7 @@ func UpdateIncompleteSubordersHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if rowsAffected == 0 {
-			utils.WriteFailedResponse(http.StatusBadRequest, "suborder does not exist", w)
+			utils.WriteFailedResponse(http.StatusBadRequest, fmt.Sprintf("suborder does not exist or is already marked '%v'", element.Status), w)
 			return
 		}
 	}

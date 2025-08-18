@@ -42,7 +42,7 @@ export class OrdersComponent extends Page implements AfterViewInit {
   }
 
   public async ngAfterViewInit() : Promise<void> {
-    if(!this.auth.isLoggedIn())
+    if(!this.auth.loggedIn())
       return this.routes.loadLogin();
     if(!this.userOrders && !this.auth.isAdmin()) {
       this.modalService.showError('you are not authorised to view this page')

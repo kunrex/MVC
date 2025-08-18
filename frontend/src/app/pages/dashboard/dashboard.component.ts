@@ -38,7 +38,7 @@ export class DashboardComponent extends Page implements AfterViewInit {
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if (!this.auth.isLoggedIn())
+    if (!this.auth.loggedIn())
       return this.routes.loadLogin();
   }
 

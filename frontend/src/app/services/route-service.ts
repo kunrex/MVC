@@ -20,12 +20,12 @@ export class RouteService {
   }
 
   public async loadDashboard() : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.Dashboard]);
   }
 
   public async loadNewOrder() : Promise<void> {
-    if (this.authService.isLoggedIn()) {
+    if (this.authService.loggedIn()) {
       const response = await this.authService.fetchAuthorization('GET', 'order', null)
 
       const json = await response.json();
@@ -40,27 +40,27 @@ export class RouteService {
   }
 
   public async loadOrder(id: number, authorName: string) : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.Order, id, authorName]);
   }
 
   public async loadUserOrders() : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.UserOrders]);
   }
 
   public async loadSuborders() : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.Suborders]);
   }
 
   public async loadAdmin() : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.Admin]);
   }
 
   public async loadAllOrders() : Promise<void> {
-    if (this.authService.isLoggedIn())
+    if (this.authService.loggedIn())
       await this.router.navigate([AppPath.AllOrders]);
   }
 }

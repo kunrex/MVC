@@ -10,18 +10,15 @@ const authKey: string = "awt"
   providedIn: "root"
 })
 export class AuthService {
-  private loggedIn: boolean = false;
-
   private name: string = '';
   private chef: boolean = false;
   private admin: boolean = false;
 
-  constructor(private readonly modalService: ModalService) {
-    const token = localStorage.getItem(authKey);
-    this.loggedIn = !!token;
-  }
+  constructor(private readonly modalService: ModalService) { }
 
-  public isLoggedIn() : boolean { return this.loggedIn; }
+  public loggedIn() : boolean {
+    return !!localStorage.getItem(authKey);
+  }
 
   public getName() : string { return this.name; }
   public isChef() : boolean { return this.chef; }
@@ -43,7 +40,7 @@ export class AuthService {
   }
 
   public registerLogin(token: string, name: string, chef: boolean, admin: boolean) : void {
-    if(this.loggedIn)
+    if(this.loggedIn())
       return;
 
     localStorage.setItem(authKey, token);
@@ -51,12 +48,10 @@ export class AuthService {
     this.name = name;
     this.chef = chef;
     this.admin = admin;
-
-    this.loggedIn = true;
   }
 
   public registerSignOut() {
-    if(!this.loggedIn)
+    if(!this.loggedIn())
       return;
 
     localStorage.setItem(authKey, '');
@@ -64,8 +59,6 @@ export class AuthService {
     this.name = '';
     this.chef = false;
     this.admin = false;
-
-    this.loggedIn = false;
   }
 
   public async fetchForm(method: string, path: string, params: URLSearchParams) : Promise<Response> {
@@ -81,6 +74,11 @@ export class AuthService {
   }
 
   public async fetchAuthorization(method: string, path: string, jsonBody: any | null) : Promise<Response> {
+    if(!this.loggedIn()) {
+      this.modalService.showError('Failed to fetch authorisation token, please log in again');
+      return new Response(null);
+    }
+
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${localStorage.getItem(authKey)}`
     }

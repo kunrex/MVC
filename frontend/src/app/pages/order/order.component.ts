@@ -71,7 +71,7 @@ export class OrderComponent extends Page implements AfterViewInit, OnDestroy {
   }
 
   public async ngAfterViewInit(): Promise<void> {
-    if (!this.auth.isLoggedIn())
+    if (!this.auth.loggedIn())
       return this.routes.loadLogin();
 
     await this.loadTagsMenu();
