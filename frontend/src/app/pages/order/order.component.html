@@ -20,9 +20,9 @@
         <order-order-details [readonly]="readonly" [suborders]="suborders" (onIncrement)="incrementSuborder($event)" (onDecrement)="decrementSuborder($event)" class="h-100 d-flex flex-column justify-content-start"></order-order-details>
         <order-billing [subtotal]="subtotal" (onTip)="tip = $event" (onDiscount)="discount = $event" (onTotal)="total = $event"></order-billing>
         <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly align-items-center">
-          <button (click)="confirmChanges()" id="confirm" class="btn btn-primary btn-xl rounded-pill m-2">Back</button>
-          <button [disabled]="this.completed" (click)="completeOrder()" id="complete" class="btn btn-primary btn-xl rounded-pill m-2">Complete</button>
-          <button [disabled]="!this.payable" (click)="completeOrderPayment()" id="pay" class="btn btn-primary btn-xl rounded-pill m-2">Pay</button>
+          <button (click)="loadDashboard()" class="btn btn-primary btn-xl rounded-pill m-2">Back</button>
+          <button [disabled]="completed" (click)="completeOrder()" class="btn btn-primary btn-xl rounded-pill m-2">Complete</button>
+          <button [disabled]="!payable" (click)="completeOrderPayment()" class="btn btn-primary btn-xl rounded-pill m-2">Pay</button>
         </div>
       </div>
     </div>

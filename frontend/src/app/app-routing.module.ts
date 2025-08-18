@@ -8,27 +8,29 @@ import { OrdersComponent } from "./pages/orders/orders.component";
 import { SubordersComponent } from "./pages/suborders/suborders.component";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 
-const routes: Routes = [
-  { path: '', redirectTo: 'auth', pathMatch: "full" },
+import { AppRoute } from "./utils/enums";
 
-  { path: 'auth', component: AuthComponent },
-  { path: 'admin', component: AdminComponent },
+const routes: Routes = [
+  { path: '', redirectTo: AppRoute.Auth, pathMatch: "full" },
+
+  { path: AppRoute.Auth, component: AuthComponent },
+  { path: AppRoute.Admin, component: AdminComponent },
   {
-    path: 'order',
+    path: AppRoute.Order,
     children: [
       { path: '', component: OrderComponent },
       { path: ':id/:authorName', component: OrderComponent }
     ]
   },
   {
-    path: 'orders',
+    path: AppRoute.Orders,
     children: [
       { path: 'all', component: OrdersComponent },
       { path: 'user', component: OrdersComponent }
     ]
   },
-  { path: 'suborders', component: SubordersComponent },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: AppRoute.Suborders, component: SubordersComponent },
+  { path: AppRoute.Dashboard, component: DashboardComponent },
 
   { path: '**', redirectTo: 'login' }
 ];

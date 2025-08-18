@@ -18,5 +18,5 @@ func initAdminRoutes(router *mux.Router) {
 	subRouter.HandleFunc("/food/updateTags", controllers.UpdateFoodTagHandler).Methods("PATCH", "OPTIONS")
 
 	subRouter.HandleFunc("/user/authorisation/get", controllers.GetAllAuthorisationsHandler).Methods("GET", "OPTIONS")
-	subRouter.HandleFunc("/user/authorisation/set/{userId}/{authorisation}", controllers.SetUserAuthorisationHandler).Methods("PATCH, OPTIONS")
+	subRouter.HandleFunc("/user/authorisation/set/{userId}/{authorisation}", controllers.SetUserAuthorisationHandler).Methods("PATCH", "OPTIONS")
 }

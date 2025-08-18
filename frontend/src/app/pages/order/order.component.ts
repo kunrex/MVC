@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Component, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 
 import { Page } from "../../utils/page";
 import { ordered } from "../../utils/constants";
@@ -29,7 +29,7 @@ const naturalNumber = /^[1-9][0-9]*$/
     SharedOrderModuleModule
   ]
 })
-export class OrderComponent extends Page implements AfterViewInit {
+export class OrderComponent extends Page implements AfterViewInit, OnDestroy {
   public loaded: boolean = false;
 
   public orderId: number = 0;
@@ -242,12 +242,10 @@ export class OrderComponent extends Page implements AfterViewInit {
     }
   }
 
-  public async confirmChanges() : Promise<void> {
-    await this.playClickSFX();
-
+  private async confirmChanges() : Promise<void> {
     const suborderCount = this.suborders.length;
 
-    const changes: Suborder[] = []
+    const changes: Suborder[] = [];
     for (let i = 0; i < suborderCount; i++) {
       const current = this.suborders[i]
 
@@ -264,6 +262,10 @@ export class OrderComponent extends Page implements AfterViewInit {
       return this.routes.loadDashboard();
 
     this.modalService.showError((await response.json()).error);
+  }
+
+  public loadDashboard() : Promise<void> {
+    return this.routes.loadDashboard();
   }
 
   public async completeOrder() : Promise<void> {
@@ -297,5 +299,9 @@ export class OrderComponent extends Page implements AfterViewInit {
     }
 
     this.modalService.showError((await response.json()).error);
+  }
+
+  public async ngOnDestroy(): Promise<void> {
+    await this.confirmChanges();
   }
 }

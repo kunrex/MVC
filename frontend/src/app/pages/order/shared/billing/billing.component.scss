@@ -1,3 +1,7 @@
 .selected-tip {
-  border: solid medium black;
+  border: solid medium var(--bs-dark);
+}
+
+.btn {
+  width: 4rem;
 }

@@ -23,11 +23,11 @@
           </div>
           <div>
             <ng-container *ngIf="suborder.status === ordersProvider; else processingOrDone">
-              <i class="bi bi-list-ul fs-4 text-dark"></i>
+              <i class="bi bi-hourglass-split fs-4 text-dark"></i>
             </ng-container>
             <ng-template #processingOrDone>
               <ng-container *ngIf="suborder.status === processingProvider; else done">
-                <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+                <i class="bi bi-fire fs-4 text-warning"></i>
               </ng-container>
             </ng-template>
             <ng-template #done>

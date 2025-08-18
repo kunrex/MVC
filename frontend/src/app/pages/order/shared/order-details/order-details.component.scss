@@ -13,3 +13,40 @@ icon-button-off {
 .scroll {
   height: 25vh;
 }
+
+.bi {
+  position: relative;
+}
+
+.bi:hover::after {
+  display: inline-block;
+
+  position: absolute;
+  top: 100%;
+  right: -100%;
+
+  min-width: 12rem;
+
+  padding: 1rem;
+
+  font-size: 1rem;
+  white-space: normal;
+  color: var(--bs-light);
+
+  border-radius: 1rem;
+}
+
+.bi-hourglass-split:hover::after {
+  content: "Order sent to chef";
+  background-color: var(--bs-dark);
+}
+
+.bi-fire:hover::after {
+  content: "Order being prepared";
+  background-color: var(--bs-danger);
+}
+
+.bi-clipboard2-check-fill:hover::after {
+  content: "Order completed";
+  background-color: var(--bs-success);
+}
