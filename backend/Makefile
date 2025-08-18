@@ -1,8 +1,5 @@
-DB_HOST := $(shell jq -r '.dbHost' .config.json)
-DB_NAME := $(shell jq -r '.dbName' .config.json)
-
-DB_USER := $(shell jq -r '.dbUser' .config.json)
-DB_PASSWORD := $(shell jq -r '.dbPassword' .config.json)
+include .env
+export
 
 run:
 	go run cmd/main.go

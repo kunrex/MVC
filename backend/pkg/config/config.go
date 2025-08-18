@@ -2,6 +2,7 @@ package config
 
 import (
 	"MVC/pkg/types"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strconv"
@@ -38,6 +39,11 @@ func readString(variable string, address *string) {
 
 func InitConfig() *types.Config {
 	var config types.Config
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	readInt("APP_PORT", &config.AppPort)
 
