@@ -11,11 +11,12 @@ icon-button-off {
 }
 
 .scroll {
-  height: 25vh;
+  max-height: 200px;
 }
 
 .bi {
   position: relative;
+  z-index: 100000;
 }
 
 .bi:hover::after {
@@ -37,13 +38,13 @@ icon-button-off {
 }
 
 .bi-hourglass-split:hover::after {
-  content: "Order sent to chef";
+  content: "Order added";
   background-color: var(--bs-dark);
 }
 
 .bi-fire:hover::after {
   content: "Order being prepared";
-  background-color: var(--bs-danger);
+  background-color: var(--bs-warning);
 }
 
 .bi-clipboard2-check-fill:hover::after {
