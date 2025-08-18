@@ -28,7 +28,7 @@ Alternative: Create file: `MVC/backend/.config.json` and fill in appropriate val
 
 > Note: Frontend assumes server is running at localhost:3000 `(MVC/frontend/src/app/utils/constants.ts)`
 > 
-> Note: docker-compose assumes that mysql root password is `root` and `appPort` is 3000
+> Note: docker-compose assumes that mysql root password is `root` and server runs on port `3000`
 
 
 ### Running (without Docker)
