@@ -18,6 +18,10 @@ header.masthead {
   max-height: 400px;
 }
 
+.main {
+  max-width: 800px;
+}
+
 @keyframes bobble {
   0% {
     transform: translateY(10px);
