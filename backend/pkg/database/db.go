@@ -36,6 +36,9 @@ func InitDatabase(configuration *types.Config) error {
 
 	driver, _ := mysql.WithInstance(db, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance("file://database/migrations", "mysql", driver)
+	defer func(m *migrate.Migrate) {
+		_, _ = m.Close()
+	}(m)
 	if err != nil {
 		return err
 	}
