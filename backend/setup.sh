@@ -12,31 +12,29 @@ dbName=${dbName:-MVC}
 read -p "Is this a container instance? (true/false, default false): " containerInstance
 containerInstance=${containerInstance:-false}
 
-FILE=".config.json"
+FILE=".env"
 
 cat > "$FILE" <<EOF
-{
-  "appPort": 3000,
+APP_PORT=3000
 
-  "saltRounds": $saltRounds,
-  "jwtSecret": "$jwtSecret",
+SALT_ROUNDS=$saltRounds
+JTW_SECRET=$jwtSecret
 
-  "dbName": "$dbName",
-  "dbHost": "localhost",
+DB_NAME=$dbName
+DB_HOST=localhost
 
-  "dbUser": "root",
-  "dbPassword": "root",
+DB_USER=root
+DB_PASSWORD=root
 
-  "dbMaxIdleConnections": 5,
-  "dbMaxOpenConnections": 25,
-  "dbMaxConnectionLifetime": 5,
+DB_MAX_IDLE_CONNECTIONS=5
+DB_MAX_OPEN_CONNECTIONS=25
+DB_MAX_CONNECTION_LIFETIME=5
 
-  "containerInstance": $containerInstance
-}
+CONTAINER_INSTANCE=$containerInstance
 EOF
 
 echo "$FILE created successfully!"
-echo "Config values for these properties have been set implicitly:"
+echo "Values for these properties have been set implicitly:"
 echo -e "\t 1. App Port: 3000 (If changed, change in docker-compose and MVC/frontend/src/app/utils/constants.ts)"
 echo -e "\t 2. DBHost: localhost"
 echo -e "\t 3. DBUser: root"
