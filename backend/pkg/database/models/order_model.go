@@ -114,7 +114,7 @@ func UpdateSuborderStatus(suborder *types.SuborderExtra) (int64, error) {
 		return 0, errors.New("invalid suborder status")
 	}
 
-	res, err := database.DB.Exec(`UPDATE Suborders SET status = ? WHERE id = ?;`, suborder.Status, suborder.Id)
+	res, err := database.DB.Exec(`UPDATE Suborders SET status = ? WHERE id = ? AND status != 'completed';`, suborder.Status, suborder.Id)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
