@@ -109,7 +109,7 @@ func UpdateSubordersHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			break
-		case element.Code == 0 && element.Quantity < 0:
+		case element.Code == 0 && element.Quantity <= 0:
 			err := deleteSuborder(element.Id, orderId)
 			if err != nil {
 				utils.WriteFailedResponse(http.StatusInternalServerError, err.Error(), w)
