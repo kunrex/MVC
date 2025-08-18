@@ -12,11 +12,11 @@ export function timeStampPrettyPrint(timestamp: string) : string {
 
   const stamps: string[] = []
   if(times[0] > 0)
-    stamps.push(`${pad(times[0])} hours`)
+    stamps.push(`${times[0]} hours`)
   if(times[1] > 0)
-    stamps.push(`${pad(times[1])} minutes`)
+    stamps.push(`${times[1]} minutes`)
   if(times[2] > 0)
-    stamps.push(`${pad(times[2])} seconds`)
+    stamps.push(`${times[2]} seconds`)
 
   return stamps.join(',');
 }

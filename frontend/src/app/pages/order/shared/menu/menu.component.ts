@@ -22,7 +22,7 @@ export class MenuComponent {
   @Output() public onAdd: EventEmitter<number> = new EventEmitter<number>();
 
   public readonly serverAddressProvider = serverAddress;
-  public readonly timeStampFunctionProvider = timeStampPrettyPrint;
+  public readonly timeStampFunctionProvider: (timestamp: string) => string = timeStampPrettyPrint;
 
   public selectedTag: string = '';
 

@@ -3,32 +3,30 @@
 ### Setup
 
 Run `setup.sh` and fill in the appropriate values.
-Alternative: Create file: `MVC/backend/.config.json` and fill in appropriate values:
+Alternative: Create file: `MVC/backend/.env` and fill in appropriate values:
 
-```json
-{
-  "appPort": 3000,
+```env
+APP_PORT=3000
 
-  "saltRounds": 10,
-  "jwtSecret": "jwt",
+SALT_ROUNDS=10
+JTW_SECRET=jwt
 
-  "dbName": "MVC",
-  "dbHost": "localhost",
+DB_NAME=db
+DB_HOST=localhost
 
-  "dbUser": "root",
-  "dbPassword": "root",
+DB_USER=root
+DB_PASSWORD=root
 
-  "dbMaxIdleConnections": 5,
-  "dbMaxOpenConnections": 25,
-  "dbMaxConnectionLifetime": 5,
+DB_MAX_IDLE_CONNECTIONS=5
+DB_MAX_OPEN_CONNECTIONS=25
+DB_MAX_CONNECTION_LIFETIME=5
 
-  "containerInstance": false
-}
+CONTAINER_INSTANCE=false
 ```
 
 > Note: Frontend assumes server is running at localhost:3000 `(MVC/frontend/src/app/utils/constants.ts)`
 > 
-> Note: docker-compose assumes that mysql root password is `root` and server runs on port `3000`
+> Note: `docker-compose.yaml` assumes that mysql root password is `root`, the server is exposed to port `3000`, and the DB_HOST is `db`
 
 
 ### Running (without Docker)
