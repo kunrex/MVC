@@ -16,13 +16,13 @@ export class AuthService {
 
   constructor(private readonly modalService: ModalService) { }
 
-  public loggedIn() : boolean {
-    return !!localStorage.getItem(authKey);
-  }
-
   public getName() : string { return this.name; }
   public isChef() : boolean { return this.chef; }
   public isAdmin() : boolean { return this.admin; }
+
+  public loggedIn() : boolean {
+    return !!localStorage.getItem(authKey);
+  }
 
   public async fetchUserDetails() : Promise<void> {
     const response = await this.fetchAuthorization('GET', 'user', null);
@@ -74,13 +74,14 @@ export class AuthService {
   }
 
   public async fetchAuthorization(method: string, path: string, jsonBody: any | null) : Promise<Response> {
-    if(!this.loggedIn()) {
-      this.modalService.showError('Failed to fetch authorisation token, please log in again');
+    const token = localStorage.getItem(authKey);
+    if(!token) {
+      this.modalService.showError('failed to fetch authorisation token, please log in again');
       return new Response(null);
     }
 
     const headers: Record<string, string> = {
-      'Authorization': `Bearer ${localStorage.getItem(authKey)}`
+      'Authorization': `Bearer ${token}`
     }
 
     const request: RequestInit = {
