@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
-import { AuthService } from "../services/auth-service";
-import { RouteService } from "../services/route-service";
-import { AudioService } from "../services/audio-service";
-import { ModalService } from "../services/modal-service";
+import { AuthService } from "@/services/auth-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
+import { ModalService } from "@/services/modal-service";
 
 @Component({
   template: ''

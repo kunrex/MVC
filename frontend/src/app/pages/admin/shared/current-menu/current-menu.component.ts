@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-import { timeStampPrettyPrint } from "../../../../utils/functions";
+import { serverAddress } from "@/utils/constants";
+import { timeStampPrettyPrint } from "@/utils/functions";
 
 import { MenuItem } from "../../types/menu-item";
 

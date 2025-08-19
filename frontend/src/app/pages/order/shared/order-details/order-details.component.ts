@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { ordered, processing } from "../../../../utils/constants";
+import { ordered, processing } from "@/utils/constants";
 
 import { Suborder } from "../../types/suborder";
 

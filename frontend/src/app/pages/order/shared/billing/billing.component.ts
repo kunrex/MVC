@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 
-import { AudioService } from "../../../../services/audio-service";
+import { AudioService } from "@/services/audio-service";
 
 @Component({
   selector: 'order-billing',

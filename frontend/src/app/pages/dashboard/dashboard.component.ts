@@ -2,12 +2,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
-import { Page } from "../../utils/page";
+import { Page } from "@/utils/page";
 
-import { AuthService } from "../../services/auth-service";
-import { RouteService } from "../../services/route-service";
-import { AudioService } from "../../services/audio-service";
-import { ModalService } from "../../services/modal-service";
+import { AuthService } from "@/services/auth-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
+import { ModalService } from "@/services/modal-service";
 
 import { DashboardSharedModuleModule } from "./shared/dashboard-shared-module.module";
 

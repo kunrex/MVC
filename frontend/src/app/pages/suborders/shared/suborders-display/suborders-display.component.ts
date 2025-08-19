@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 
-import { completed, ordered, processing } from "../../../../utils/constants";
+import { completed, ordered, processing } from "@/utils/constants";
 
-import { AudioService } from "../../../../services/audio-service";
+import { AudioService } from "@/services/audio-service";
 
 import { Suborder } from "../../types/suborder";
 

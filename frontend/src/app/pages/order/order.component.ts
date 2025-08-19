@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Component, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 
-import { Page } from "../../utils/page";
-import { ordered } from "../../utils/constants";
+import { Page } from "@/utils/page";
+import { ordered } from "@/utils/constants";
 
-import { AuthService } from "../../services/auth-service";
-import { RouteService } from "../../services/route-service";
-import { AudioService } from "../../services/audio-service";
-import { ModalService } from "../../services/modal-service";
+import { AuthService } from "@/services/auth-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
+import { ModalService } from "@/services/modal-service";
 
 import { MenuItem } from "./types/menu-item";
 import { Suborder } from "./types/suborder";

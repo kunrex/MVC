@@ -1,8 +1,8 @@
 import { Component, AfterViewInit } from '@angular/core';
 
-import { AuthService } from "../../../../services/auth-service";
-import { AudioService } from "../../../../services/audio-service";
-import { ModalService } from "../../../../services/modal-service";
+import { AuthService } from "@/services/auth-service";
+import { AudioService } from "@/services/audio-service";
+import { ModalService } from "@/services/modal-service";
 
 class UserAuthorisation {
   constructor(public readonly id: number, public readonly name: string, public readonly email: string, public authorisation: number) { }

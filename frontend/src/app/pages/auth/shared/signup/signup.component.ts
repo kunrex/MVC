@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
-import { AuthService } from "../../../../services/auth-service";
-import { RouteService } from "../../../../services/route-service";
-import { AudioService } from "../../../../services/audio-service";
+import { AuthService } from "@/services/auth-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
 
 const numbers = /[0-9]+/;
 const symbols = /[$@#&!]+/;
@@ -10,7 +10,7 @@ const smallLetters = /[a-z]+/;
 const capitalLetters = /[A-Z]+/;
 
 @Component({
-  selector: 'login-signup',
+  selector: 'auth-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss']
 })

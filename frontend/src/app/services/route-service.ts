@@ -1,7 +1,8 @@
 import { Router } from "@angular/router";
 import { Injectable } from "@angular/core";
 
-import { AppPath } from "../utils/enums";
+import { AppPath } from "@/utils/enums";
+
 import { AuthService } from "./auth-service";
 import { ModalService } from "./modal-service";
 

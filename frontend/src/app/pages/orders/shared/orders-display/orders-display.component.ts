@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { AudioService } from "../../../../services/audio-service";
-import { RouteService } from "../../../../services/route-service";
+import { AudioService } from "@/services/audio-service";
+import { RouteService } from "@/services/route-service";
 
 import { Order } from "../../types/order";
 

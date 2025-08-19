@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { RouteService } from "../../../../services/route-service";
-import { AudioService } from "../../../../services/audio-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
 
 @Component({
   selector: 'dashboard-chef-options',

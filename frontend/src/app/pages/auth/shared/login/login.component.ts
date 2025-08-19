@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 
-import { AuthService } from "../../../../services/auth-service";
-import { RouteService } from "../../../../services/route-service";
-import { AudioService } from "../../../../services/audio-service";
+import { AuthService } from "@/services/auth-service";
+import { RouteService } from "@/services/route-service";
+import { AudioService } from "@/services/audio-service";
 
 @Component({
-  selector: 'login-login',
+  selector: 'auth-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })

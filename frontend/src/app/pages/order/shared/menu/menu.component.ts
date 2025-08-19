@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { serverAddress } from "../../../../utils/constants";
-import { timeStampPrettyPrint } from "../../../../utils/functions";
+import { serverAddress } from "@/utils/constants";
+import { timeStampPrettyPrint } from "@/utils/functions";
 
-import { AudioService } from "../../../../services/audio-service";
+import { AudioService } from "@/services/audio-service";
 
 import { MenuItem } from "../../types/menu-item";
 

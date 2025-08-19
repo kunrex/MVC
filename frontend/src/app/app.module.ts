@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
-import { AuthService } from "./services/auth-service";
+import { AuthService } from "@/services/auth-service";
 
 export function initServiceFactory(auth: AuthService) : () => Promise<void> {
   return async () => {

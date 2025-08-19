@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 
-import { pad } from "../../../../utils/functions";
+import { pad } from "@/utils/functions";
 
-import { AuthService } from "../../../../services/auth-service";
-import { AudioService } from "../../../../services/audio-service";
-import { ModalService } from "../../../../services/modal-service";
+import { AuthService } from "@/services/auth-service";
+import { AudioService } from "@/services/audio-service";
+import { ModalService } from "@/services/modal-service";
 
 import { MenuItem } from "../../types/menu-item";
 
