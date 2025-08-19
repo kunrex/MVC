@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import {serverAddress, Unauthorized} from "@/utils/constants";
+import { serverAddress, Unauthorized } from "@/utils/constants";
 
 import { ModalService } from "./modal-service";
 

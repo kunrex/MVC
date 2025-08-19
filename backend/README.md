@@ -9,7 +9,7 @@ Alternative: Create file: `MVC/backend/.env` and fill in appropriate values:
 APP_PORT=3000
 
 SALT_ROUNDS=10
-JTW_SECRET=jwt
+JWT_SECRET=jwt
 
 DB_NAME=db
 DB_HOST=localhost
