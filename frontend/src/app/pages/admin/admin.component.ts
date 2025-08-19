@@ -10,6 +10,7 @@ import { AudioService } from "@/services/audio-service";
 import { ModalService } from "@/services/modal-service";
 
 import { MenuItem } from "./types/menu-item";
+import { tabConfig, tabTrack, Tab } from "./shared/shared-data";
 import { AdminSharedModuleModule } from "./shared/admin-shared-module.module";
 
 @Component({
@@ -26,6 +27,9 @@ import { AdminSharedModuleModule } from "./shared/admin-shared-module.module";
 export class AdminComponent extends Page implements AfterViewInit {
   public readonly tags: string[] = [];
   public readonly menu: MenuItem[] = [];
+
+  public readonly tabConfigProvider: Tab[] = tabConfig;
+  public readonly tabTrackProvider: (i: number, tab: Tab) => string = tabTrack;
 
   constructor(auth: AuthService, routes: RouteService, audioService: AudioService, modalService: ModalService) {
     super(auth, routes, audioService, modalService);

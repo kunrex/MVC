@@ -4,29 +4,27 @@ import (
 	"MVC/pkg/database/models"
 	"MVC/pkg/utils"
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 )
 
-func tryAuthorise(accessToken string, w http.ResponseWriter) (bool, int64, int) {
+func parseAccessToken(accessToken string) (error, int64, int) {
 	accessId, accessAuthorisation, err := utils.VerifyToken(accessToken)
 	if err != nil {
-		utils.WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
-		return false, -1, -1
+		return errors.New("access token expired, please log in again"), -1, -1
 	}
 
 	authorisation, err := models.UserAuthorisation(accessId)
 	if err != nil {
-		utils.WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
-		return false, -1, -1
+		return errors.New("user does not exist, please sign up"), -1, -1
 	}
 
 	if authorisation != accessAuthorisation {
-		utils.WriteFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
-		return false, -1, -1
+		return errors.New("user authorisation level changed, please log in again"), -1, -1
 	}
 
-	return true, accessId, authorisation
+	return nil, accessId, authorisation
 }
 
 func AuthoriseCookie(handler http.Handler) http.Handler {
@@ -37,8 +35,9 @@ func AuthoriseCookie(handler http.Handler) http.Handler {
 			return
 		}
 
-		ok, accessId, authorisation := tryAuthorise(cookie.Value, w)
-		if !ok {
+		err, accessId, authorisation := parseAccessToken(cookie.Value)
+		if err != nil {
+			utils.WriteFailedResponse(http.StatusUnauthorized, err.Error(), w)
 			return
 		}
 
@@ -54,12 +53,13 @@ func AuthoriseHeader(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, utils.HeaderPrefix) {
-			utils.WriteFailedResponse(http.StatusBadRequest, "failed to tryAuthorise, please provider authorization token as: `Authorization: Bearer {Token}`", w)
+			utils.WriteFailedResponse(http.StatusBadRequest, "failed to parse access token, please provider authorization token as: `Authorization: Bearer {Token}`", w)
 			return
 		}
 
-		ok, accessId, authorisation := tryAuthorise(strings.TrimPrefix(authHeader, utils.HeaderPrefix), w)
-		if !ok {
+		err, accessId, authorisation := parseAccessToken(strings.TrimPrefix(authHeader, utils.HeaderPrefix))
+		if err != nil {
+			utils.WriteFailedResponse(http.StatusUnauthorized, err.Error(), w)
 			return
 		}
 

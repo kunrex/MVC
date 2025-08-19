@@ -8,7 +8,7 @@ import { AuthService } from "@/services/auth-service";
 
 export function initServiceFactory(auth: AuthService) : () => Promise<void> {
   return async () => {
-    await auth.fetchUserDetails()
+    await auth.initAuthorisation()
   }
 }
 

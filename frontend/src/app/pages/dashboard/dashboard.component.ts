@@ -42,8 +42,8 @@ export class DashboardComponent extends Page implements AfterViewInit {
       return this.routes.loadLogin();
   }
 
-  public signOut() : Promise<void> {
-    this.auth.registerSignOut();
+  public async signOut() : Promise<void> {
+    await this.auth.registerSignOut();
     return this.routes.loadLogin();
   }
 

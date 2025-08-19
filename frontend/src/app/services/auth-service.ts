@@ -18,14 +18,13 @@ export class AuthService {
 
   private isLoggedIn: boolean = false;
 
-  constructor(private readonly modalService: ModalService) {
-    this.checkAuthorisationMethod().then()
-  }
+  constructor(private readonly modalService: ModalService) { }
 
-  private async checkAuthorisationMethod() : Promise<void> {
+  public async initAuthorisation() : Promise<void> {
     const response = await fetch(`${serverAddress}/auth/method`);
     if (response.status == 200) {
-      this.useCookies = (await response.json()).useCookies
+      this.useCookies = (await response.json()).useCookies;
+      await this.fetchUserDetails();
       return;
     }
 
@@ -41,19 +40,21 @@ export class AuthService {
     return this.isLoggedIn;
   }
 
-  public async fetchUserDetails() : Promise<void> {
+  private async fetchUserDetails() : Promise<void> {
     const response = await this.fetchAuthorization('GET', 'user', null);
-    const json = await response.json();
 
     if(response.status == 200) {
+      const json = await response.json();
+
       this.name = json.name;
       this.chef = json.chef;
       this.admin = json.admin;
 
+      this.isLoggedIn = true;
       return;
     }
 
-    this.modalService.showError(json.error);
+    this.isLoggedIn = false;
   }
 
   public registerLogin(token: string, name: string, chef: boolean, admin: boolean) : void {
@@ -97,6 +98,7 @@ export class AuthService {
     if(response.status == Unauthorized)
       await this.registerSignOut();
 
+    console.log(response);
     return response;
   }
 
@@ -121,7 +123,7 @@ export class AuthService {
     const token = localStorage.getItem(authKey);
     if(!token) {
       this.modalService.showError('failed to fetch authorisation token, please log in again');
-      return new Response(null);
+      return new Response(null, { status: 401 });
     }
 
     const headers: Record<string, string> = {
