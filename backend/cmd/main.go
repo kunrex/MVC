@@ -72,7 +72,7 @@ func main() {
 		return
 	}
 
-	router := api.InitRouter()
+	router := api.InitRouter(configuration)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", configuration.AppPort),
 		Handler: router,

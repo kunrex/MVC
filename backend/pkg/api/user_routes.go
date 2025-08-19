@@ -2,11 +2,14 @@ package api
 
 import (
 	"MVC/pkg/controllers"
-	"MVC/pkg/middleware"
-	"MVC/pkg/utils"
 	"github.com/gorilla/mux"
 )
 
-func initUserRoutes(router *mux.Router) {
-	router.Handle("/user", utils.Chain(controllers.GetUserDetailsHandler, middleware.Authorise)).Methods("GET", "OPTIONS")
+func initUserRoutes(router *mux.Router, authorisationMiddleware mux.MiddlewareFunc) {
+	subRouter := router.PathPrefix("/user").Subrouter()
+
+	subRouter.Use(authorisationMiddleware)
+
+	subRouter.HandleFunc("", controllers.GetUserDetailsHandler).Methods("GET", "OPTIONS")
+	subRouter.HandleFunc("signout", controllers.SignOutHandler).Methods("POST", "OPTIONS")
 }

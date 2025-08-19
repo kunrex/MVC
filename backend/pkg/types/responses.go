@@ -1,5 +1,9 @@
 package types
 
+type AuthorisationMethodResponse struct {
+	UseCookies bool `json:"useCookies"`
+}
+
 type UserDetailsResponse struct {
 	Name  string `json:"name"`
 	Chef  bool   `json:"chef"`

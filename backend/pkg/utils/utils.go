@@ -35,6 +35,26 @@ func Chain(handlerFunc func(w http.ResponseWriter, r *http.Request), middleware 
 	return handler
 }
 
+func SetAccessCookie(token string, w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     AccessCookie,
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+	})
+}
+
+func ClearAccessCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     AccessCookie,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+	})
+}
+
 func CalculateDiscount(subtotal float32) int {
 	if subtotal > 2000 {
 		return 10

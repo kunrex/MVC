@@ -8,7 +8,46 @@ import (
 	"strings"
 )
 
-func Authorise(handler http.Handler) http.Handler {
+func authorise(accessToken string, w http.ResponseWriter, r *http.Request) bool {
+	accessId, accessAuthorisation, err := utils.VerifyToken(accessToken)
+	if err != nil {
+		utils.WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
+		return false
+	}
+
+	authorisation, err := models.UserAuthorisation(accessId)
+	if err != nil {
+		utils.WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
+		return false
+	}
+
+	if authorisation != accessAuthorisation {
+		utils.WriteFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
+		return false
+	}
+
+	ctx := context.WithValue(r.Context(), utils.UserId, accessId)
+	ctx = context.WithValue(ctx, utils.UserAuthorisation, authorisation)
+	r = r.WithContext(ctx)
+
+	return true
+}
+
+func AuthoriseCookie(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(utils.AccessCookie)
+		if err != nil {
+			utils.WriteFailedResponse(http.StatusUnauthorized, "access cookie not found, please sign up if you dont have an account or log in if you do", w)
+			return
+		}
+
+		if authorise(strings.TrimPrefix(cookie.Value, utils.HeaderPrefix), w, r) {
+			handler.ServeHTTP(w, r)
+		}
+	})
+}
+
+func AuthoriseHeader(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, utils.HeaderPrefix) {
@@ -16,30 +55,9 @@ func Authorise(handler http.Handler) http.Handler {
 			return
 		}
 
-		accessToken := strings.TrimPrefix(authHeader, utils.HeaderPrefix)
-
-		accessId, accessAuthorisation, err := utils.VerifyToken(accessToken)
-		if err != nil {
-			utils.WriteFailedResponse(http.StatusUnauthorized, "access token expired, please log in again", w)
-			return
+		if authorise(strings.TrimPrefix(authHeader, utils.HeaderPrefix), w, r) {
+			handler.ServeHTTP(w, r)
 		}
-
-		authorisation, err := models.UserAuthorisation(accessId)
-		if err != nil {
-			utils.WriteFailedResponse(http.StatusUnauthorized, "user does not exist, please sign up", w)
-			return
-		}
-
-		if authorisation != accessAuthorisation {
-			utils.WriteFailedResponse(http.StatusUnauthorized, "user authorisation level changed, please log in again", w)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), utils.UserId, accessId)
-		ctx = context.WithValue(ctx, utils.UserAuthorisation, authorisation)
-		r = r.WithContext(ctx)
-
-		handler.ServeHTTP(w, r)
 	})
 }
 

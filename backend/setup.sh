@@ -9,6 +9,9 @@ jwtSecret=${jwtSecret:-jwt}
 read -p "Enter database name (default 'MVC'): " dbName
 dbName=${dbName:-MVC}
 
+read -p "Should the backend use cookies? (true/false, default false): " useCookies
+useCookies=${useCookies:-false}
+
 read -p "Is this a container instance? (true/false, default false): " containerInstance
 containerInstance=${containerInstance:-false}
 
@@ -29,6 +32,8 @@ DB_PASSWORD=root
 DB_MAX_IDLE_CONNECTIONS=5
 DB_MAX_OPEN_CONNECTIONS=25
 DB_MAX_CONNECTION_LIFETIME=5
+
+USE_COOKIES=useCookies
 
 CONTAINER_INSTANCE=$containerInstance
 EOF

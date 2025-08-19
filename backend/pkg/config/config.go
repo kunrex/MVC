@@ -60,6 +60,7 @@ func InitConfig() *types.Config {
 	readInt("DB_MAX_OPEN_CONNECTIONS", &config.DBMaxOpenConnections)
 	readInt("DB_MAX_CONNECTION_LIFETIME", &config.DBMaxConnectionLifetime)
 
+	readBool("USE_COOKIES", &config.UseCookies)
 	readBool("CONTAINER_INSTANCE", &config.ContainerInstance)
 
 	return &config

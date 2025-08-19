@@ -1,5 +1,6 @@
 package utils
 
+const AccessCookie = "awt"
 const HeaderPrefix = "Bearer "
 
 type ContextKey string

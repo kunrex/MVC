@@ -25,3 +25,8 @@ func GetUserDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		Admin: (authorisation & 4) == 4,
 	})
 }
+
+func SignOutHandler(w http.ResponseWriter, r *http.Request) {
+	utils.ClearAccessCookie(w)
+	w.WriteHeader(http.StatusOK)
+}

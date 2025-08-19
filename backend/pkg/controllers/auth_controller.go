@@ -78,6 +78,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	utils.SetAccessCookie(accessToken, w)
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(types.SignUpResponse{
 		AWT: accessToken,
@@ -117,6 +118,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	utils.SetAccessCookie(accessToken, w)
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(types.LoginResponse{
 		SignUpResponse: types.SignUpResponse{
@@ -146,4 +148,18 @@ func AuthoriseUserHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		utils.WriteFailedResponse(http.StatusBadRequest, "invalid action", w)
 	}
+}
+
+func UseHeaderHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(types.AuthorisationMethodResponse{
+		UseCookies: false,
+	})
+}
+
+func UseCookieHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(types.AuthorisationMethodResponse{
+		UseCookies: true,
+	})
 }

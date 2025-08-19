@@ -1,20 +1,21 @@
 package types
 
 type Config struct {
-	AppPort int `json:"appPort"`
+	AppPort int
 
-	SaltRounds int    `json:"saltRounds"`
-	JWTSecret  string `json:"jwtSecret"`
+	SaltRounds int
+	JWTSecret  string
 
-	DBName string `json:"dbName"`
-	DBHost string `json:"dbHost"`
+	DBName string
+	DBHost string
 
-	DBUser     string `json:"dbUser"`
-	DBPassword string `json:"dbPassword"`
+	DBUser     string
+	DBPassword string
 
-	DBMaxIdleConnections    int `json:"dbMaxIdleConnections"`
-	DBMaxOpenConnections    int `json:"dbMaxOpenConnections"`
-	DBMaxConnectionLifetime int `json:"dbMaxConnectionLifetime"`
+	DBMaxIdleConnections    int
+	DBMaxOpenConnections    int
+	DBMaxConnectionLifetime int
 
-	ContainerInstance bool `json:"containerInstance"`
+	UseCookies        bool
+	ContainerInstance bool
 }

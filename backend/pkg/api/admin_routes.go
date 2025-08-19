@@ -6,10 +6,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initAdminRoutes(router *mux.Router) {
+func initAdminRoutes(router *mux.Router, authorisationMiddleware mux.MiddlewareFunc) {
 	subRouter := router.PathPrefix("/admin").Subrouter()
 
-	subRouter.Use(middleware.Authorise)
+	subRouter.Use(authorisationMiddleware)
 	subRouter.Use(middleware.AuthoriseAdmin)
 
 	subRouter.HandleFunc("/tags/add/{tag}", controllers.AddTagHandler).Methods("POST", "OPTIONS")
